@@ -8,7 +8,9 @@ import {
   IonLabel,
   IonInput,
   IonButton,
+  IonIcon
 } from '@ionic/angular/standalone';
+import { personCircleOutline } from 'ionicons/icons'; 
 import { AuthService } from '../../core/services/auth';
 import { SupabaseService } from '../../core/services/supabase';
 
@@ -23,6 +25,7 @@ import { SupabaseService } from '../../core/services/supabase';
     IonContent,
     IonItem,
     IonLabel,
+    IonIcon,
     IonInput,
     IonButton,
     RouterLink,
