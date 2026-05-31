@@ -1,0 +1,101 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/dueno"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Agregar Empleado</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+
+  <ion-item lines="none">
+    <ion-label position="floating">Nombre *</ion-label>
+    <ion-input [(ngModel)]="form.nombre" type="text"></ion-input>
+  </ion-item>
+  <ion-text color="danger" *ngIf="errores.nombre">
+    <small>{{ errores.nombre }}</small>
+  </ion-text>
+
+  <ion-item lines="none">
+    <ion-label position="floating">Apellido *</ion-label>
+    <ion-input [(ngModel)]="form.apellido" type="text"></ion-input>
+  </ion-item>
+  <ion-text color="danger" *ngIf="errores.apellido">
+    <small>{{ errores.apellido }}</small>
+  </ion-text>
+
+  <ion-item lines="none">
+    <ion-label position="floating">DNI *</ion-label>
+    <ion-input [(ngModel)]="form.dni" type="text" maxlength="8"></ion-input>
+  </ion-item>
+  <ion-text color="danger" *ngIf="errores.dni">
+    <small>{{ errores.dni }}</small>
+  </ion-text>
+
+  <ion-item lines="none">
+    <ion-label position="floating">CUIL *</ion-label>
+    <ion-input [(ngModel)]="form.cuil" type="text" maxlength="11"></ion-input>
+  </ion-item>
+  <ion-text color="danger" *ngIf="errores.cuil">
+    <small>{{ errores.cuil }}</small>
+  </ion-text>
+
+  <ion-item lines="none">
+    <ion-label position="floating">Correo electrónico *</ion-label>
+    <ion-input [(ngModel)]="form.email" type="email"></ion-input>
+  </ion-item>
+  <ion-text color="danger" *ngIf="errores.email">
+    <small>{{ errores.email }}</small>
+  </ion-text>
+
+  <ion-item lines="none">
+    <ion-label position="floating">Contraseña *</ion-label>
+    <ion-input [(ngModel)]="form.password" type="password"></ion-input>
+  </ion-item>
+  <ion-text color="danger" *ngIf="errores.password">
+    <small>{{ errores.password }}</small>
+  </ion-text>
+
+  <ion-item lines="none">
+    <ion-label position="floating">Confirmar contraseña *</ion-label>
+    <ion-input [(ngModel)]="form.confirmarPassword" type="password"></ion-input>
+  </ion-item>
+  <ion-text color="danger" *ngIf="errores.confirmarPassword">
+    <small>{{ errores.confirmarPassword }}</small>
+  </ion-text>
+
+  <ion-item lines="none">
+    <ion-label>Perfil *</ion-label>
+    <ion-select [(ngModel)]="form.perfil" placeholder="Seleccioná un perfil">
+      <ion-select-option value="metre">Metre</ion-select-option>
+      <ion-select-option value="mozo">Mozo</ion-select-option>
+      <ion-select-option value="cocinero">Cocinero</ion-select-option>
+      <ion-select-option value="cantinero">Cantinero</ion-select-option>
+      <ion-select-option value="supervisor">Supervisor</ion-select-option>
+    </ion-select>
+  </ion-item>
+  <ion-text color="danger" *ngIf="errores.perfil">
+    <small>{{ errores.perfil }}</small>
+  </ion-text>
+
+  <!-- Foto: por ahora desde URL, después reemplazamos con cámara nativa -->
+  <ion-item lines="none">
+    <ion-label position="floating">URL de foto (temporal)</ion-label>
+    <ion-input [(ngModel)]="form.foto" type="url"></ion-input>
+  </ion-item>
+
+  <ion-text color="danger" *ngIf="errorGeneral">
+    <p>{{ errorGeneral }}</p>
+  </ion-text>
+
+  <ion-text color="success" *ngIf="exitoso">
+    <p>¡Empleado agregado correctamente!</p>
+  </ion-text>
+
+  <ion-button expand="block" (click)="guardar()" [disabled]="cargando" class="ion-margin-top">
+    <ion-spinner *ngIf="cargando" name="crescent"></ion-spinner>
+    <span *ngIf="!cargando">Guardar empleado</span>
+  </ion-button>
+
+</ion-content>

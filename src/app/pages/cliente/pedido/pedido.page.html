@@ -1,0 +1,82 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/cliente/home"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Mi Pedido</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+
+  <ion-segment [(ngModel)]="seccion" (ionChange)="cambiarSeccion()">
+    <ion-segment-button value="platos">
+      <ion-label>Platos</ion-label>
+    </ion-segment-button>
+    <ion-segment-button value="bebidas">
+      <ion-label>Bebidas</ion-label>
+    </ion-segment-button>
+  </ion-segment>
+
+  <div *ngIf="cargando" class="ion-text-center ion-padding">
+    <ion-spinner name="crescent"></ion-spinner>
+  </div>
+
+  <!-- Lista de productos -->
+  <ion-card *ngFor="let item of items" class="ion-margin-top">
+    <ion-card-header>
+      <ion-card-title>{{ item.nombre }}</ion-card-title>
+      <ion-card-subtitle>${{ item.precio }} — {{ item.tiempo_elaboracion }} min.</ion-card-subtitle>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-row class="ion-align-items-center">
+        <ion-col size="8">
+          <p>{{ item.descripcion }}</p>
+        </ion-col>
+        <ion-col size="4">
+          <div class="cantidad-control">
+            <ion-button fill="clear" size="small" (click)="cambiarCantidad(item, -1)">
+              <ion-icon name="remove-circle-outline"></ion-icon>
+            </ion-button>
+            <span>{{ item._cantidad || 0 }}</span>
+            <ion-button fill="clear" size="small" (click)="cambiarCantidad(item, 1)">
+              <ion-icon name="add-circle-outline"></ion-icon>
+            </ion-button>
+          </div>
+        </ion-col>
+      </ion-row>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Resumen del pedido -->
+  <ion-card class="ion-margin-top" *ngIf="itemsSeleccionados.length > 0">
+    <ion-card-header>
+      <ion-card-title>Resumen</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-item *ngFor="let item of itemsSeleccionados" lines="none">
+        <ion-label>{{ item.nombre }} x{{ item._cantidad }}</ion-label>
+        <ion-note slot="end">${{ item.precio * item._cantidad }}</ion-note>
+      </ion-item>
+      <ion-item lines="none" color="light">
+        <ion-label><strong>Tiempo estimado</strong></ion-label>
+        <ion-note slot="end"><strong>{{ tiempoTotal }} min.</strong></ion-note>
+      </ion-item>
+    </ion-card-content>
+  </ion-card>
+
+</ion-content>
+
+<!-- Total fijo abajo -->
+<ion-footer>
+  <ion-toolbar>
+    <ion-title>Total: ${{ totalPedido }}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button color="primary" (click)="confirmarPedido()"
+        [disabled]="itemsSeleccionados.length === 0 || enviando">
+        <ion-spinner *ngIf="enviando" name="crescent"></ion-spinner>
+        <span *ngIf="!enviando">Enviar pedido</span>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-footer>

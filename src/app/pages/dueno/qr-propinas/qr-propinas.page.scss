@@ -1,0 +1,11 @@
+.qr-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 24px auto;
+
+  img {
+    width: 80%;
+    max-width: 300px;
+  }
+}

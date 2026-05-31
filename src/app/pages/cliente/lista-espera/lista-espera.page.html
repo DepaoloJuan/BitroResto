@@ -1,0 +1,44 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/cliente/home"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Lista de Espera</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding ion-text-center">
+
+  <div *ngIf="!yaEnEspera && !mesaAsignada">
+    <ion-icon name="time-outline" size="large"></ion-icon>
+    <h2>¿Querés anotarte en la lista de espera?</h2>
+    <p>El metre te asignará una mesa cuando haya disponibilidad.</p>
+
+    <ion-button expand="block" (click)="anotarse()" [disabled]="cargando" class="ion-margin-top">
+      <ion-spinner *ngIf="cargando" name="crescent"></ion-spinner>
+      <span *ngIf="!cargando">Anotarme</span>
+    </ion-button>
+
+    <ion-text color="danger" *ngIf="errorGeneral">
+      <p>{{ errorGeneral }}</p>
+    </ion-text>
+  </div>
+
+  <div *ngIf="yaEnEspera && !mesaAsignada">
+    <ion-icon name="hourglass-outline" size="large" color="warning"></ion-icon>
+    <h2>Estás en la lista de espera</h2>
+    <p>El metre te asignará una mesa en breve. Por favor, aguardá.</p>
+  </div>
+
+  <div *ngIf="mesaAsignada">
+    <ion-icon name="checkmark-circle-outline" size="large" color="success"></ion-icon>
+    <h2>¡Mesa asignada!</h2>
+    <p>Tu mesa es la número <strong>{{ mesaAsignada.numero }}</strong></p>
+    <p>Tipo: {{ mesaAsignada.tipo }}</p>
+
+    <ion-button expand="block" color="success" (click)="ir('/cliente/home')" class="ion-margin-top">
+      Ir al menú
+    </ion-button>
+  </div>
+
+</ion-content>

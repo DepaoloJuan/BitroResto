@@ -1,0 +1,24 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/dueno"></ion-back-button>
+    </ion-buttons>
+    <ion-title>QR de Entrada</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding ion-text-center">
+
+  <p>Este es el código QR de ingreso al local. Mostralo en la entrada para que los clientes puedan anotarse en la lista de espera.</p>
+
+  <div class="qr-wrapper">
+    <img [src]="qrEntrada" alt="QR Entrada" *ngIf="qrEntrada" />
+    <ion-spinner *ngIf="!qrEntrada" name="crescent"></ion-spinner>
+  </div>
+
+  <ion-button expand="block" (click)="descargar()" *ngIf="qrEntrada" class="ion-margin-top">
+    <ion-icon name="download-outline" slot="start"></ion-icon>
+    Descargar QR
+  </ion-button>
+
+</ion-content>

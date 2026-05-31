@@ -1,0 +1,34 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Hola, {{ usuario?.nombre }}!</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="cerrarSesion()">
+        <ion-icon name="log-out-outline"></ion-icon>
+        Cerrar sesión
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-grid>
+    <ion-row>
+      <ion-col size="12">
+        <ion-card button (click)="ir('/mozo/pedidos')">
+          <ion-card-content>
+            <ion-icon name="receipt-outline"></ion-icon>
+            <p>Pedidos pendientes</p>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+      <ion-col size="12">
+        <ion-card button (click)="ir('/mozo/chat')">
+          <ion-card-content>
+            <ion-icon name="chatbubbles-outline"></ion-icon>
+            <p>Consultas de clientes</p>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</ion-content>

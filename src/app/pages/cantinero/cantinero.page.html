@@ -1,0 +1,34 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Hola, {{ usuario?.nombre }}!</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="cerrarSesion()">
+        <ion-icon name="log-out-outline"></ion-icon>
+        Cerrar sesión
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-grid>
+    <ion-row>
+      <ion-col size="12">
+        <ion-card button (click)="ir('/cantinero/agregar-bebida')">
+          <ion-card-content>
+            <ion-icon name="wine-outline"></ion-icon>
+            <p>Agregar bebida</p>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+      <ion-col size="12">
+        <ion-card button (click)="ir('/cantinero/pedidos')">
+          <ion-card-content>
+            <ion-icon name="list-outline"></ion-icon>
+            <p>Pedidos pendientes</p>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</ion-content>

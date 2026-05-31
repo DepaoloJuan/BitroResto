@@ -1,0 +1,79 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Hola, {{ usuario?.nombre }}!</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="cerrarSesion()">
+        <ion-icon name="log-out-outline"></ion-icon>
+        Cerrar sesión
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-grid>
+    <ion-row>
+
+      <!-- Si no tiene mesa asignada -->
+      <ion-col size="12" *ngIf="!mesaAsignada">
+        <ion-card button (click)="ir('/cliente/lista-espera')">
+          <ion-card-content>
+            <ion-icon name="time-outline"></ion-icon>
+            <p>Anotarme en lista de espera</p>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+
+      <!-- Si tiene mesa asignada -->
+      <ng-container *ngIf="mesaAsignada">
+        <ion-col size="12">
+          <ion-item lines="none" color="success">
+            <ion-icon name="checkmark-circle-outline" slot="start"></ion-icon>
+            <ion-label>Mesa {{ mesaAsignada.numero }} asignada</ion-label>
+          </ion-item>
+        </ion-col>
+        <ion-col size="6">
+          <ion-card button (click)="ir('/cliente/menu')">
+            <ion-card-content>
+              <ion-icon name="restaurant-outline"></ion-icon>
+              <p>Ver menú</p>
+            </ion-card-content>
+          </ion-card>
+        </ion-col>
+        <ion-col size="6">
+          <ion-card button (click)="ir('/cliente/pedido')">
+            <ion-card-content>
+              <ion-icon name="cart-outline"></ion-icon>
+              <p>Mi pedido</p>
+            </ion-card-content>
+          </ion-card>
+        </ion-col>
+        <ion-col size="6">
+          <ion-card button (click)="ir('/cliente/juegos')">
+            <ion-card-content>
+              <ion-icon name="game-controller-outline"></ion-icon>
+              <p>Juegos</p>
+            </ion-card-content>
+          </ion-card>
+        </ion-col>
+        <ion-col size="6">
+          <ion-card button (click)="ir('/cliente/encuesta')">
+            <ion-card-content>
+              <ion-icon name="clipboard-outline"></ion-icon>
+              <p>Encuesta</p>
+            </ion-card-content>
+          </ion-card>
+        </ion-col>
+        <ion-col size="12">
+          <ion-card button (click)="ir('/cliente/cuenta')">
+            <ion-card-content>
+              <ion-icon name="receipt-outline"></ion-icon>
+              <p>Pedir la cuenta</p>
+            </ion-card-content>
+          </ion-card>
+        </ion-col>
+      </ng-container>
+
+    </ion-row>
+  </ion-grid>
+</ion-content>

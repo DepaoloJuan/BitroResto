@@ -1,0 +1,79 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/login"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Registro de Cliente</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+
+  <ion-item lines="none">
+    <ion-label position="floating">Nombre *</ion-label>
+    <ion-input [(ngModel)]="form.nombre" type="text"></ion-input>
+  </ion-item>
+  <ion-text color="danger" *ngIf="errores.nombre">
+    <small>{{ errores.nombre }}</small>
+  </ion-text>
+
+  <ion-item lines="none">
+    <ion-label position="floating">Apellido *</ion-label>
+    <ion-input [(ngModel)]="form.apellido" type="text"></ion-input>
+  </ion-item>
+  <ion-text color="danger" *ngIf="errores.apellido">
+    <small>{{ errores.apellido }}</small>
+  </ion-text>
+
+  <ion-item lines="none">
+    <ion-label position="floating">DNI *</ion-label>
+    <ion-input [(ngModel)]="form.dni" type="text" maxlength="8"></ion-input>
+  </ion-item>
+  <ion-text color="danger" *ngIf="errores.dni">
+    <small>{{ errores.dni }}</small>
+  </ion-text>
+
+  <ion-item lines="none">
+    <ion-label position="floating">Correo electrónico *</ion-label>
+    <ion-input [(ngModel)]="form.email" type="email"></ion-input>
+  </ion-item>
+  <ion-text color="danger" *ngIf="errores.email">
+    <small>{{ errores.email }}</small>
+  </ion-text>
+
+  <ion-item lines="none">
+    <ion-label position="floating">Contraseña *</ion-label>
+    <ion-input [(ngModel)]="form.password" type="password"></ion-input>
+  </ion-item>
+  <ion-text color="danger" *ngIf="errores.password">
+    <small>{{ errores.password }}</small>
+  </ion-text>
+
+  <ion-item lines="none">
+    <ion-label position="floating">Confirmar contraseña *</ion-label>
+    <ion-input [(ngModel)]="form.confirmarPassword" type="password"></ion-input>
+  </ion-item>
+  <ion-text color="danger" *ngIf="errores.confirmarPassword">
+    <small>{{ errores.confirmarPassword }}</small>
+  </ion-text>
+
+  <!-- Foto temporal -->
+  <ion-item lines="none">
+    <ion-label position="floating">URL de foto (temporal)</ion-label>
+    <ion-input [(ngModel)]="form.foto" type="url"></ion-input>
+  </ion-item>
+
+  <ion-text color="danger" *ngIf="errorGeneral">
+    <p>{{ errorGeneral }}</p>
+  </ion-text>
+
+  <ion-text color="success" *ngIf="exitoso">
+    <p>¡Registro enviado! Tu cuenta está pendiente de aprobación. Recibirás un correo cuando sea procesada.</p>
+  </ion-text>
+
+  <ion-button expand="block" (click)="registrar()" [disabled]="cargando || exitoso" class="ion-margin-top">
+    <ion-spinner *ngIf="cargando" name="crescent"></ion-spinner>
+    <span *ngIf="!cargando">Registrarse</span>
+  </ion-button>
+
+</ion-content>
