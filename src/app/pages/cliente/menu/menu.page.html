@@ -18,27 +18,37 @@
     </ion-segment-button>
   </ion-segment>
 
-  <div *ngIf="cargando" class="ion-text-center ion-padding">
-    <ion-spinner name="crescent"></ion-spinner>
-  </div>
-
-  <ion-card *ngFor="let item of items" class="ion-margin">
-    <div class="fotos-container">
-      <div class="fotos-scroll">
-        <img *ngIf="item.foto1" [src]="item.foto1" alt="Foto 1" class="foto-item" />
-        <img *ngIf="item.foto2" [src]="item.foto2" alt="Foto 2" class="foto-item" />
-        <img *ngIf="item.foto3" [src]="item.foto3" alt="Foto 3" class="foto-item" />
-      </div>
+  @if (cargando) {
+    <div class="ion-text-center ion-padding">
+      <ion-spinner name="crescent"></ion-spinner>
     </div>
-    <ion-card-header>
-      <ion-card-title>{{ item.nombre }}</ion-card-title>
-      <ion-card-subtitle>
-        ${{ item.precio }} — {{ item.tiempo_elaboracion }} min.
-      </ion-card-subtitle>
-    </ion-card-header>
-    <ion-card-content>
-      <p>{{ item.descripcion }}</p>
-    </ion-card-content>
-  </ion-card>
+  }
+
+  @for (item of items; track item.id) {
+    <ion-card class="ion-margin">
+      <div class="fotos-container">
+        <div class="fotos-scroll">
+          @if (item.foto1) {
+            <img [src]="item.foto1" alt="Foto 1" class="foto-item" />
+          }
+          @if (item.foto2) {
+            <img [src]="item.foto2" alt="Foto 2" class="foto-item" />
+          }
+          @if (item.foto3) {
+            <img [src]="item.foto3" alt="Foto 3" class="foto-item" />
+          }
+        </div>
+      </div>
+      <ion-card-header>
+        <ion-card-title>{{ item.nombre }}</ion-card-title>
+        <ion-card-subtitle>
+          ${{ item.precio }} — {{ item.tiempo_elaboracion }} min.
+        </ion-card-subtitle>
+      </ion-card-header>
+      <ion-card-content>
+        <p>{{ item.descripcion }}</p>
+      </ion-card-content>
+    </ion-card>
+  }
 
 </ion-content>

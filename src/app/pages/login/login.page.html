@@ -16,7 +16,9 @@
           placeholder="ejemplo@correo.com">
         </ion-input>
       </ion-item>
-      <p class="error-msg" *ngIf="errores.email">{{ errores.email }}</p>
+      @if (errores.email) {
+        <p class="error-msg">{{ errores.email }}</p>
+      }
 
       <ion-item lines="none" class="input-item">
         <ion-label position="floating">Contraseña</ion-label>
@@ -26,9 +28,13 @@
           placeholder="••••••••">
         </ion-input>
       </ion-item>
-      <p class="error-msg" *ngIf="errores.password">{{ errores.password }}</p>
+      @if (errores.password) {
+        <p class="error-msg">{{ errores.password }}</p>
+      }
 
-      <p class="error-msg error-general" *ngIf="errorGeneral">{{ errorGeneral }}</p>
+      @if (errorGeneral) {
+        <p class="error-msg error-general">{{ errorGeneral }}</p>
+      }
 
       <ion-button expand="block" class="btn-ingresar" (click)="login()">
         Ingresar
@@ -51,6 +57,12 @@
     <div class="ion-text-center ion-margin-top">
       <ion-button fill="clear" routerLink="/cliente/registro">
         ¿No tenés cuenta? Registrate
+      </ion-button>
+    </div>
+
+    <div class="ion-text-center ion-margin-top">
+      <ion-button fill="clear" routerLink="/cliente/anonimo">
+        Ingresar como cliente anónimo
       </ion-button>
     </div>
 

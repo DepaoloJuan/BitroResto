@@ -1,13 +1,54 @@
-<ion-header [translucent]="true">
+<ion-header>
   <ion-toolbar>
-    <ion-title>chat</ion-title>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/mozo"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Consultas de Clientes</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">chat</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content class="ion-padding">
+
+  @if (cargando) {
+    <div class="ion-text-center ion-padding">
+      <ion-spinner name="crescent"></ion-spinner>
+    </div>
+  }
+
+  @if (!cargando && mesas.length === 0) {
+    <div class="ion-text-center ion-padding">
+      <ion-icon name="chatbubbles-outline" size="large"></ion-icon>
+      <p>No hay consultas pendientes.</p>
+    </div>
+  }
+
+  @for (mesa of mesas; track mesa.id) {
+    <ion-card class="ion-margin-top">
+      <ion-card-header>
+        <ion-card-title>Mesa {{ mesa.numero }}</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <div class="chat-container">
+          @for (mensaje of mesa.mensajes; track mensaje.id) {
+            <div class="mensaje" [class.mensaje-cliente]="mensaje.tipo === 'cliente'"
+              [class.mensaje-mozo]="mensaje.tipo === 'mozo'">
+              <div class="burbuja">
+                <p class="remitente">{{ mensaje.nombre_remitente }}</p>
+                <p class="texto">{{ mensaje.mensaje }}</p>
+                <p class="fecha">{{ mensaje.fecha | date:'HH:mm' }}</p>
+              </div>
+            </div>
+          }
+        </div>
+
+        <ion-item lines="none" class="ion-margin-top">
+          <ion-input [(ngModel)]="mesa._respuesta" placeholder="Escribí tu respuesta..."></ion-input>
+          <ion-button slot="end" (click)="responder(mesa)" [disabled]="!mesa._respuesta">
+            <ion-icon name="send-outline"></ion-icon>
+          </ion-button>
+        </ion-item>
+      </ion-card-content>
+    </ion-card>
+  }
+
 </ion-content>

@@ -9,73 +9,91 @@
 
 <ion-content class="ion-padding">
 
-  <div *ngIf="cargando" class="ion-text-center ion-padding">
-    <ion-spinner name="crescent"></ion-spinner>
-  </div>
+  @if (cargando) {
+    <div class="ion-text-center ion-padding">
+      <ion-spinner name="crescent"></ion-spinner>
+    </div>
+  }
 
-  <div *ngIf="!cargando && pedidos.length === 0" class="ion-text-center ion-padding">
-    <ion-icon name="receipt-outline" size="large"></ion-icon>
-    <p>No hay pedidos pendientes.</p>
-  </div>
+  @if (!cargando && pedidos.length === 0) {
+    <div class="ion-text-center ion-padding">
+      <ion-icon name="receipt-outline" size="large"></ion-icon>
+      <p>No hay pedidos pendientes.</p>
+    </div>
+  }
 
-  <ion-card *ngFor="let pedido of pedidos" class="ion-margin-top">
-    <ion-card-header>
-      <ion-card-title>Mesa {{ pedido.mesas?.numero }}</ion-card-title>
-      <ion-card-subtitle>
-        {{ pedido.fecha_creacion | date:'dd/MM/yyyy HH:mm' }} —
-        <ion-badge [color]="getBadgeColor(pedido.estado)">{{ pedido.estado }}</ion-badge>
-      </ion-card-subtitle>
-    </ion-card-header>
-    <ion-card-content>
-      <ion-item *ngFor="let item of pedido.pedido_items" lines="none">
-        <ion-label>{{ item.nombre }} x{{ item.cantidad }}</ion-label>
-        <ion-note slot="end">${{ item.precio * item.cantidad }}</ion-note>
-      </ion-item>
+  @for (pedido of pedidos; track pedido.id) {
+    <ion-card class="ion-margin-top">
+      <ion-card-header>
+        <ion-card-title>Mesa {{ pedido.mesas?.numero }}</ion-card-title>
+        <ion-card-subtitle>
+          {{ pedido.fecha_creacion | date:'dd/MM/yyyy HH:mm' }} —
+          <ion-badge [color]="getBadgeColor(pedido.estado)">{{ pedido.estado }}</ion-badge>
+        </ion-card-subtitle>
+      </ion-card-header>
+      <ion-card-content>
+        @for (item of pedido.pedido_items; track item.id) {
+          <ion-item lines="none">
+            <ion-label>{{ item.nombre }} x{{ item.cantidad }}</ion-label>
+            <ion-note slot="end">${{ item.precio * item.cantidad }}</ion-note>
+          </ion-item>
+        }
 
-      <ion-item lines="none" color="light">
-        <ion-label><strong>Total</strong></ion-label>
-        <ion-note slot="end"><strong>${{ pedido.total }}</strong></ion-note>
-      </ion-item>
+        <ion-item lines="none" color="light">
+          <ion-label><strong>Total</strong></ion-label>
+          <ion-note slot="end"><strong>${{ pedido.total }}</strong></ion-note>
+        </ion-item>
 
-      <!-- Acciones según estado -->
-      <div *ngIf="pedido.estado === 'esperando_mozo'" class="ion-margin-top">
-        <ion-row>
-          <ion-col>
-            <ion-button expand="block" color="success" (click)="confirmar(pedido)">
-              <ion-icon name="checkmark-outline" slot="start"></ion-icon>
-              Confirmar
+        <!-- Acciones según estado -->
+        @if (pedido.estado === 'esperando_mozo') {
+          <div class="ion-margin-top">
+            <ion-row>
+              <ion-col>
+                <ion-button expand="block" color="success" (click)="confirmar(pedido)">
+                  <ion-icon name="checkmark-outline" slot="start"></ion-icon>
+                  Confirmar
+                </ion-button>
+              </ion-col>
+              <ion-col>
+                <ion-button expand="block" color="danger" (click)="rechazar(pedido)">
+                  <ion-icon name="close-outline" slot="start"></ion-icon>
+                  Rechazar
+                </ion-button>
+              </ion-col>
+            </ion-row>
+          </div>
+        }
+
+        @if (pedido.estado === 'listo') {
+          <div class="ion-margin-top">
+            <ion-button expand="block" color="primary" (click)="entregar(pedido)">
+              <ion-icon name="checkmark-done-outline" slot="start"></ion-icon>
+              Marcar como entregado
             </ion-button>
-          </ion-col>
-          <ion-col>
-            <ion-button expand="block" color="danger" (click)="rechazar(pedido)">
-              <ion-icon name="close-outline" slot="start"></ion-icon>
-              Rechazar
+          </div>
+        }
+
+        @if (pedido.estado === 'pago_solicitado') {
+          <div class="ion-margin-top">
+            <ion-button expand="block" color="success" (click)="confirmarPago(pedido)">
+              <ion-icon name="cash-outline" slot="start"></ion-icon>
+              Confirmar pago y liberar mesa
             </ion-button>
-          </ion-col>
-        </ion-row>
-      </div>
+          </div>
+        }
 
-      <div *ngIf="pedido.estado === 'listo'" class="ion-margin-top">
-        <ion-button expand="block" color="primary" (click)="entregar(pedido)">
-          <ion-icon name="checkmark-done-outline" slot="start"></ion-icon>
-          Marcar como entregado
-        </ion-button>
-      </div>
-
-      <div *ngIf="pedido.estado === 'pago_solicitado'" class="ion-margin-top">
-        <ion-button expand="block" color="success" (click)="confirmarPago(pedido)">
-          <ion-icon name="cash-outline" slot="start"></ion-icon>
-          Confirmar pago y liberar mesa
-        </ion-button>
-      </div>
-
-      <ion-text color="success" *ngIf="pedido._exito">
-        <small>{{ pedido._exito }}</small>
-      </ion-text>
-      <ion-text color="danger" *ngIf="pedido._error">
-        <small>{{ pedido._error }}</small>
-      </ion-text>
-    </ion-card-content>
-  </ion-card>
+        @if (pedido._exito) {
+          <ion-text color="success">
+            <small>{{ pedido._exito }}</small>
+          </ion-text>
+        }
+        @if (pedido._error) {
+          <ion-text color="danger">
+            <small>{{ pedido._error }}</small>
+          </ion-text>
+        }
+      </ion-card-content>
+    </ion-card>
+  }
 
 </ion-content>

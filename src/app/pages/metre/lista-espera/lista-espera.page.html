@@ -9,61 +9,73 @@
 
 <ion-content class="ion-padding">
 
-  <div *ngIf="cargando" class="ion-text-center ion-padding">
-    <ion-spinner name="crescent"></ion-spinner>
-    <p>Cargando lista...</p>
-  </div>
+  @if (cargando) {
+    <div class="ion-text-center ion-padding">
+      <ion-spinner name="crescent"></ion-spinner>
+      <p>Cargando lista...</p>
+    </div>
+  }
 
-  <div *ngIf="!cargando && clientes.length === 0" class="ion-text-center ion-padding">
-    <ion-icon name="people-outline" size="large"></ion-icon>
-    <p>No hay clientes en espera.</p>
-  </div>
+  @if (!cargando && clientes.length === 0) {
+    <div class="ion-text-center ion-padding">
+      <ion-icon name="people-outline" size="large"></ion-icon>
+      <p>No hay clientes en espera.</p>
+    </div>
+  }
 
-  <ion-card *ngFor="let cliente of clientes">
-    <ion-card-header>
-      <ion-grid>
-        <ion-row class="ion-align-items-center">
-          <ion-col size="3">
-            <ion-avatar>
-              <img [src]="cliente.foto || 'assets/avatar-default.png'" alt="Foto" />
-            </ion-avatar>
-          </ion-col>
-          <ion-col size="9">
-            <ion-card-title>{{ cliente.nombre }}</ion-card-title>
-            <ion-card-subtitle>
-              <ion-badge [color]="cliente.tipo_cliente === 'registrado' ? 'primary' : 'medium'">
-                {{ cliente.tipo_cliente }}
-              </ion-badge>
-            </ion-card-subtitle>
-            <ion-card-subtitle>
-              Ingresó: {{ cliente.fecha_ingreso | date:'HH:mm' }}
-            </ion-card-subtitle>
-          </ion-col>
-        </ion-row>
-      </ion-grid>
-    </ion-card-header>
-    <ion-card-content>
-      <ion-item lines="none">
-        <ion-label>Asignar mesa</ion-label>
-        <ion-select [(ngModel)]="cliente._mesa_seleccionada" placeholder="Seleccioná una mesa">
-          <ion-select-option *ngFor="let mesa of mesasDisponibles" [value]="mesa.id">
-            Mesa {{ mesa.numero }} - {{ mesa.tipo }} ({{ mesa.capacidad }} personas)
-          </ion-select-option>
-        </ion-select>
-      </ion-item>
+  @for (cliente of clientes; track cliente.id) {
+    <ion-card>
+      <ion-card-header>
+        <ion-grid>
+          <ion-row class="ion-align-items-center">
+            <ion-col size="3">
+              <ion-avatar>
+                <img [src]="cliente.foto || 'assets/avatar-default.png'" alt="Foto" />
+              </ion-avatar>
+            </ion-col>
+            <ion-col size="9">
+              <ion-card-title>{{ cliente.nombre }}</ion-card-title>
+              <ion-card-subtitle>
+                <ion-badge [color]="cliente.tipo_cliente === 'registrado' ? 'primary' : 'medium'">
+                  {{ cliente.tipo_cliente }}
+                </ion-badge>
+              </ion-card-subtitle>
+              <ion-card-subtitle>
+                Ingresó: {{ cliente.fecha_ingreso | date:'HH:mm' }}
+              </ion-card-subtitle>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-item lines="none">
+          <ion-label>Asignar mesa</ion-label>
+          <ion-select [(ngModel)]="cliente._mesa_seleccionada" placeholder="Seleccioná una mesa">
+            @for (mesa of mesasDisponibles; track mesa.id) {
+              <ion-select-option [value]="mesa.id">
+                Mesa {{ mesa.numero }} - {{ mesa.tipo }} ({{ mesa.capacidad }} personas)
+              </ion-select-option>
+            }
+          </ion-select>
+        </ion-item>
 
-      <ion-button expand="block" color="primary" (click)="asignarMesa(cliente)" [disabled]="!cliente._mesa_seleccionada">
-        <ion-icon name="checkmark-outline" slot="start"></ion-icon>
-        Asignar mesa
-      </ion-button>
+        <ion-button expand="block" color="primary" (click)="asignarMesa(cliente)" [disabled]="!cliente._mesa_seleccionada">
+          <ion-icon name="checkmark-outline" slot="start"></ion-icon>
+          Asignar mesa
+        </ion-button>
 
-      <ion-text color="success" *ngIf="cliente._exito">
-        <small>{{ cliente._exito }}</small>
-      </ion-text>
-      <ion-text color="danger" *ngIf="cliente._error">
-        <small>{{ cliente._error }}</small>
-      </ion-text>
-    </ion-card-content>
-  </ion-card>
+        @if (cliente._exito) {
+          <ion-text color="success">
+            <small>{{ cliente._exito }}</small>
+          </ion-text>
+        }
+        @if (cliente._error) {
+          <ion-text color="danger">
+            <small>{{ cliente._error }}</small>
+          </ion-text>
+        }
+      </ion-card-content>
+    </ion-card>
+  }
 
 </ion-content>

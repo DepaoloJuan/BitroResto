@@ -6,15 +6,11 @@ import {
   IonToolbar,
   IonTitle,
   IonContent,
-  IonCard,
-  IonCardHeader,
-  IonCardTitle,
-  IonCardContent,
+  IonFooter,
   IonItem,
   IonInput,
   IonButton,
   IonIcon,
-  IonSpinner,
   IonButtons,
   IonBackButton,
 } from '@ionic/angular/standalone';
@@ -35,23 +31,20 @@ import { SupabaseService } from '../../../core/services/supabase';
     IonToolbar,
     IonTitle,
     IonContent,
-    IonCard,
-    IonCardHeader,
-    IonCardTitle,
-    IonCardContent,
+    IonFooter,
     IonItem,
     IonInput,
     IonButton,
     IonIcon,
-    IonSpinner,
     IonButtons,
     IonBackButton,
   ],
 })
 export class ChatPage implements OnInit {
-  mesas: any[] = [];
-  cargando = false;
+  mensajes: any[] = [];
+  nuevoMensaje = '';
   usuario: any;
+  mesaId = '';
 
   constructor(
     private authService: AuthService,
@@ -62,73 +55,60 @@ export class ChatPage implements OnInit {
 
   async ngOnInit() {
     this.usuario = this.authService.getUsuarioActual();
+    await this.obtenerMesa();
     await this.cargarMensajes();
     this.suscribirCambios();
   }
 
+  async obtenerMesa() {
+    const { data } = await this.supabase.client
+      .from('lista_espera')
+      .select('mesa_id')
+      .eq('usuario_id', this.usuario.id)
+      .eq('estado', 'asignado')
+      .single();
+    this.mesaId = data?.mesa_id || '';
+  }
+
   async cargarMensajes() {
-    this.cargando = true;
-
-    // Traer todas las mesas ocupadas
-    const { data: mesasOcupadas } = await this.supabase.client
-      .from('mesas')
-      .select('*')
-      .eq('estado', 'ocupada')
-      .not('tipo', 'in', '("entrada","propinas")');
-
-    if (!mesasOcupadas || mesasOcupadas.length === 0) {
-      this.mesas = [];
-      this.cargando = false;
-      return;
-    }
-
-    // Traer mensajes de esas mesas
-    const mesaIds = mesasOcupadas.map((m) => m.id);
-    const { data: mensajes } = await this.supabase.client
+    if (!this.mesaId) return;
+    const { data } = await this.supabase.client
       .from('consultas')
       .select('*')
-      .in('mesa_id', mesaIds)
+      .eq('mesa_id', this.mesaId)
       .order('fecha', { ascending: true });
-
-    this.mesas = mesasOcupadas
-      .map((mesa) => ({
-        ...mesa,
-        mensajes: (mensajes || []).filter((m) => m.mesa_id === mesa.id),
-        _respuesta: '',
-      }))
-      .filter((m) => m.mensajes.length > 0);
-
-    this.cargando = false;
+    this.mensajes = data || [];
   }
 
   suscribirCambios() {
     this.supabase.client
-      .channel('chat_mozo')
+      .channel('chat_cliente')
       .on(
         'postgres_changes',
         {
           event: 'INSERT',
           schema: 'public',
           table: 'consultas',
+          filter: `mesa_id=eq.${this.mesaId}`,
         },
         () => this.cargarMensajes(),
       )
       .subscribe();
   }
 
-  async responder(mesa: any) {
-    if (!mesa._respuesta.trim()) return;
+  async enviar() {
+    if (!this.nuevoMensaje.trim() || !this.mesaId) return;
 
     const { error } = await this.supabase.client.from('consultas').insert({
-      mesa_id: mesa.id,
+      mesa_id: this.mesaId,
       usuario_id: this.usuario.id,
-      nombre_remitente: `${this.usuario.nombre} (Mozo)`,
-      mensaje: mesa._respuesta.trim(),
-      tipo: 'mozo',
+      nombre_remitente: `${this.usuario.nombre} ${this.usuario.apellido}`,
+      mensaje: this.nuevoMensaje.trim(),
+      tipo: 'cliente',
     });
 
     if (!error) {
-      mesa._respuesta = '';
+      this.nuevoMensaje = '';
       await this.cargarMensajes();
     }
   }

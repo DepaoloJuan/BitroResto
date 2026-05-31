@@ -13,33 +13,41 @@
     <ion-label position="floating">Nombre *</ion-label>
     <ion-input [(ngModel)]="form.nombre" type="text"></ion-input>
   </ion-item>
-  <ion-text color="danger" *ngIf="errores.nombre">
-    <small>{{ errores.nombre }}</small>
-  </ion-text>
+  @if (errores.nombre) {
+    <ion-text color="danger">
+      <small>{{ errores.nombre }}</small>
+    </ion-text>
+  }
 
   <ion-item lines="none">
     <ion-label position="floating">Descripción *</ion-label>
     <ion-textarea [(ngModel)]="form.descripcion" rows="3"></ion-textarea>
   </ion-item>
-  <ion-text color="danger" *ngIf="errores.descripcion">
-    <small>{{ errores.descripcion }}</small>
-  </ion-text>
+  @if (errores.descripcion) {
+    <ion-text color="danger">
+      <small>{{ errores.descripcion }}</small>
+    </ion-text>
+  }
 
   <ion-item lines="none">
     <ion-label position="floating">Tiempo de elaboración (minutos) *</ion-label>
     <ion-input [(ngModel)]="form.tiempo_elaboracion" type="number"></ion-input>
   </ion-item>
-  <ion-text color="danger" *ngIf="errores.tiempo_elaboracion">
-    <small>{{ errores.tiempo_elaboracion }}</small>
-  </ion-text>
+  @if (errores.tiempo_elaboracion) {
+    <ion-text color="danger">
+      <small>{{ errores.tiempo_elaboracion }}</small>
+    </ion-text>
+  }
 
   <ion-item lines="none">
     <ion-label position="floating">Precio *</ion-label>
     <ion-input [(ngModel)]="form.precio" type="number"></ion-input>
   </ion-item>
-  <ion-text color="danger" *ngIf="errores.precio">
-    <small>{{ errores.precio }}</small>
-  </ion-text>
+  @if (errores.precio) {
+    <ion-text color="danger">
+      <small>{{ errores.precio }}</small>
+    </ion-text>
+  }
 
   <ion-list-header>
     <ion-label>Fotos del plato (mínimo 1) *</ion-label>
@@ -47,39 +55,53 @@
 
   <ion-grid>
     <ion-row>
-      <ion-col size="4" *ngFor="let i of [0,1,2]">
-        <div class="foto-container">
-          <img *ngIf="form.fotos[i]" [src]="form.fotos[i]" alt="Foto {{ i+1 }}" />
-          <div *ngIf="!form.fotos[i]" class="foto-placeholder">
-            <ion-icon name="camera-outline"></ion-icon>
+      @for (i of [0,1,2]; track i) {
+        <ion-col size="4">
+          <div class="foto-container">
+            @if (form.fotos[i]) {
+              <img [src]="form.fotos[i]" alt="Foto {{ i+1 }}" />
+            } @else {
+              <div class="foto-placeholder">
+                <ion-icon name="camera-outline"></ion-icon>
+              </div>
+            }
+            <ion-item lines="none">
+              <ion-input
+                placeholder="URL foto {{ i+1 }}"
+                [(ngModel)]="form.fotos[i]"
+                type="url"
+                (ionChange)="actualizarFoto(i, $event)">
+              </ion-input>
+            </ion-item>
           </div>
-          <ion-item lines="none">
-            <ion-input
-              placeholder="URL foto {{ i+1 }}"
-              [(ngModel)]="form.fotos[i]"
-              type="url"
-              (ionChange)="actualizarFoto(i, $event)">
-            </ion-input>
-          </ion-item>
-        </div>
-      </ion-col>
+        </ion-col>
+      }
     </ion-row>
   </ion-grid>
-  <ion-text color="danger" *ngIf="errores.fotos">
-    <small>{{ errores.fotos }}</small>
-  </ion-text>
+  @if (errores.fotos) {
+    <ion-text color="danger">
+      <small>{{ errores.fotos }}</small>
+    </ion-text>
+  }
 
-  <ion-text color="danger" *ngIf="errorGeneral">
-    <p>{{ errorGeneral }}</p>
-  </ion-text>
+  @if (errorGeneral) {
+    <ion-text color="danger">
+      <p>{{ errorGeneral }}</p>
+    </ion-text>
+  }
 
-  <ion-text color="success" *ngIf="exitoso">
-    <p>¡Plato agregado correctamente!</p>
-  </ion-text>
+  @if (exitoso) {
+    <ion-text color="success">
+      <p>¡Plato agregado correctamente!</p>
+    </ion-text>
+  }
 
   <ion-button expand="block" (click)="guardar()" [disabled]="cargando" class="ion-margin-top">
-    <ion-spinner *ngIf="cargando" name="crescent"></ion-spinner>
-    <span *ngIf="!cargando">Guardar plato</span>
+    @if (cargando) {
+      <ion-spinner name="crescent"></ion-spinner>
+    } @else {
+      <span>Guardar plato</span>
+    }
   </ion-button>
 
 </ion-content>

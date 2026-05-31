@@ -1,0 +1,64 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/cliente/home"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Resultados de Encuestas</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+
+  @if (cargando) {
+    <div class="ion-text-center ion-padding">
+      <ion-spinner name="crescent"></ion-spinner>
+    </div>
+  }
+
+  @if (!cargando) {
+    <!-- Gráfico 1: Atención - Torta -->
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>Atención del personal</ion-card-title>
+        <ion-card-subtitle>Gráfico de torta</ion-card-subtitle>
+      </ion-card-header>
+      <ion-card-content>
+        <canvas id="graficoAtencion"></canvas>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Gráfico 2: Comida - Barras -->
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>Calidad de la comida</ion-card-title>
+        <ion-card-subtitle>Gráfico de barras</ion-card-subtitle>
+      </ion-card-header>
+      <ion-card-content>
+        <canvas id="graficoCome"></canvas>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Gráfico 3: Ambiente - Lineal -->
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>Ambiente del local</ion-card-title>
+        <ion-card-subtitle>Gráfico lineal</ion-card-subtitle>
+      </ion-card-header>
+      <ion-card-content>
+        <canvas id="graficoAmbiente"></canvas>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Gráfico 4: Volvería - Barras -->
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>¿Volvería al restaurante?</ion-card-title>
+        <ion-card-subtitle>Gráfico de barras</ion-card-subtitle>
+      </ion-card-header>
+      <ion-card-content>
+        <canvas id="graficoVolveria"></canvas>
+      </ion-card-content>
+    </ion-card>
+  }
+
+</ion-content>

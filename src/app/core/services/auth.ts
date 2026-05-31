@@ -9,10 +9,24 @@ export class AuthService {
   constructor(
     private supabase: SupabaseService,
     private router: Router,
-  ) {}
+  ) {
+    const anonimo = sessionStorage.getItem('usuario_anonimo');
+    if (anonimo) {
+      this.usuarioActual = JSON.parse(anonimo);
+    }
+  }
 
   getUsuarioActual() {
     return this.usuarioActual;
+  }
+
+  setUsuarioAnonimo(usuario: any) {
+    this.usuarioActual = usuario;
+    if (usuario) {
+      sessionStorage.setItem('usuario_anonimo', JSON.stringify(usuario));
+    } else {
+      sessionStorage.removeItem('usuario_anonimo');
+    }
   }
 
   async login(email: string, password: string) {

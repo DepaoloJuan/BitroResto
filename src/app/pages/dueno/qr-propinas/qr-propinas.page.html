@@ -35,13 +35,18 @@
   </ion-list>
 
   <div class="qr-wrapper">
-    <img [src]="qrPropinas" alt="QR Propinas" *ngIf="qrPropinas" />
-    <ion-spinner *ngIf="!qrPropinas" name="crescent"></ion-spinner>
+    @if (qrPropinas) {
+      <img [src]="qrPropinas" alt="QR Propinas" />
+    } @else {
+      <ion-spinner name="crescent"></ion-spinner>
+    }
   </div>
 
-  <ion-button expand="block" (click)="descargar()" *ngIf="qrPropinas" class="ion-margin-top">
-    <ion-icon name="download-outline" slot="start"></ion-icon>
-    Descargar QR
-  </ion-button>
+  @if (qrPropinas) {
+    <ion-button expand="block" (click)="descargar()" class="ion-margin-top">
+      <ion-icon name="download-outline" slot="start"></ion-icon>
+      Descargar QR
+    </ion-button>
+  }
 
 </ion-content>

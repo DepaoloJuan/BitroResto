@@ -1,0 +1,38 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Lista de Espera</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="salir()">
+        <ion-icon name="log-out-outline"></ion-icon>
+        Salir
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding ion-text-center">
+
+  @if (!mesaAsignada) {
+    <ion-icon name="hourglass-outline" size="large" color="warning"></ion-icon>
+    <h2>Estás en la lista de espera</h2>
+    <p>Hola, <strong>{{ usuario?.nombre }}</strong>. El metre te asignará una mesa en breve.</p>
+    <p>Por favor, aguardá en el local.</p>
+
+    <ion-button fill="outline" (click)="verEncuestas()" class="ion-margin-top">
+      <ion-icon name="bar-chart-outline" slot="start"></ion-icon>
+      Ver resultados de encuestas
+    </ion-button>
+  }
+
+  @if (mesaAsignada) {
+    <ion-icon name="checkmark-circle-outline" size="large" color="success"></ion-icon>
+    <h2>¡Mesa asignada!</h2>
+    <p>Tu mesa es la número <strong>{{ mesaAsignada.numero }}</strong></p>
+    <p>Tipo: {{ mesaAsignada.tipo }}</p>
+
+    <ion-button expand="block" color="success" (click)="irAMesa()" class="ion-margin-top">
+      Ir a mi mesa
+    </ion-button>
+  }
+
+</ion-content>

@@ -12,7 +12,7 @@ Aplicación móvil de gestión de restaurante desarrollada con **Ionic + Angular
 |--------|--------------|
 | ✅ | Splash screen animada con logo, nombre e integrantes |
 | ✅ | Todo en español con tildes |
-| ⬜ | Sin alerts — usar toasts, modales, ion-toast |
+| ⬜ | Sin alerts — usar toasts, ion-toast |
 | ⬜ | Sonido al iniciar y cerrar la app |
 | ✅ | Validación en todos los formularios |
 | ⬜ | Spinner con logo en todas las esperas |
@@ -22,12 +22,13 @@ Aplicación móvil de gestión de restaurante desarrollada con **Ionic + Angular
 | ⬜ | Pantalla completa ocupada sin espacios neutros |
 | ⬜ | Contraste nítido, sin fondos blancos ni negros |
 | ⬜ | Imágenes y textos sin cortes |
-| ⬜ | Encuestas con variedad de controles |
+| ✅ | Encuestas con variedad de controles |
 | ⬜ | Push notifications |
-| ⬜ | Emails automáticos (Resend) — pendiente |
-| ⬜ | Lectura y generación de QR |
-| ⬜ | 3 juegos simples funcionales |
-| ⬜ | Gráficos estadísticos uno por pantalla |
+| ⬜ | Emails automáticos (Resend) |
+| ⬜ | Lectura de QR desde la app |
+| ✅ | Generación de QR |
+| ✅ | 3 juegos simples funcionales |
+| ✅ | Gráficos estadísticos uno por pantalla |
 
 ---
 
@@ -43,7 +44,8 @@ Aplicación móvil de gestión de restaurante desarrollada con **Ionic + Angular
 | ✅ | QR de entrada al local |
 | ✅ | QR de propinas |
 | ✅ | Ver clientes pendientes + aprobar/rechazar |
-| ⬜ | Emails automáticos al aprobar/rechazar — pendiente |
+| ⬜ | Emails automáticos al aprobar/rechazar |
+| ⬜ | Página supervisor (igual que dueño) |
 
 ### Cocinero
 
@@ -78,9 +80,9 @@ Aplicación móvil de gestión de restaurante desarrollada con **Ionic + Angular
 | ✅ | Rechazar pedido |
 | ✅ | Marcar pedido entregado |
 | ✅ | Confirmar pago y liberar mesa |
-| ⬜ | Chat con clientes |
+| ✅ | Chat con clientes |
 
-### Cliente
+### Cliente registrado
 
 | Estado | Funcionalidad |
 |--------|--------------|
@@ -90,14 +92,25 @@ Aplicación móvil de gestión de restaurante desarrollada con **Ionic + Angular
 | ✅ | Ver mesa asignada |
 | ✅ | Ver menú (platos y bebidas) |
 | ✅ | Realizar pedido con cantidades y total |
-| ⬜ | Ver estado del pedido |
-| ⬜ | Modificar pedido rechazado |
-| ⬜ | Cliente anónimo |
-| ⬜ | Chat con mozo |
-| ⬜ | Juegos para descuentos |
-| ⬜ | Encuesta de satisfacción |
-| ⬜ | Pedir la cuenta + propina |
-| ⬜ | Ver gráficos de encuestas |
+| ✅ | Ver estado del pedido en tiempo real |
+| ✅ | Modificar pedido rechazado |
+| ✅ | Chat con mozo |
+| ✅ | Juegos para descuentos |
+| ✅ | Encuesta de satisfacción |
+| ✅ | Ver gráficos de encuestas |
+| ✅ | Pedir la cuenta + propina |
+
+### Cliente anónimo
+
+| Estado | Funcionalidad |
+|--------|--------------|
+| ✅ | Ingreso con nombre y foto |
+| ✅ | Lista de espera |
+| ✅ | Ver mesa asignada |
+| ✅ | Ver menú |
+| ✅ | Chat con mozo |
+| ✅ | Ver gráficos de encuestas |
+| ⬜ | Pedido (el anónimo no puede pedir, solo ver menú según el TP) |
 
 ---
 
@@ -112,15 +125,15 @@ Aplicación móvil de gestión de restaurante desarrollada con **Ionic + Angular
 
 ---
 
-## Próximos pasos (orden lógico)
+## Pendientes importantes
 
-1. Ver estado del pedido — cliente
-2. Modificar pedido rechazado — cliente
-3. Chat mozo-cliente
-4. Cliente anónimo
-5. Juegos
-6. Encuesta + gráficos
-7. Cuenta + propina
-8. Lectura de QR
-9. Diseño y estilos
-10. Mobile (Capacitor)
+| Estado | Tarea |
+|--------|-------|
+| ⬜ | Página supervisor (copia del dueño) |
+| ⬜ | Crear cliente desde el metre |
+| ⬜ | Lectura de QR web |
+| ⬜ | Emails automáticos (Resend) |
+| ⬜ | Push notifications |
+| ⬜ | Diseño y estilos completos |
+| ⬜ | Sonidos y vibraciones (mobile) |
+| ⬜ | Datos de prueba de 4 semanas en BD |

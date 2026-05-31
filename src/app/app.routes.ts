@@ -160,6 +160,28 @@ export const routes: Routes = [
     canActivate: [AuthGuard],
   },
   {
+    path: 'cliente/chat',
+    loadComponent: () => import('./pages/cliente/chat/chat.page').then(m => m.ChatPage),
+    canActivate: [AuthGuard],
+  },
+  {
+    path: 'cliente/anonimo',
+    loadComponent: () => import('./pages/cliente/anonimo/anonimo.page').then(m => m.AnonimoPage),
+  },
+  {
+    path: 'cliente/anonimo-espera',
+    loadComponent: () => import('./pages/cliente/anonimo-espera/anonimo-espera.page').then(m => m.AnonimoEsperaPage),
+  },
+  {
+    path: 'cliente/anonimo-mesa',
+    loadComponent: () => import('./pages/cliente/anonimo-mesa/anonimo-mesa.page').then(m => m.AnonimoMesaPage),
+  },
+  {
+    path: 'cliente/encuesta-resultados',
+    loadComponent: () => import('./pages/cliente/encuesta-resultados/encuesta-resultados.page').then(m => m.EncuestaResultadosPage),
+    canActivate: [AuthGuard],
+  },
+  {
     path: '**',
     redirectTo: 'splash',
   },

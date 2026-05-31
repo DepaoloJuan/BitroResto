@@ -1,0 +1,52 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Mi Mesa</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="salir()">
+        <ion-icon name="log-out-outline"></ion-icon>
+        Salir
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-grid>
+    <ion-row>
+      <ion-col size="12">
+        <ion-item lines="none" color="success">
+          <ion-icon name="checkmark-circle-outline" slot="start"></ion-icon>
+          <ion-label>Mesa {{ mesa?.numero }} asignada</ion-label>
+        </ion-item>
+      </ion-col>
+
+      <ion-col size="12">
+        <ion-card button (click)="ir('/cliente/menu')">
+          <ion-card-content>
+            <ion-icon name="restaurant-outline"></ion-icon>
+            <p>Ver menú</p>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+
+      <ion-col size="12">
+        <ion-card button (click)="ir('/cliente/chat')">
+          <ion-card-content>
+            <ion-icon name="chatbubbles-outline"></ion-icon>
+            <p>Consultar al mozo</p>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+
+      <ion-col size="12">
+        <ion-card button (click)="verEncuestas()">
+          <ion-card-content>
+            <ion-icon name="bar-chart-outline"></ion-icon>
+            <p>Ver resultados de encuestas</p>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+
+    </ion-row>
+  </ion-grid>
+</ion-content>
