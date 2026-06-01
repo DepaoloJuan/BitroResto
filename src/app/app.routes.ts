@@ -56,6 +56,31 @@ export const routes: Routes = [
     canActivate: [AuthGuard],
   },
   {
+    path: 'supervisor/agregar-empleado',
+    loadComponent: () => import('./pages/dueno/agregar-empleado/agregar-empleado.page').then(m => m.AgregarEmpleadoPage),
+    canActivate: [AuthGuard],
+  },
+  {
+    path: 'supervisor/agregar-mesa',
+    loadComponent: () => import('./pages/dueno/agregar-mesa/agregar-mesa.page').then(m => m.AgregarMesaPage),
+    canActivate: [AuthGuard],
+  },
+  {
+    path: 'supervisor/clientes-pendientes',
+    loadComponent: () => import('./pages/dueno/clientes-pendientes/clientes-pendientes.page').then(m => m.ClientesPendientesPage),
+    canActivate: [AuthGuard],
+  },
+  {
+    path: 'supervisor/qr-entrada',
+    loadComponent: () => import('./pages/dueno/qr-entrada/qr-entrada.page').then(m => m.QrEntradaPage),
+    canActivate: [AuthGuard],
+  },
+  {
+    path: 'supervisor/qr-propinas',
+    loadComponent: () => import('./pages/dueno/qr-propinas/qr-propinas.page').then(m => m.QrPropinasPage),
+    canActivate: [AuthGuard],
+  },
+  {
     path: 'metre',
     loadComponent: () => import('./pages/metre/metre.page').then(m => m.MetrePage),
     canActivate: [AuthGuard],
@@ -184,5 +209,10 @@ export const routes: Routes = [
   {
     path: '**',
     redirectTo: 'splash',
+  },
+  {
+    path: 'metre/agregar-cliente',
+    loadComponent: () => import('./pages/metre/agregar-cliente/agregar-cliente.page').then(m => m.AgregarClientePage),
+    canActivate: [AuthGuard],
   },
 ];

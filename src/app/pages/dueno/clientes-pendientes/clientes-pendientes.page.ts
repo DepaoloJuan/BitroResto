@@ -67,6 +67,21 @@ export class ClientesPendientesPage implements OnInit {
 
   async ngOnInit() {
     await this.cargarClientes();
+    this.suscribirCambios();
+  }
+
+  suscribirCambios() {
+    this.supabase.client
+      .channel('clientes_pendientes')
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'usuarios',
+        filter: 'estado=eq.pendiente'
+      }, () => {
+        this.cargarClientes();
+      })
+      .subscribe();
   }
 
   async cargarClientes() {

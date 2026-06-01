@@ -13,7 +13,16 @@ import {
   IonSpinner,
   IonButtons,
   IonBackButton,
+  IonButton,
+  IonIcon,
+  IonText,
 } from '@ionic/angular/standalone';
+import { addIcons } from 'ionicons';
+import {
+  barChartOutline,
+  chevronBackOutline,
+  chevronForwardOutline,
+} from 'ionicons/icons';
 import { SupabaseService } from '../../../core/services/supabase';
 import { Chart, registerables } from 'chart.js';
 
@@ -38,13 +47,43 @@ Chart.register(...registerables);
     IonSpinner,
     IonButtons,
     IonBackButton,
+    IonButton,
+    IonIcon,
+    IonText,
   ],
 })
 export class EncuestaResultadosPage implements OnInit, AfterViewInit {
   cargando = true;
   encuestas: any[] = [];
+  graficosActivo = 0;
+  chartsInstanciados: Chart[] = [];
 
-  constructor(private supabase: SupabaseService) {}
+  graficos = [
+    {
+      canvasId: 'graficoAtencion',
+      titulo: 'Atención del personal',
+      subtitulo: 'Gráfico de torta',
+    },
+    {
+      canvasId: 'graficoComida',
+      titulo: 'Calidad de la comida',
+      subtitulo: 'Gráfico de barras',
+    },
+    {
+      canvasId: 'graficoAmbiente',
+      titulo: 'Ambiente del local',
+      subtitulo: 'Gráfico lineal',
+    },
+    {
+      canvasId: 'graficoVolveria',
+      titulo: '¿Volvería al restaurante?',
+      subtitulo: 'Gráfico de barras',
+    },
+  ];
+
+  constructor(private supabase: SupabaseService) {
+    addIcons({ barChartOutline, chevronBackOutline, chevronForwardOutline });
+  }
 
   async ngOnInit() {
     const { data } = await this.supabase.client.from('encuestas').select('*');
@@ -53,15 +92,54 @@ export class EncuestaResultadosPage implements OnInit, AfterViewInit {
   }
 
   async ngAfterViewInit() {
-    setTimeout(() => this.generarGraficos(), 500);
+    // Espera que termine ngOnInit y que el DOM esté listo
+    setTimeout(() => this.renderizarGraficoActivo(), 300);
   }
 
-  generarGraficos() {
+  anterior() {
+    if (this.graficosActivo > 0) {
+      this.graficosActivo--;
+      setTimeout(() => this.renderizarGraficoActivo(), 50);
+    }
+  }
+
+  siguiente() {
+    if (this.graficosActivo < this.graficos.length - 1) {
+      this.graficosActivo++;
+      setTimeout(() => this.renderizarGraficoActivo(), 50);
+    }
+  }
+
+  renderizarGraficoActivo() {
     if (this.encuestas.length === 0) return;
-    this.graficoTorta();
-    this.graficoBarrasComida();
-    this.graficoLinealAmbiente();
-    this.graficoBarrasVolveria();
+
+    const canvasId = this.graficos[this.graficosActivo].canvasId;
+
+    // Destruir instancia previa del mismo canvas si existe
+    const existente = this.chartsInstanciados.find(
+      (c) => (c.canvas as HTMLCanvasElement).id === canvasId,
+    );
+    if (existente) {
+      existente.destroy();
+      this.chartsInstanciados = this.chartsInstanciados.filter(
+        (c) => (c.canvas as HTMLCanvasElement).id !== canvasId,
+      );
+    }
+
+    switch (this.graficosActivo) {
+      case 0:
+        this.graficoTorta();
+        break;
+      case 1:
+        this.graficoBarrasComida();
+        break;
+      case 2:
+        this.graficoLinealAmbiente();
+        break;
+      case 3:
+        this.graficoBarrasVolveria();
+        break;
+    }
   }
 
   graficoTorta() {
@@ -71,7 +149,7 @@ export class EncuestaResultadosPage implements OnInit, AfterViewInit {
         conteo[e.atencion_puntaje - 1]++;
     });
 
-    new Chart('graficaAtencion', {
+    const chart = new Chart('graficoAtencion', {
       type: 'pie',
       data: {
         labels: ['1 ⭐', '2 ⭐', '3 ⭐', '4 ⭐', '5 ⭐'],
@@ -89,6 +167,7 @@ export class EncuestaResultadosPage implements OnInit, AfterViewInit {
         ],
       },
     });
+    this.chartsInstanciados.push(chart);
   }
 
   graficoBarrasComida() {
@@ -98,7 +177,7 @@ export class EncuestaResultadosPage implements OnInit, AfterViewInit {
         conteo[e.comida_puntaje - 1]++;
     });
 
-    new Chart('graficoCome', {
+    const chart = new Chart('graficoComida', {
       type: 'bar',
       data: {
         labels: ['1', '2', '3', '4', '5'],
@@ -114,6 +193,7 @@ export class EncuestaResultadosPage implements OnInit, AfterViewInit {
         scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } },
       },
     });
+    this.chartsInstanciados.push(chart);
   }
 
   graficoLinealAmbiente() {
@@ -123,7 +203,7 @@ export class EncuestaResultadosPage implements OnInit, AfterViewInit {
         conteo[e.ambiente_puntaje - 1]++;
     });
 
-    new Chart('graficoAmbiente', {
+    const chart = new Chart('graficoAmbiente', {
       type: 'line',
       data: {
         labels: ['1', '2', '3', '4', '5'],
@@ -142,6 +222,7 @@ export class EncuestaResultadosPage implements OnInit, AfterViewInit {
         scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } },
       },
     });
+    this.chartsInstanciados.push(chart);
   }
 
   graficoBarrasVolveria() {
@@ -150,7 +231,7 @@ export class EncuestaResultadosPage implements OnInit, AfterViewInit {
       if (e.volveria in conteo) conteo[e.volveria as keyof typeof conteo]++;
     });
 
-    new Chart('graficoVolveria', {
+    const chart = new Chart('graficoVolveria', {
       type: 'bar',
       data: {
         labels: ['Sí', 'Tal vez', 'No'],
@@ -166,5 +247,6 @@ export class EncuestaResultadosPage implements OnInit, AfterViewInit {
         scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } },
       },
     });
+    this.chartsInstanciados.push(chart);
   }
 }
