@@ -21,13 +21,9 @@ import {
   IonLabel,
   IonButton,
   IonIcon,
-  IonItem,
-  IonNote,
-  IonRow,
-  IonCol,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { removeCircleOutline, addCircleOutline } from 'ionicons/icons';
+import { removeCircleOutline, addCircleOutline, sendOutline, timeOutline, cartOutline } from 'ionicons/icons';
 import { AuthService } from '../../../core/services/auth';
 import { SupabaseService } from '../../../core/services/supabase';
 
@@ -57,10 +53,6 @@ import { SupabaseService } from '../../../core/services/supabase';
     IonLabel,
     IonButton,
     IonIcon,
-    IonItem,
-    IonNote,
-    IonRow,
-    IonCol,
   ],
 })
 export class PedidoPage implements OnInit {
@@ -77,7 +69,7 @@ export class PedidoPage implements OnInit {
     private supabase: SupabaseService,
     private router: Router,
   ) {
-    addIcons({ removeCircleOutline, addCircleOutline });
+    addIcons({ removeCircleOutline, addCircleOutline, sendOutline, timeOutline, cartOutline });
   }
 
   async ngOnInit() {
@@ -188,7 +180,7 @@ export class PedidoPage implements OnInit {
 
       if (errorItems) throw errorItems;
 
-      this.router.navigate(['/cliente/home']);
+      this.router.navigate(['/cliente/mesa'], { replaceUrl: true });
     } catch (error: any) {
       console.error(error);
     } finally {

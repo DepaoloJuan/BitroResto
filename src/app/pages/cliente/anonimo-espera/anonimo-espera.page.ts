@@ -98,7 +98,7 @@ export class AnonimoEsperaPage implements OnInit {
   }
 
   irAMesa() {
-    this.router.navigate(['/cliente/anonimo-mesa']);
+    this.router.navigate(['/cliente/mesa']);
   }
 
   verEncuestas() {

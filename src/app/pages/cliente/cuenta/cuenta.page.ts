@@ -110,10 +110,13 @@ export class CuentaPage implements OnInit {
   }
 
   async cargarDescuento() {
+    if (!this.pedido?.id) return;
+
     const { data } = await this.supabase.client
       .from('descuentos')
       .select('porcentaje')
       .eq('usuario_id', this.usuario.id)
+      .eq('pedido_id', this.pedido.id)
       .order('fecha', { ascending: false })
       .limit(1)
       .single();

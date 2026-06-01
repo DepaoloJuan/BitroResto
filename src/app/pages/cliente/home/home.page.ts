@@ -9,13 +9,8 @@ import {
   IonButtons,
   IonButton,
   IonIcon,
-  IonGrid,
-  IonRow,
-  IonCol,
   IonCard,
   IonCardContent,
-  IonItem,
-  IonLabel,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
@@ -46,13 +41,8 @@ import { SupabaseService } from '../../../core/services/supabase';
     IonButtons,
     IonButton,
     IonIcon,
-    IonGrid,
-    IonRow,
-    IonCol,
     IonCard,
     IonCardContent,
-    IonItem,
-    IonLabel,
   ],
 })
 export class HomePage implements OnInit {
@@ -93,7 +83,9 @@ export class HomePage implements OnInit {
       .eq('usuario_id', this.usuario.id)
       .eq('estado', 'asignado')
       .single();
-    if (data?.mesas) this.mesaAsignada = data.mesas;
+    if (data?.mesas) {
+      this.router.navigate(['/cliente/mesa'], { replaceUrl: true });
+    }
   }
 
   async verificarPedido() {

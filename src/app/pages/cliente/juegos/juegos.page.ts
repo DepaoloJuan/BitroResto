@@ -52,6 +52,7 @@ import { SupabaseService } from '../../../core/services/supabase';
 })
 export class JuegosPage implements OnInit {
   usuario: any;
+  pedidoId: string | null = null;
   descuentoObtenido = 0;
   juegosJugados: string[] = [];
 
@@ -113,14 +114,40 @@ export class JuegosPage implements OnInit {
 
   async ngOnInit() {
     this.usuario = this.authService.getUsuarioActual();
+    await this.cargarPedidoActual();
     await this.cargarDescuento();
   }
 
+  async cargarPedidoActual() {
+    const mesaData = await this.supabase.client
+      .from('lista_espera')
+      .select('mesa_id')
+      .eq('usuario_id', this.usuario.id)
+      .eq('estado', 'asignado')
+      .single();
+
+    if (!mesaData.data?.mesa_id) return;
+
+    const pedidoData = await this.supabase.client
+      .from('pedidos')
+      .select('id')
+      .eq('mesa_id', mesaData.data.mesa_id)
+      .not('estado', 'in', '("pagado","cancelado")')
+      .order('fecha_creacion', { ascending: false })
+      .limit(1)
+      .single();
+
+    this.pedidoId = pedidoData.data?.id || null;
+  }
+
   async cargarDescuento() {
+    if (!this.pedidoId) return;
+
     const { data } = await this.supabase.client
       .from('descuentos')
       .select('*')
       .eq('usuario_id', this.usuario.id)
+      .eq('pedido_id', this.pedidoId)
       .order('fecha', { ascending: false })
       .limit(1)
       .single();
@@ -258,6 +285,7 @@ export class JuegosPage implements OnInit {
 
     const { error } = await this.supabase.client.from('descuentos').insert({
       usuario_id: this.usuario.id,
+      pedido_id: this.pedidoId,
       porcentaje,
       juego,
     });
