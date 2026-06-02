@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { AudioService } from '../../core/services/audio';
+import { NotificacionesService } from '../../core/services/notificaciones';
 import { IonContent } from '@ionic/angular/standalone';
 import { CommonModule } from '@angular/common';
 
@@ -15,9 +17,15 @@ export class SplashPage implements OnInit {
   mostrarTexto = false;
   mostrarIntegrantes = false;
 
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private audio: AudioService,
+    private notificaciones: NotificacionesService,
+  ) {}
 
-  ngOnInit() {
+  async ngOnInit() {
+    await this.notificaciones.inicializar();
+    this.audio.reproducirInicio();
     setTimeout(() => (this.animando = true), 300);
     setTimeout(() => (this.mostrarTexto = true), 600);
     setTimeout(() => (this.mostrarIntegrantes = true), 1000);

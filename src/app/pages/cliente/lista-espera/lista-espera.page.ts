@@ -18,6 +18,7 @@ import {
   timeOutline,
   hourglassOutline,
   checkmarkCircleOutline,
+  barChartOutline,
 } from 'ionicons/icons';
 import { AuthService } from '../../../core/services/auth';
 import { SupabaseService } from '../../../core/services/supabase';
@@ -51,9 +52,9 @@ export class ListaEsperaPage implements OnInit {
   constructor(
     private authService: AuthService,
     private supabase: SupabaseService,
-    private router: Router,
+    public router: Router,
   ) {
-    addIcons({ timeOutline, hourglassOutline, checkmarkCircleOutline });
+    addIcons({ timeOutline, hourglassOutline, checkmarkCircleOutline, barChartOutline });
   }
 
   async ngOnInit() {

@@ -1,7 +1,7 @@
 <ion-header>
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-back-button defaultHref="/dueno"></ion-back-button>
+      <ion-back-button [defaultHref]="backHref"></ion-back-button>
     </ion-buttons>
     <ion-title>Clientes Pendientes</ion-title>
   </ion-toolbar>
@@ -10,10 +10,7 @@
 <ion-content class="ion-padding">
 
   @if (cargando) {
-    <div class="ion-text-center ion-padding">
-      <ion-spinner name="crescent"></ion-spinner>
-      <p>Cargando clientes...</p>
-    </div>
+    <app-loading />
   }
 
   @if (!cargando && clientes.length === 0) {

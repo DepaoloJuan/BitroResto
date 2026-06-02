@@ -1,7 +1,7 @@
 <ion-header>
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-back-button defaultHref="/dueno"></ion-back-button>
+      <ion-back-button [defaultHref]="backHref"></ion-back-button>
     </ion-buttons>
     <ion-title>Agregar Empleado</ion-title>
   </ion-toolbar>
@@ -35,6 +35,12 @@
   </ion-button>
 </div>
 
+@if (errorEscaneo) {
+  <ion-text color="danger">
+    <p>{{ errorEscaneo }}</p>
+  </ion-text>
+}
+
 
   <ion-item lines="none">
     <ion-label position="floating">Nombre *</ion-label>
@@ -58,7 +64,7 @@
 
   <ion-item lines="none">
     <ion-label position="floating">DNI *</ion-label>
-    <ion-input [(ngModel)]="form.dni" type="text" maxlength="8"></ion-input>
+    <ion-input [(ngModel)]="form.dni" type="text" maxlength="8" inputmode="numeric"></ion-input>
   </ion-item>
   @if (errores.dni) {
     <ion-text color="danger">
@@ -68,7 +74,7 @@
 
   <ion-item lines="none">
     <ion-label position="floating">CUIL *</ion-label>
-    <ion-input [(ngModel)]="form.cuil" type="text" maxlength="11"></ion-input>
+    <ion-input [(ngModel)]="form.cuil" type="text" maxlength="11" inputmode="numeric"></ion-input>
   </ion-item>
   @if (errores.cuil) {
     <ion-text color="danger">

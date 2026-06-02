@@ -9,8 +9,32 @@
 
 <ion-content class="ion-padding ion-text-center">
 
-   <!-- Tomar foto -->
-  <div class="foto-container" (click)="tomarFoto()">
+  @if (!qrEscaneado) {
+    <div class="ion-padding">
+      <ion-icon name="qr-code-outline" style="font-size: 80px; color: var(--ion-color-primary)"></ion-icon>
+      <h2>Escaneá el QR de entrada</h2>
+      <p>Para ingresar al local, primero escaneá el código QR que se encuentra en la puerta.</p>
+
+      @if (errorQR) {
+        <ion-text color="danger">
+          <p>{{ errorQR }}</p>
+        </ion-text>
+      }
+
+      <ion-button expand="block" (click)="escanearQrEntrada()" [disabled]="escaneando" class="ion-margin-top">
+        @if (escaneando) {
+          <ion-spinner name="crescent"></ion-spinner>
+        } @else {
+          <ion-icon name="scan-outline" slot="start"></ion-icon>
+          Escanear QR de entrada
+        }
+      </ion-button>
+    </div>
+  }
+
+  @if (qrEscaneado) {
+    <!-- Tomar foto -->
+    <div class="foto-container" (click)="tomarFoto()">
       @if (foto) {
         <img [src]="foto" class="foto-preview" />
       } @else {
@@ -27,7 +51,7 @@
       </ion-text>
     }
 
-  <ion-item lines="none" class="ion-margin-top">
+    <ion-item lines="none" class="ion-margin-top">
       <ion-label position="floating">Nombre *</ion-label>
       <ion-input [(ngModel)]="nombre" type="text"></ion-input>
     </ion-item>
@@ -43,13 +67,13 @@
       </ion-text>
     }
 
-
-  <ion-button expand="block" (click)="ingresar()" [disabled]="cargando" class="ion-margin-top">
-    @if (cargando) {
-      <ion-spinner name="crescent"></ion-spinner>
-    } @else {
-      Ingresar
-    }
-  </ion-button>
+    <ion-button expand="block" (click)="ingresar()" [disabled]="cargando" class="ion-margin-top">
+      @if (cargando) {
+        <ion-spinner name="crescent"></ion-spinner>
+      } @else {
+        Ingresar
+      }
+    </ion-button>
+  }
 
 </ion-content>

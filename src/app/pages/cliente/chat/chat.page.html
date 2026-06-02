@@ -16,6 +16,9 @@
         [class.mensaje-mozo]="mensaje.tipo === 'mozo'">
         <div class="burbuja">
           <p class="remitente">{{ mensaje.nombre_remitente }}</p>
+          @if (mensaje.tipo === 'cliente') {
+            <p class="mesa">Mesa {{ mesa?.numero }}</p>
+          }
           <p class="texto">{{ mensaje.mensaje }}</p>
           <p class="fecha">{{ mensaje.fecha | date:'HH:mm' }}</p>
         </div>

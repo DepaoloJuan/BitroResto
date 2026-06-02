@@ -18,6 +18,7 @@ import { addIcons } from 'ionicons';
 import { chatbubblesOutline, sendOutline } from 'ionicons/icons';
 import { AuthService } from '../../../core/services/auth';
 import { SupabaseService } from '../../../core/services/supabase';
+import { NotificacionesService } from '../../../core/services/notificaciones';
 
 @Component({
   selector: 'app-chat',
@@ -45,10 +46,12 @@ export class ChatPage implements OnInit {
   nuevoMensaje = '';
   usuario: any;
   mesaId = '';
+  mesa: any = null;
 
   constructor(
     private authService: AuthService,
     private supabase: SupabaseService,
+    private notificaciones: NotificacionesService,
   ) {
     addIcons({ chatbubblesOutline, sendOutline });
   }
@@ -68,6 +71,14 @@ export class ChatPage implements OnInit {
       .eq('estado', 'asignado')
       .single();
     this.mesaId = data?.mesa_id || '';
+    if (this.mesaId) {
+      const { data: mesaData } = await this.supabase.client
+        .from('mesas')
+        .select('numero')
+        .eq('id', this.mesaId)
+        .single();
+      this.mesa = mesaData;
+    }
   }
 
   async cargarMensajes() {
@@ -108,6 +119,7 @@ export class ChatPage implements OnInit {
     });
 
     if (!error) {
+      await this.notificaciones.enviar('Nueva consulta', `Mesa ${this.mesa?.numero}: ${this.nuevoMensaje.trim()}`);
       this.nuevoMensaje = '';
       await this.cargarMensajes();
     }

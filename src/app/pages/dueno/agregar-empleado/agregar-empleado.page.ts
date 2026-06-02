@@ -24,6 +24,8 @@ import { personCircleOutline, cameraOutline, scanOutline } from 'ionicons/icons'
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { BarcodeScanner, BarcodeFormat } from '@capacitor-mlkit/barcode-scanning';
 import { SupabaseService } from '../../../core/services/supabase';
+import { AuthService } from '../../../core/services/auth';
+import { HapticsService } from '../../../core/services/haptics.service';
 
 @Component({
   selector: 'app-agregar-empleado',
@@ -65,11 +67,22 @@ export class AgregarEmpleadoPage {
 
   errores: any = {};
   errorGeneral = '';
+  errorEscaneo = '';
   exitoso = false;
   cargando = false;
+  backHref = '/dueno';
 
-  constructor(private supabase: SupabaseService) {
+  constructor(
+    private supabase: SupabaseService,
+    private authService: AuthService,
+    private haptics: HapticsService,
+  ) {
     addIcons({ personCircleOutline, cameraOutline, scanOutline });
+
+    const usuario = this.authService.getUsuarioActual();
+    if (usuario?.perfil === 'supervisor') {
+      this.backHref = '/supervisor';
+    }
   }
 
    async tomarFoto() {
@@ -86,10 +99,11 @@ export class AgregarEmpleadoPage {
   }
 
    async escanearDni() {
+      this.errorEscaneo = '';
       try {
         const { supported } = await BarcodeScanner.isSupported();
         if (!supported) {
-          console.warn('El escáner no está soportado en este dispositivo.');
+          this.errorEscaneo = 'El escáner no está soportado en este dispositivo.';
           return;
         }
 
@@ -108,19 +122,21 @@ export class AgregarEmpleadoPage {
           this.form.apellido = partes[1]?.trim() ?? '';
           this.form.nombre   = partes[2]?.trim() ?? '';
           this.form.dni      = partes[4]?.trim() ?? '';
+        } else {
+          this.errorEscaneo = 'No se pudo leer el DNI. Asegurate de enfocar el código del dorso.';
         }
        } catch (error: any) {
-        if (error?.isAcquireTimeout) {
-          console.warn('Tiempo de espera agotado. Intentá de nuevo.');
-        } else if (error?.message === 'scan canceled.' || error?.errorMessage === 'scan canceled.') {
-          // usuario canceló, no es un error
+        if (error?.message === 'scan canceled.' || error?.errorMessage === 'scan canceled.') {
+          // el usuario canceló, no mostrar nada
+        } else if (error?.isAcquireTimeout) {
+          this.errorEscaneo = 'Tiempo de espera agotado. Intentá de nuevo.';
         } else {
-          console.error('Error al escanear DNI:', error);
+          this.errorEscaneo = 'Ocurrió un error al leer el DNI. Intentá de nuevo.';
         }
       }
     }
 
-  validar(): boolean {
+  async validar(): Promise<boolean> {
     this.errores = {};
 
     if (!this.form.nombre.trim())
@@ -157,14 +173,18 @@ export class AgregarEmpleadoPage {
     if (!this.form.foto) this.errores.foto = 'La foto es obligatoria.';
 
 
-    return Object.keys(this.errores).length === 0;
+    if (Object.keys(this.errores).length > 0) {
+      await this.haptics.error();
+      return false;
+    }
+    return true;
   }
 
   async guardar() {
     this.errorGeneral = '';
     this.exitoso = false;
 
-    if (!this.validar()) return;
+    if (!await this.validar()) return;
 
     try {
       this.cargando = true;
@@ -208,6 +228,7 @@ export class AgregarEmpleadoPage {
         foto: '',
       };
     } catch (error: any) {
+      await this.haptics.error();
       this.errorGeneral =
         error.message || 'Ocurrió un error al guardar el empleado.';
     } finally {

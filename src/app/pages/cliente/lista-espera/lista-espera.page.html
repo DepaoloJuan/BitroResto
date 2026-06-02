@@ -23,6 +23,11 @@
         }
       </ion-button>
 
+      <ion-button fill="outline" (click)="router.navigate(['/cliente/encuesta-resultados'])" class="ion-margin-top">
+        <ion-icon name="bar-chart-outline" slot="start"></ion-icon>
+        Ver resultados de encuestas
+      </ion-button>
+
       @if (errorGeneral) {
         <ion-text color="danger">
           <p>{{ errorGeneral }}</p>

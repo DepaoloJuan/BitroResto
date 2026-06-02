@@ -13,6 +13,7 @@ import {
 import { personCircleOutline } from 'ionicons/icons'; 
 import { AuthService } from '../../core/services/auth';
 import { SupabaseService } from '../../core/services/supabase';
+import { HapticsService } from '../../core/services/haptics.service';
 
 @Component({
   selector: 'app-login',
@@ -53,9 +54,10 @@ export class LoginPage {
   constructor(
     private authService: AuthService,
     private router: Router,
+    private haptics: HapticsService,
   ) {}
 
-  validar(): boolean {
+  async validar(): Promise<boolean> {
     this.errores = {};
     if (!this.email) {
       this.errores.email = 'El correo electrónico es obligatorio.';
@@ -67,18 +69,23 @@ export class LoginPage {
     } else if (this.password.length < 6) {
       this.errores.password = 'La contraseña debe tener al menos 6 caracteres.';
     }
-    return Object.keys(this.errores).length === 0;
+    if (Object.keys(this.errores).length > 0) {
+      await this.haptics.error();
+      return false;
+    }
+    return true;
   }
 
   async login() {
     this.errorGeneral = '';
-    if (!this.validar()) return;
+    if (!await this.validar()) return;
 
     try {
       this.cargando = true;
       const usuario = await this.authService.login(this.email, this.password);
       this.authService.redirigirSegunPerfil(usuario.perfil);
     } catch (error: any) {
+      await this.haptics.error();
       this.errorGeneral =
         error.message || 'Error al iniciar sesión. Verificá tus credenciales.';
     } finally {

@@ -27,9 +27,11 @@ import {
   IonListHeader,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { qrCodeOutline, downloadOutline } from 'ionicons/icons';
+import { qrCodeOutline, downloadOutline, cameraOutline } from 'ionicons/icons';
+import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { SupabaseService } from '../../../core/services/supabase';
 import * as QRCode from 'qrcode';
+import { HapticsService } from '../../../core/services/haptics.service';
 
 @Component({
   selector: 'app-agregar-mesa',
@@ -80,8 +82,8 @@ export class AgregarMesaPage implements OnInit {
   modalQRabierto = false;
   mesaSeleccionada: any = null;
 
-  constructor(private supabase: SupabaseService) {
-    addIcons({ qrCodeOutline, downloadOutline });
+  constructor(private supabase: SupabaseService, private haptics: HapticsService) {
+    addIcons({ qrCodeOutline, downloadOutline, cameraOutline });
   }
 
   async ngOnInit() {
@@ -96,7 +98,7 @@ export class AgregarMesaPage implements OnInit {
     this.mesas = data || [];
   }
 
-  validar(): boolean {
+  async validar(): Promise<boolean> {
     this.errores = {};
 
     if (!this.form.numero)
@@ -115,14 +117,21 @@ export class AgregarMesaPage implements OnInit {
     if (!this.form.tipo)
       this.errores.tipo = 'Debe seleccionar el tipo de mesa.';
 
-    return Object.keys(this.errores).length === 0;
+    if (!this.form.foto)
+      this.errores.foto = 'La foto es obligatoria.';
+
+    if (Object.keys(this.errores).length > 0) {
+      await this.haptics.error();
+      return false;
+    }
+    return true;
   }
 
   async guardar() {
     this.errorGeneral = '';
     this.exitoso = false;
 
-    if (!this.validar()) return;
+    if (!await this.validar()) return;
 
     try {
       this.cargando = true;
@@ -152,11 +161,7 @@ export class AgregarMesaPage implements OnInit {
 
       if (error) throw error;
 
-      const qrData = JSON.stringify({
-        tipo: 'mesa',
-        id: mesaNueva.id,
-        numero: mesaNueva.numero,
-      });
+      const qrData = `com.bitroresto.app://cliente/mesa?id=${mesaNueva.id}`;
       const qrUrl = await QRCode.toDataURL(qrData);
 
       await this.supabase.client
@@ -168,10 +173,26 @@ export class AgregarMesaPage implements OnInit {
       this.form = { numero: '', capacidad: '', tipo: '', foto: '' };
       await this.cargarMesas();
     } catch (error: any) {
+      await this.haptics.error();
       this.errorGeneral =
         error.message || 'Ocurrió un error al guardar la mesa.';
     } finally {
       this.cargando = false;
+    }
+  }
+
+  async tomarFoto() {
+    try {
+      const foto = await Camera.getPhoto({
+        quality: 90,
+        allowEditing: false,
+        resultType: CameraResultType.DataUrl,
+        source: CameraSource.Camera,
+      });
+      this.form.foto = foto.dataUrl ?? '';
+      this.errores.foto = '';
+    } catch (error) {
+      // el usuario canceló
     }
   }
 

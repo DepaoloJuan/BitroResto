@@ -18,10 +18,12 @@ import {
   IonIcon,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { personCircleOutline, cameraOutline } from 'ionicons/icons';
+import { personCircleOutline, cameraOutline, scanOutline, qrCodeOutline } from 'ionicons/icons';
+import { BarcodeScanner, BarcodeFormat } from '@capacitor-mlkit/barcode-scanning';
 import { SupabaseService } from '../../../core/services/supabase';
 import { AuthService } from '../../../core/services/auth';
 import { CamaraService } from 'src/app/core/services/camara.service';
+import { NotificacionesService } from '../../../core/services/notificaciones';
 
 @Component({
   selector: 'app-anonimo',
@@ -52,15 +54,63 @@ export class AnonimoPage {
   errorNombre = '';
   errorFoto = '';
   errorGeneral = '';
+  errorQR = '';
   cargando = false;
+  qrEscaneado = false;
+  escaneando = false;
 
   constructor(
     private supabase: SupabaseService,
     private authService: AuthService,
     private router: Router,
     private camaraService: CamaraService,
+    private notificaciones: NotificacionesService,
   ) {
-    addIcons({ personCircleOutline, cameraOutline });
+    addIcons({ personCircleOutline, cameraOutline, scanOutline, qrCodeOutline });
+  }
+
+  async escanearQrEntrada() {
+    this.errorQR = '';
+    this.escaneando = true;
+    try {
+      const { supported } = await BarcodeScanner.isSupported();
+      if (!supported) {
+        this.errorQR = 'Este dispositivo no soporta la lectura de códigos QR.';
+        return;
+      }
+
+      await BarcodeScanner.requestPermissions();
+
+      const { barcodes } = await BarcodeScanner.scan({
+        formats: [BarcodeFormat.QrCode],
+      });
+
+      if (barcodes.length === 0) return;
+
+      const valor = barcodes[0].rawValue ?? '';
+
+      const { data } = await this.supabase.client
+        .from('mesas')
+        .select('id')
+        .eq('tipo', 'entrada')
+        .single();
+
+      if (!data || !valor.includes(data.id)) {
+        this.errorQR = 'Este QR no es el de entrada al local. Escaneá el código QR de la puerta.';
+        return;
+      }
+
+      this.qrEscaneado = true;
+
+    } catch (error: any) {
+      if (error?.message === 'scan canceled.' || error?.errorMessage === 'scan canceled.') {
+        // el usuario canceló
+      } else {
+        this.errorQR = 'Ocurrió un error al leer el QR. Intentá de nuevo.';
+      }
+    } finally {
+      this.escaneando = false;
+    }
   }
 
   async tomarFoto() {
@@ -97,6 +147,8 @@ export class AnonimoPage {
       });
 
       if (error) throw error;
+
+      await this.notificaciones.enviar('Nueva solicitud de mesa', `${this.nombre.trim()} está esperando una mesa.`);
 
       // Guardar datos del anónimo en el authService para usarlos en la sesión
       this.authService.setUsuarioAnonimo({

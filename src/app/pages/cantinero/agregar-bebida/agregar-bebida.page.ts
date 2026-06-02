@@ -23,7 +23,9 @@ import {
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { cameraOutline } from 'ionicons/icons';
+import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { SupabaseService } from '../../../core/services/supabase';
+import { HapticsService } from '../../../core/services/haptics.service';
 
 @Component({
   selector: 'app-agregar-bebida',
@@ -67,15 +69,26 @@ export class AgregarBebidaPage {
   exitoso = false;
   cargando = false;
 
-  constructor(private supabase: SupabaseService) {
+  constructor(private supabase: SupabaseService, private haptics: HapticsService) {
     addIcons({ cameraOutline });
   }
 
-  actualizarFoto(index: number, event: any) {
-    this.form.fotos[index] = event.detail.value;
+  async seleccionarFoto(index: number) {
+    try {
+      const foto = await Camera.getPhoto({
+        quality: 90,
+        allowEditing: false,
+        resultType: CameraResultType.DataUrl,
+        source: CameraSource.Prompt,
+      });
+      this.form.fotos[index] = foto.dataUrl ?? '';
+      this.errores.fotos = '';
+    } catch (error) {
+      // el usuario canceló, no mostrar nada
+    }
   }
 
-  validar(): boolean {
+  async validar(): Promise<boolean> {
     this.errores = {};
 
     if (!this.form.nombre.trim())
@@ -98,14 +111,18 @@ export class AgregarBebidaPage {
     if (fotosValidas.length === 0)
       this.errores.fotos = 'Debe ingresar al menos una foto.';
 
-    return Object.keys(this.errores).length === 0;
+    if (Object.keys(this.errores).length > 0) {
+      await this.haptics.error();
+      return false;
+    }
+    return true;
   }
 
   async guardar() {
     this.errorGeneral = '';
     this.exitoso = false;
 
-    if (!this.validar()) return;
+    if (!await this.validar()) return;
 
     try {
       this.cargando = true;
@@ -142,6 +159,7 @@ export class AgregarBebidaPage {
         fotos: ['', '', ''],
       };
     } catch (error: any) {
+      await this.haptics.error();
       this.errorGeneral =
         error.message || 'Ocurrió un error al guardar la bebida.';
     } finally {

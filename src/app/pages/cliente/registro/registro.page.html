@@ -35,6 +35,11 @@
         Escanear DNI
       </ion-button>
     </div>
+  @if (errorEscaneo) {
+    <ion-text color="danger">
+      <p>{{ errorEscaneo }}</p>
+    </ion-text>
+  }
 
   <ion-item lines="none">
     <ion-label position="floating">Nombre *</ion-label>
@@ -58,11 +63,21 @@
 
   <ion-item lines="none">
     <ion-label position="floating">DNI *</ion-label>
-    <ion-input [(ngModel)]="form.dni" type="text" maxlength="8"></ion-input>
+    <ion-input [(ngModel)]="form.dni" type="text" maxlength="8" inputmode="numeric"></ion-input>
   </ion-item>
   @if (errores.dni) {
     <ion-text color="danger">
       <small>{{ errores.dni }}</small>
+    </ion-text>
+  }
+
+  <ion-item lines="none">
+    <ion-label position="floating">CUIL *</ion-label>
+    <ion-input [(ngModel)]="form.cuil" type="text" maxlength="11" inputmode="numeric"></ion-input>
+  </ion-item>
+  @if (errores.cuil) {
+    <ion-text color="danger">
+      <small>{{ errores.cuil }}</small>
     </ion-text>
   }
 
@@ -102,13 +117,20 @@
     </ion-text>
   }
 
-  @if (exitoso) {
-    <ion-text color="success">
-      <p>¡Registro enviado! Tu cuenta está pendiente de aprobación. Recibirás un correo cuando sea procesada.</p>
+  @if (esperandoAprobacion && estadoRegistro === 'pendiente') {
+    <div class="ion-text-center ion-padding">
+      <ion-spinner name="crescent"></ion-spinner>
+      <p>Tu registro fue enviado. Esperando aprobación...</p>
+    </div>
+  }
+
+  @if (estadoRegistro === 'rechazado') {
+    <ion-text color="danger">
+      <p>Tu solicitud fue rechazada. Comunicate con el local para más información.</p>
     </ion-text>
   }
 
-  <ion-button expand="block" (click)="registrar()" [disabled]="cargando || exitoso" class="ion-margin-top">
+  <ion-button expand="block" (click)="registrar()" [disabled]="cargando || esperandoAprobacion" class="ion-margin-top">
     @if (cargando) {
       <ion-spinner name="crescent"></ion-spinner>
     } @else {

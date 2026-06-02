@@ -19,9 +19,7 @@
   </ion-segment>
 
   @if (cargando) {
-    <div class="ion-text-center ion-padding">
-      <ion-spinner name="crescent"></ion-spinner>
-    </div>
+    <app-loading />
   }
 
   @for (item of items; track item.id) {

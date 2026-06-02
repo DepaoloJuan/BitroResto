@@ -32,6 +32,24 @@
     </ion-segment-button>
   </ion-segment>
 
+  @if (pedidoExistente?.estado === 'esperando_mozo') {
+    <div class="ion-text-center ion-padding">
+      <ion-icon name="hourglass-outline" size="large" color="warning"></ion-icon>
+      <p>Tu pedido está esperando confirmación del mozo. Podés agregar más productos una vez que sea confirmado.</p>
+      <ion-button expand="block" (click)="router.navigate(['/cliente/mesa'])">
+        Ver estado del pedido
+      </ion-button>
+    </div>
+  }
+
+  @if (pedidoExistente?.estado === 'rechazado_mozo') {
+    <div class="ion-padding">
+      <ion-text color="danger">
+        <p>El mozo rechazó tu pedido. Modificá los productos y cantidades y volvé a enviarlo.</p>
+      </ion-text>
+    </div>
+  }
+
   @if (cargando) {
     <div class="ion-text-center ion-padding">
       <ion-spinner name="crescent"></ion-spinner>
@@ -88,6 +106,14 @@
   <div style="height: 80px"></div>
 
 </ion-content>
+
+@if (itemsSeleccionados.length === 0 && !enviando) {
+  <div class="ion-text-center ion-padding">
+    <ion-text color="danger">
+      <small>Seleccioná al menos un producto para enviar el pedido.</small>
+    </ion-text>
+  </div>
+}
 
 <!-- Footer con botón de enviar -->
 <ion-footer>

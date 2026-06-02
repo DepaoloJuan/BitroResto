@@ -12,7 +12,6 @@ import {
   IonCardContent,
   IonButton,
   IonIcon,
-  IonSpinner,
   IonText,
   IonGrid,
   IonRow,
@@ -28,6 +27,8 @@ import {
   checkmarkCircleOutline,
 } from 'ionicons/icons';
 import { SupabaseService } from '../../../core/services/supabase';
+import { AuthService } from '../../../core/services/auth';
+import { LoadingComponent } from '../../../shared/components/loading/loading.component';
 
 @Component({
   selector: 'app-clientes-pendientes',
@@ -47,7 +48,6 @@ import { SupabaseService } from '../../../core/services/supabase';
     IonCardContent,
     IonButton,
     IonIcon,
-    IonSpinner,
     IonText,
     IonGrid,
     IonRow,
@@ -55,14 +55,24 @@ import { SupabaseService } from '../../../core/services/supabase';
     IonAvatar,
     IonButtons,
     IonBackButton,
+    LoadingComponent,
   ],
 })
 export class ClientesPendientesPage implements OnInit {
   clientes: any[] = [];
   cargando = false;
+  backHref = '/dueno';
 
-  constructor(private supabase: SupabaseService) {
+  constructor(
+    private supabase: SupabaseService,
+    private authService: AuthService,
+  ) {
     addIcons({ checkmarkOutline, closeOutline, checkmarkCircleOutline });
+
+    const usuario = this.authService.getUsuarioActual();
+    if (usuario?.perfil === 'supervisor') {
+      this.backHref = '/supervisor';
+    }
   }
 
   async ngOnInit() {
@@ -77,7 +87,6 @@ export class ClientesPendientesPage implements OnInit {
         event: 'INSERT',
         schema: 'public',
         table: 'usuarios',
-        filter: 'estado=eq.pendiente'
       }, () => {
         this.cargarClientes();
       })
@@ -92,11 +101,17 @@ export class ClientesPendientesPage implements OnInit {
       .eq('perfil', 'cliente')
       .eq('estado', 'pendiente')
       .order('fecha_registro', { ascending: true });
-    this.clientes = data || [];
+    this.clientes = (data || []).map(c => ({
+      ...c,
+      _exito: '',
+      _error: '',
+    }));
     this.cargando = false;
   }
 
   async aprobar(cliente: any) {
+    cliente._exito = '';
+    cliente._error = '';
     try {
       const { error } = await this.supabase.client
         .from('usuarios')
@@ -105,14 +120,24 @@ export class ClientesPendientesPage implements OnInit {
 
       if (error) throw error;
 
-      cliente._exito = 'Cliente aprobado correctamente.';
+      await this.supabase.client.functions.invoke('enviar-correo', {
+        body: {
+          email: cliente.email,
+          nombre: cliente.nombre,
+          accion: 'aprobado',
+        },
+      });
+
+      cliente._exito = '¡Cliente aprobado correctamente!';
       setTimeout(() => this.cargarClientes(), 1500);
-    } catch (error: any) {
-      cliente._error = error.message || 'Error al aprobar el cliente.';
+    } catch (e: any) {
+      cliente._error = e.message || 'Error al aprobar el cliente.';
     }
   }
 
   async rechazar(cliente: any) {
+    cliente._exito = '';
+    cliente._error = '';
     try {
       const { error } = await this.supabase.client
         .from('usuarios')
@@ -121,10 +146,19 @@ export class ClientesPendientesPage implements OnInit {
 
       if (error) throw error;
 
+      await this.supabase.client.functions.invoke('enviar-correo', {
+        body: {
+          email: cliente.email,
+          nombre: cliente.nombre,
+          accion: 'rechazado',
+          auth_id: cliente.auth_id,
+        },
+      });
+
       cliente._exito = 'Cliente rechazado.';
       setTimeout(() => this.cargarClientes(), 1500);
-    } catch (error: any) {
-      cliente._error = error.message || 'Error al rechazar el cliente.';
+    } catch (e: any) {
+      cliente._error = e.message || 'Error al rechazar el cliente.';
     }
   }
 }

@@ -35,6 +35,7 @@ import {
 } from 'ionicons/icons';
 import { AuthService } from '../../../core/services/auth';
 import { SupabaseService } from '../../../core/services/supabase';
+import { HapticsService } from '../../../core/services/haptics.service';
 
 @Component({
   selector: 'app-encuesta',
@@ -87,6 +88,7 @@ export class EncuestaPage implements OnInit {
     private authService: AuthService,
     private supabase: SupabaseService,
     private router: Router,
+    private haptics: HapticsService,
   ) {
     addIcons({ star, starOutline, checkmarkCircleOutline, barChartOutline });
   }
@@ -117,19 +119,23 @@ export class EncuestaPage implements OnInit {
     this.yaRespondio = !!data;
   }
 
-  validar(): boolean {
+  async validar(): Promise<boolean> {
     this.errores = {};
     if (!this.form.atencion_puntaje)
       this.errores.atencion = 'Seleccioná un puntaje de atención.';
     if (!this.form.ambiente_puntaje)
       this.errores.ambiente = 'Seleccioná un puntaje de ambiente.';
     if (!this.form.volveria) this.errores.volveria = 'Seleccioná una opción.';
-    return Object.keys(this.errores).length === 0;
+    if (Object.keys(this.errores).length > 0) {
+      await this.haptics.error();
+      return false;
+    }
+    return true;
   }
 
   async enviar() {
     this.errorGeneral = '';
-    if (!this.validar()) return;
+    if (!await this.validar()) return;
 
     try {
       this.cargando = true;
@@ -148,6 +154,7 @@ export class EncuestaPage implements OnInit {
       if (error) throw error;
       this.yaRespondio = true;
     } catch (error: any) {
+      await this.haptics.error();
       this.errorGeneral = error.message || 'Error al enviar la encuesta.';
     } finally {
       this.cargando = false;

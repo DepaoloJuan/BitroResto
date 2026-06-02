@@ -11,7 +11,6 @@ import {
   IonCardTitle,
   IonCardSubtitle,
   IonCardContent,
-  IonSpinner,
   IonButtons,
   IonBackButton,
   IonSegment,
@@ -19,6 +18,7 @@ import {
   IonLabel,
 } from '@ionic/angular/standalone';
 import { SupabaseService } from '../../../core/services/supabase';
+import { LoadingComponent } from '../../../shared/components/loading/loading.component';
 
 @Component({
   selector: 'app-menu',
@@ -37,12 +37,12 @@ import { SupabaseService } from '../../../core/services/supabase';
     IonCardTitle,
     IonCardSubtitle,
     IonCardContent,
-    IonSpinner,
     IonButtons,
     IonBackButton,
     IonSegment,
     IonSegmentButton,
     IonLabel,
+    LoadingComponent,
   ],
 })
 export class MenuPage implements OnInit {

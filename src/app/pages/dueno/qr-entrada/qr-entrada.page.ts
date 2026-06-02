@@ -13,8 +13,8 @@ import {
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { downloadOutline } from 'ionicons/icons';
-import * as QRCode from 'qrcode';
 import { SupabaseService } from '../../../core/services/supabase';
+import { AuthService } from '../../../core/services/auth';
 
 @Component({
   selector: 'app-qr-entrada',
@@ -36,9 +36,17 @@ import { SupabaseService } from '../../../core/services/supabase';
 })
 export class QrEntradaPage implements OnInit {
   qrEntrada = '';
+  backHref = '/dueno';
 
-  constructor(private supabase: SupabaseService) {
+  constructor(
+    private supabase: SupabaseService,
+    private authService: AuthService,
+  ) {
     addIcons({ downloadOutline });
+    const usuario = this.authService.getUsuarioActual();
+    if (usuario?.perfil === 'supervisor') {
+      this.backHref = '/supervisor';
+    }
   }
 
   async ngOnInit() {
@@ -49,8 +57,7 @@ export class QrEntradaPage implements OnInit {
       .single();
 
     if (data?.qr_codigo) {
-      // Generar imagen QR a partir del string estático guardado en BD
-      this.qrEntrada = await QRCode.toDataURL(data.qr_codigo);
+      this.qrEntrada = data.qr_codigo;
     }
   }
 

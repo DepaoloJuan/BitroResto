@@ -13,7 +13,6 @@ import {
   IonCardContent,
   IonButton,
   IonIcon,
-  IonSpinner,
   IonText,
   IonGrid,
   IonRow,
@@ -30,6 +29,8 @@ import {
 import { addIcons } from 'ionicons';
 import { checkmarkOutline, peopleOutline } from 'ionicons/icons';
 import { SupabaseService } from '../../../core/services/supabase';
+import { LoadingComponent } from '../../../shared/components/loading/loading.component';
+import { NotificacionesService } from '../../../core/services/notificaciones';
 
 @Component({
   selector: 'app-lista-espera',
@@ -50,7 +51,6 @@ import { SupabaseService } from '../../../core/services/supabase';
     IonCardContent,
     IonButton,
     IonIcon,
-    IonSpinner,
     IonText,
     IonGrid,
     IonRow,
@@ -63,6 +63,7 @@ import { SupabaseService } from '../../../core/services/supabase';
     IonLabel,
     IonSelect,
     IonSelectOption,
+    LoadingComponent,
   ],
 })
 export class ListaEsperaPage implements OnInit {
@@ -70,7 +71,7 @@ export class ListaEsperaPage implements OnInit {
   mesasDisponibles: any[] = [];
   cargando = false;
 
-  constructor(private supabase: SupabaseService) {
+  constructor(private supabase: SupabaseService, private notificaciones: NotificacionesService) {
     addIcons({ checkmarkOutline, peopleOutline });
   }
 
@@ -146,6 +147,8 @@ export class ListaEsperaPage implements OnInit {
         .eq('id', cliente._mesa_seleccionada);
 
       if (errorMesa) throw errorMesa;
+
+      await this.notificaciones.enviar('¡Tu mesa está lista!', 'Se te asignó la mesa. Ya podés dirigirte a ella.');
 
       cliente._exito = 'Mesa asignada correctamente.';
       setTimeout(() => this.cargarDatos(), 1500);

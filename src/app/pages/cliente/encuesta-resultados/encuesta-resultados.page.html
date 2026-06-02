@@ -10,9 +10,7 @@
 <ion-content class="ion-padding">
 
   @if (cargando) {
-    <div class="ion-text-center ion-padding">
-      <ion-spinner name="crescent"></ion-spinner>
-    </div>
+    <app-loading />
   }
 
   @if (!cargando && encuestas.length === 0) {

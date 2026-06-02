@@ -10,9 +10,7 @@
 <ion-content class="ion-padding">
 
   @if (cargando) {
-    <div class="ion-text-center ion-padding">
-      <ion-spinner name="crescent"></ion-spinner>
-    </div>
+    <app-loading />
   }
 
   @if (!cargando && pedido) {
@@ -77,6 +75,11 @@
             <ion-label>Malo — 0%</ion-label>
           </ion-item>
         </ion-radio-group>
+        @if (propinaPorcentaje === null) {
+          <ion-text color="danger">
+            <small>Debés seleccionar una opción de propina para poder pagar.</small>
+          </ion-text>
+        }
       </ion-card-content>
     </ion-card>
 

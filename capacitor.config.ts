@@ -1,8 +1,8 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'io.ionic.starter',
-  appName: 'restaurante-app',
+  appId: 'com.bitroteam.bitroresto',
+  appName: 'BitroResto',
   webDir: 'www'
 };
 

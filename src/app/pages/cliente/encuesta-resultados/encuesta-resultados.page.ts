@@ -10,7 +10,6 @@ import {
   IonCardTitle,
   IonCardSubtitle,
   IonCardContent,
-  IonSpinner,
   IonButtons,
   IonBackButton,
   IonButton,
@@ -25,6 +24,7 @@ import {
 } from 'ionicons/icons';
 import { SupabaseService } from '../../../core/services/supabase';
 import { Chart, registerables } from 'chart.js';
+import { LoadingComponent } from '../../../shared/components/loading/loading.component';
 
 Chart.register(...registerables);
 
@@ -44,12 +44,12 @@ Chart.register(...registerables);
     IonCardTitle,
     IonCardSubtitle,
     IonCardContent,
-    IonSpinner,
     IonButtons,
     IonBackButton,
     IonButton,
     IonIcon,
     IonText,
+    LoadingComponent,
   ],
 })
 export class EncuestaResultadosPage implements OnInit, AfterViewInit {

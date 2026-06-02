@@ -9,6 +9,9 @@ import {
 import { addIcons } from 'ionicons';
 import { restaurantOutline, checkmarkDoneOutline } from 'ionicons/icons';
 import { SupabaseService } from '../../../core/services/supabase';
+import { LoadingComponent } from '../../../shared/components/loading/loading.component';
+import { HapticsService } from '../../../core/services/haptics.service';
+import { NotificacionesService } from '../../../core/services/notificaciones';
 
 @Component({
   selector: 'app-pedidos',
@@ -20,14 +23,15 @@ import { SupabaseService } from '../../../core/services/supabase';
     IonHeader, IonToolbar, IonTitle, IonContent, IonCard,
     IonCardHeader, IonCardTitle, IonCardSubtitle, IonCardContent,
     IonButton, IonIcon, IonSpinner, IonText, IonItem, IonLabel,
-    IonBadge, IonButtons, IonBackButton
+    IonBadge, IonButtons, IonBackButton,
+    LoadingComponent,
   ]
 })
 export class PedidosPage implements OnInit {
   pedidos: any[] = [];
   cargando = false;
 
-  constructor(private supabase: SupabaseService) {
+  constructor(private supabase: SupabaseService, private haptics: HapticsService, private notificaciones: NotificacionesService) {
     addIcons({ restaurantOutline, checkmarkDoneOutline });
   }
 
@@ -84,6 +88,7 @@ export class PedidosPage implements OnInit {
       pedido._exito = 'Productos listos para entregar.';
       setTimeout(() => this.cargarPedidos(), 1500);
     } catch (e: any) {
+      await this.haptics.error();
       pedido._error = e.message;
     } finally {
       pedido._enviando = false;
@@ -102,6 +107,7 @@ export class PedidosPage implements OnInit {
         .from('pedidos')
         .update({ estado: 'listo' })
         .eq('id', pedidoId);
+      await this.notificaciones.enviar('Pedido listo', 'Un pedido está completo y listo para entregar.');
     }
   }
 }

@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { SupabaseService } from './supabase';
+import { AudioService } from './audio';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -9,6 +10,7 @@ export class AuthService {
   constructor(
     private supabase: SupabaseService,
     private router: Router,
+    private audio: AudioService,
   ) {
     const anonimo = sessionStorage.getItem('usuario_anonimo');
     if (anonimo) {
@@ -57,6 +59,7 @@ export class AuthService {
   }
 
   async logout() {
+    this.audio.reproducirCierre();
     await this.supabase.client.auth.signOut();
     this.usuarioActual = null;
     this.router.navigate(['/login']);

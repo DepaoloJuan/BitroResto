@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule, TitleCasePipe } from '@angular/common';
 import {
   IonHeader,
@@ -9,11 +9,13 @@ import {
   IonButtons,
   IonButton,
   IonIcon,
-  IonSpinner,
   IonGrid,
   IonRow,
   IonCol,
   IonCard,
+  IonCardHeader,
+  IonCardTitle,
+  IonCardSubtitle,
   IonCardContent,
   IonItem,
   IonLabel,
@@ -34,10 +36,13 @@ import {
   checkmarkDoneOutline,
   bicycleOutline,
   timeOutline,
+  peopleOutline,
+  ellipse,
 } from 'ionicons/icons';
 import { AuthService } from '../../../core/services/auth';
 import { SupabaseService } from '../../../core/services/supabase';
 import { RealtimeChannel } from '@supabase/supabase-js';
+import { LoadingComponent } from '../../../shared/components/loading/loading.component';
 
 @Component({
   selector: 'app-mesa',
@@ -54,14 +59,17 @@ import { RealtimeChannel } from '@supabase/supabase-js';
     IonButtons,
     IonButton,
     IonIcon,
-    IonSpinner,
     IonGrid,
     IonRow,
     IonCol,
     IonCard,
+    IonCardHeader,
+    IonCardTitle,
+    IonCardSubtitle,
     IonCardContent,
     IonItem,
     IonLabel,
+    LoadingComponent,
   ],
 })
 export class MesaPage implements OnInit, OnDestroy {
@@ -70,13 +78,16 @@ export class MesaPage implements OnInit, OnDestroy {
   mesa: any = null;
   pedido: any = null;
   esAnonimo = false;
+  esEmpleado = false;
   mesaId = '';
+  mesaError = '';
   private canal: RealtimeChannel | null = null;
 
   constructor(
     private authService: AuthService,
     private supabase: SupabaseService,
     private router: Router,
+    private route: ActivatedRoute,
   ) {
     addIcons({
       checkmarkCircleOutline,
@@ -93,11 +104,24 @@ export class MesaPage implements OnInit, OnDestroy {
       checkmarkDoneOutline,
       bicycleOutline,
       timeOutline,
+      peopleOutline,
+      ellipse,
     });
   }
 
   async ngOnInit() {
     this.usuario = this.authService.getUsuarioActual();
+
+    const perfilesEmpleado = ['metre', 'mozo', 'dueño', 'supervisor'];
+    if (perfilesEmpleado.includes(this.usuario?.perfil)) {
+      this.esEmpleado = true;
+      const idQR = this.route.snapshot.queryParamMap.get('id');
+      if (idQR) this.mesaId = idQR;
+      await this.cargarMesa();
+      this.cargando = false;
+      return;
+    }
+
     this.esAnonimo = !this.usuario?.perfil;
     await this.resolverMesaId();
     await this.cargarMesa();
@@ -108,15 +132,33 @@ export class MesaPage implements OnInit, OnDestroy {
   async resolverMesaId() {
     if (this.esAnonimo) {
       this.mesaId = this.usuario?.mesa_id || '';
-    } else {
-      const { data } = await this.supabase.client
-        .from('lista_espera')
-        .select('mesa_id')
-        .eq('usuario_id', this.usuario.id)
-        .eq('estado', 'asignado')
-        .single();
-      this.mesaId = data?.mesa_id || '';
+      return;
     }
+
+    const { data } = await this.supabase.client
+      .from('lista_espera')
+      .select('mesa_id, mesas(numero)')
+      .eq('usuario_id', this.usuario.id)
+      .eq('estado', 'asignado')
+      .single();
+
+    const mesaAsignada = data?.mesa_id || '';
+    const idQR = this.route.snapshot.queryParamMap.get('id');
+
+    if (idQR && mesaAsignada && idQR !== mesaAsignada) {
+      const numeroMesa = (data?.mesas as any)?.numero;
+      this.mesaError = `Esta no es tu mesa. Tu mesa asignada es la número ${numeroMesa}.`;
+      this.mesaId = mesaAsignada;
+      return;
+    }
+
+    if (idQR && !mesaAsignada) {
+      this.mesaError = 'Todavía no tenés una mesa asignada. Esperá a que el metre te asigne una.';
+      this.cargando = false;
+      return;
+    }
+
+    this.mesaId = mesaAsignada;
   }
 
   ngOnDestroy() {
@@ -203,6 +245,7 @@ export class MesaPage implements OnInit, OnDestroy {
     return (
       !this.esAnonimo &&
       [
+        'en_cocina',
         'confirmado',
         'pendiente',
         'completado',
@@ -266,6 +309,14 @@ export class MesaPage implements OnInit, OnDestroy {
       pago_solicitado: 'hourglass-outline',
     };
     return map[this.estado] ?? 'information-circle-outline';
+  }
+
+  async confirmarRecepcion() {
+    if (!this.pedido?.id) return;
+    await this.supabase.client
+      .from('pedidos')
+      .update({ estado: 'recibido' })
+      .eq('id', this.pedido.id);
   }
 
   ir(ruta: string) {

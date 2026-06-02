@@ -57,7 +57,7 @@
     <ion-row>
       @for (i of [0,1,2]; track i) {
         <ion-col size="4">
-          <div class="foto-container">
+          <div class="foto-container" (click)="seleccionarFoto(i)">
             @if (form.fotos[i]) {
               <img [src]="form.fotos[i]" alt="Foto {{ i+1 }}" />
             } @else {
@@ -65,14 +65,6 @@
                 <ion-icon name="camera-outline"></ion-icon>
               </div>
             }
-            <ion-item lines="none">
-              <ion-input
-                placeholder="URL foto {{ i+1 }}"
-                [(ngModel)]="form.fotos[i]"
-                type="url"
-                (ionChange)="actualizarFoto(i, $event)">
-              </ion-input>
-            </ion-item>
           </div>
         </ion-col>
       }
