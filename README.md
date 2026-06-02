@@ -25,7 +25,7 @@ Aplicación móvil de gestión de restaurante desarrollada con **Ionic + Angular
 | ✅ | Encuestas con variedad de controles |
 | ⬜ | Push notifications |
 | ⬜ | Emails automáticos (Resend) |
-| ⬜ | Lectura de QR desde la app |
+| ✅ | Lectura de QR desde la app |
 | ✅ | Generación de QR |
 | ✅ | 3 juegos simples funcionales |
 | ✅ | Gráficos estadísticos uno por pantalla |
