@@ -14,8 +14,14 @@ import {
   IonSpinner,
   IonButtons,
   IonBackButton,
+  IonIcon
 } from '@ionic/angular/standalone';
 import { SupabaseService } from '../../../core/services/supabase';
+import { cameraOutline, personCircleOutline } from 'ionicons/icons';
+import { BarcodeScanner, BarcodeFormat } from '@capacitor-mlkit/barcode-scanning';
+import { addIcons } from 'ionicons';
+import { CamaraService } from 'src/app/core/services/camara.service';
+
 
 @Component({
   selector: 'app-registro',
@@ -37,6 +43,7 @@ import { SupabaseService } from '../../../core/services/supabase';
     IonSpinner,
     IonButtons,
     IonBackButton,
+    IonIcon
   ],
 })
 export class RegistroPage {
@@ -55,10 +62,63 @@ export class RegistroPage {
   exitoso = false;
   cargando = false;
 
-  constructor(private supabase: SupabaseService) {}
+
+  constructor(
+    private supabase: SupabaseService,
+    private camaraService: CamaraService,
+  ) {
+    addIcons({ personCircleOutline, cameraOutline });
+  }
+
+  async tomarFoto() {
+    try {
+      this.form.foto = await this.camaraService.tomarFoto();
+    } catch (error) {
+      console.error('Error al tomar foto:', error);
+    }
+  }
+
+  async escanearDni() {
+    try {
+      const { supported } = await BarcodeScanner.isSupported();
+      if (!supported) {
+        console.warn('El escáner no está soportado en este dispositivo.');
+        return;
+      }
+
+      await BarcodeScanner.requestPermissions();
+
+      const { barcodes } = await BarcodeScanner.scan({
+        formats: [BarcodeFormat.Pdf417],
+      });
+
+      if (barcodes.length === 0) return;
+
+      const raw = barcodes[0].rawValue ?? '';
+      const partes = raw.split('@');
+
+      if (raw && partes.length >= 5) {
+        this.form.apellido = partes[1]?.trim() ?? '';
+        this.form.nombre   = partes[2]?.trim() ?? '';
+        this.form.dni      = partes[4]?.trim() ?? '';
+      }
+    } catch (error: any) {
+      if (error?.isAcquireTimeout) {
+        console.warn('Tiempo de espera agotado. Intentá de nuevo.');
+      } else if (error?.message === 'scan canceled.' || error?.errorMessage === 'scan canceled.') {
+        // usuario canceló, no es un error
+      } else {
+        console.error('Error al escanear DNI:', error);
+      }
+    }
+  }
+
 
   validar(): boolean {
     this.errores = {};
+
+    if (!this.form.foto)
+      this.errores.foto = 'La foto es obligatoria.';
 
     if (!this.form.nombre.trim())
       this.errores.nombre = 'El nombre es obligatorio.';

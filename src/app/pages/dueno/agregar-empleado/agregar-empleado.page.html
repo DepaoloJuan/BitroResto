@@ -9,6 +9,33 @@
 
 <ion-content class="ion-padding">
 
+   <!--  tomar foto -->
+   <div class="foto-container" (click)="tomarFoto()">
+    @if (form.foto) {
+      <img [src]="form.foto" class="foto-preview" />
+    } @else {
+      <ion-icon name="person-circle-outline" class="foto-placeholder"></ion-icon>
+    }
+    <div class="camara-overlay">
+      <ion-icon name="camera-outline"></ion-icon>
+    </div>
+  </div>
+
+    @if (errores.foto) {
+      <ion-text color="danger">
+        <small>{{ errores.foto }}</small>
+      </ion-text>
+    }
+
+<!--  escanear DNI  -->
+  <div class="scan-container">
+  <ion-button expand="block" fill="outline" class="btn-scan" (click)="escanearDni()">
+    <ion-icon name="scan-outline" slot="start"></ion-icon>
+    Escanear DNI
+  </ion-button>
+</div>
+
+
   <ion-item lines="none">
     <ion-label position="floating">Nombre *</ion-label>
     <ion-input [(ngModel)]="form.nombre" type="text"></ion-input>
@@ -95,11 +122,13 @@
     </ion-text>
   }
 
-  <!-- Foto: por ahora desde URL, después reemplazamos con cámara nativa -->
-  <ion-item lines="none">
-    <ion-label position="floating">URL de foto (temporal)</ion-label>
-    <ion-input [(ngModel)]="form.foto" type="url"></ion-input>
-  </ion-item>
+ 
+
+@if (errores.foto) {
+  <ion-text color="danger">
+    <small>{{ errores.foto }}</small>
+  </ion-text>
+}
 
   @if (errorGeneral) {
     <ion-text color="danger">

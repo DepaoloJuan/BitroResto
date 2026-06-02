@@ -18,9 +18,10 @@ import {
   IonIcon,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { personOutline } from 'ionicons/icons';
+import { personCircleOutline, cameraOutline } from 'ionicons/icons';
 import { SupabaseService } from '../../../core/services/supabase';
 import { AuthService } from '../../../core/services/auth';
+import { CamaraService } from 'src/app/core/services/camara.service';
 
 @Component({
   selector: 'app-anonimo',
@@ -49,6 +50,7 @@ export class AnonimoPage {
   nombre = '';
   foto = '';
   errorNombre = '';
+  errorFoto = '';
   errorGeneral = '';
   cargando = false;
 
@@ -56,8 +58,17 @@ export class AnonimoPage {
     private supabase: SupabaseService,
     private authService: AuthService,
     private router: Router,
+    private camaraService: CamaraService,
   ) {
-    addIcons({ personOutline });
+    addIcons({ personCircleOutline, cameraOutline });
+  }
+
+  async tomarFoto() {
+    try {
+      this.foto = await this.camaraService.tomarFoto();
+    } catch (error) {
+      console.error('Error al tomar foto:', error);
+    }
   }
 
   async ingresar() {
@@ -66,6 +77,11 @@ export class AnonimoPage {
 
     if (!this.nombre.trim()) {
       this.errorNombre = 'El nombre es obligatorio.';
+      return;
+    }
+
+    if (!this.foto) {
+      this.errorFoto = 'La foto es obligatoria.';
       return;
     }
 

@@ -17,7 +17,12 @@ import {
   IonSpinner,
   IonButtons,
   IonBackButton,
+  IonIcon,
 } from '@ionic/angular/standalone';
+import { addIcons } from 'ionicons';
+import { personCircleOutline, cameraOutline, scanOutline } from 'ionicons/icons';
+import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
+import { BarcodeScanner, BarcodeFormat } from '@capacitor-mlkit/barcode-scanning';
 import { SupabaseService } from '../../../core/services/supabase';
 
 @Component({
@@ -42,6 +47,7 @@ import { SupabaseService } from '../../../core/services/supabase';
     IonSpinner,
     IonButtons,
     IonBackButton,
+    IonIcon
   ],
 })
 export class AgregarEmpleadoPage {
@@ -62,7 +68,57 @@ export class AgregarEmpleadoPage {
   exitoso = false;
   cargando = false;
 
-  constructor(private supabase: SupabaseService) {}
+  constructor(private supabase: SupabaseService) {
+    addIcons({ personCircleOutline, cameraOutline, scanOutline });
+  }
+
+   async tomarFoto() {
+    try {
+      const foto = await Camera.getPhoto({
+        quality: 90,
+        allowEditing: false,
+        resultType: CameraResultType.DataUrl,
+        source: CameraSource.Camera,
+      });
+      this.form.foto = foto.dataUrl ?? '';
+    } catch (error) {
+    }
+  }
+
+   async escanearDni() {
+      try {
+        const { supported } = await BarcodeScanner.isSupported();
+        if (!supported) {
+          console.warn('El escáner no está soportado en este dispositivo.');
+          return;
+        }
+
+        await BarcodeScanner.requestPermissions();
+
+        const { barcodes } = await BarcodeScanner.scan({
+          formats: [BarcodeFormat.Pdf417],
+        });
+
+        if (barcodes.length === 0) return;
+
+        const raw = barcodes[0].rawValue ?? '';
+        const partes = raw.split('@');
+
+        if (raw && partes.length >= 5) {
+          this.form.apellido = partes[1]?.trim() ?? '';
+          this.form.nombre   = partes[2]?.trim() ?? '';
+          this.form.dni      = partes[4]?.trim() ?? '';
+        }
+       } catch (error: any) {
+        if (error?.isAcquireTimeout) {
+          console.warn('Tiempo de espera agotado. Intentá de nuevo.');
+        } else if (error?.message === 'scan canceled.' || error?.errorMessage === 'scan canceled.') {
+          // usuario canceló, no es un error
+        } else {
+          console.error('Error al escanear DNI:', error);
+        }
+      }
+    }
 
   validar(): boolean {
     this.errores = {};
@@ -98,6 +154,9 @@ export class AgregarEmpleadoPage {
 
     if (!this.form.perfil) this.errores.perfil = 'Debe seleccionar un perfil.';
 
+    if (!this.form.foto) this.errores.foto = 'La foto es obligatoria.';
+
+
     return Object.keys(this.errores).length === 0;
   }
 
@@ -109,6 +168,7 @@ export class AgregarEmpleadoPage {
 
     try {
       this.cargando = true;
+      
 
       // 1 - Crear usuario en Supabase Auth
       const { data, error } = await this.supabase.client.auth.signUp({

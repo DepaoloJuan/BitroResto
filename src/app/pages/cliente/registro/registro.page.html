@@ -7,7 +7,34 @@
   </ion-toolbar>
 </ion-header>
 
+
 <ion-content class="ion-padding">
+
+  <!-- Tomar foto -->
+    <div class="foto-container" (click)="tomarFoto()">
+      @if (form.foto) {
+        <img [src]="form.foto" class="foto-preview" />
+      } @else {
+        <ion-icon name="person-circle-outline" class="foto-placeholder"></ion-icon>
+      }
+      <div class="camara-overlay">
+        <ion-icon name="camera-outline"></ion-icon>
+      </div>
+    </div>
+
+     @if (errores.foto) {
+        <ion-text color="danger">
+          <small>{{ errores.foto }}</small>
+        </ion-text>
+      }
+  
+   <!-- Escanear DNI -->
+    <div class="scan-container">
+      <ion-button expand="block" fill="outline" class="btn-scan" (click)="escanearDni()">
+        <ion-icon name="scan-outline" slot="start"></ion-icon>
+        Escanear DNI
+      </ion-button>
+    </div>
 
   <ion-item lines="none">
     <ion-label position="floating">Nombre *</ion-label>
@@ -68,12 +95,6 @@
       <small>{{ errores.confirmarPassword }}</small>
     </ion-text>
   }
-
-  <!-- Foto temporal -->
-  <ion-item lines="none">
-    <ion-label position="floating">URL de foto (temporal)</ion-label>
-    <ion-input [(ngModel)]="form.foto" type="url"></ion-input>
-  </ion-item>
 
   @if (errorGeneral) {
     <ion-text color="danger">

@@ -9,27 +9,40 @@
 
 <ion-content class="ion-padding ion-text-center">
 
-  <ion-icon name="person-outline" size="large"></ion-icon>
-  <h2>Ingresá tu nombre</h2>
-  <p>No necesitás registrarte para entrar al local.</p>
+   <!-- Tomar foto -->
+  <div class="foto-container" (click)="tomarFoto()">
+      @if (foto) {
+        <img [src]="foto" class="foto-preview" />
+      } @else {
+        <ion-icon name="person-circle-outline" class="foto-placeholder"></ion-icon>
+      }
+      <div class="camara-overlay">
+        <ion-icon name="camera-outline"></ion-icon>
+      </div>
+    </div>
+
+    @if (errorFoto) {
+      <ion-text color="danger">
+        <small>{{ errorFoto }}</small>
+      </ion-text>
+    }
 
   <ion-item lines="none" class="ion-margin-top">
-    <ion-label position="floating">Nombre *</ion-label>
-    <ion-input [(ngModel)]="nombre" type="text"></ion-input>
-  </ion-item>
-  <ion-text color="danger" *ngIf="errorNombre">
-    <small>{{ errorNombre }}</small>
-  </ion-text>
+      <ion-label position="floating">Nombre *</ion-label>
+      <ion-input [(ngModel)]="nombre" type="text"></ion-input>
+    </ion-item>
+    @if (errorNombre) {
+      <ion-text color="danger">
+        <small>{{ errorNombre }}</small>
+      </ion-text>
+    }
 
-  <!-- Foto temporal -->
-  <ion-item lines="none" class="ion-margin-top">
-    <ion-label position="floating">URL de foto (temporal)</ion-label>
-    <ion-input [(ngModel)]="foto" type="url"></ion-input>
-  </ion-item>
+    @if (errorGeneral) {
+      <ion-text color="danger">
+        <p>{{ errorGeneral }}</p>
+      </ion-text>
+    }
 
-  <ion-text color="danger" *ngIf="errorGeneral">
-    <p>{{ errorGeneral }}</p>
-  </ion-text>
 
   <ion-button expand="block" (click)="ingresar()" [disabled]="cargando" class="ion-margin-top">
     @if (cargando) {
