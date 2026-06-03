@@ -13,6 +13,7 @@ import { SupabaseService } from '../../../core/services/supabase';
 import { AuthService } from '../../../core/services/auth';
 import { HapticsService } from '../../../core/services/haptics.service';
 import { FormEmpleado } from '../../../core/models';
+import { LoadingComponent } from '../../../shared/components/loading/loading.component';
 
 @Component({
   selector: 'app-agregar-empleado',
@@ -21,7 +22,7 @@ import { FormEmpleado } from '../../../core/models';
   imports: [
     FormsModule, IonHeader, IonToolbar, IonTitle, IonContent, IonItem, IonLabel,
     IonInput, IonButton, IonText, IonSelect, IonSelectOption, IonSpinner,
-    IonButtons, IonBackButton, IonIcon,
+    IonButtons, IonBackButton, IonIcon, LoadingComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
