@@ -81,7 +81,15 @@ export class ClientesPendientesPage implements OnInit {
         .from('usuarios').update({ estado: 'aprobado' }).eq('id', cliente.id);
       if (error) throw error;
       await this.supabase.client.functions.invoke('enviar-correo', {
-        body: { email: cliente.email, nombre: cliente.nombre, accion: 'aprobado' },
+        body: {
+          email: cliente.email,
+          nombre: cliente.nombre,
+          accion: 'aprobado',
+          auth_id: cliente.auth_id,
+        },
+        headers: {
+          Authorization: `Bearer ${(await this.supabase.client.auth.getSession()).data.session?.access_token}`,
+        }
       });
       cliente._exito = '¡Cliente aprobado correctamente!';
       setTimeout(() => this.cargarClientes(), 1500);

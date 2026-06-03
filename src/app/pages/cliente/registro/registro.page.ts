@@ -12,6 +12,10 @@ import { BarcodeScanner, BarcodeFormat } from '@capacitor-mlkit/barcode-scanning
 import { addIcons } from 'ionicons';
 import { CamaraService } from '../../../core/services/camara.service';
 import { HapticsService } from '../../../core/services/haptics.service';
+<<<<<<< HEAD
+=======
+/* import { NotificacionesService } from '../../../core/services/notificaciones'; */
+>>>>>>> 3ad64a38e65129b277b3e968daaf001dc8e0c5b6
 import { FormRegistro } from '../../../core/models';
 import { RealtimeChannel } from '@supabase/supabase-js';
 
@@ -33,6 +37,10 @@ export class RegistroPage {
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
   private readonly haptics = inject(HapticsService);
+<<<<<<< HEAD
+=======
+/*   private readonly notificaciones = inject(NotificacionesService); */
+>>>>>>> 3ad64a38e65129b277b3e968daaf001dc8e0c5b6
   private readonly destroyRef = inject(DestroyRef);
 
   private readonly formVacio: FormRegistro = {
@@ -147,6 +155,10 @@ export class RegistroPage {
         perfil: 'cliente', foto: f.foto || null, estado: 'pendiente',
       });
       if (errorInsert) throw errorInsert;
+<<<<<<< HEAD
+=======
+/*       await this.notificaciones.enviar('Nuevo cliente pendiente', 'Hay un cliente esperando aprobación.'); */
+>>>>>>> 3ad64a38e65129b277b3e968daaf001dc8e0c5b6
       this.esperandoAprobacion.set(true);
       const { data: usuarioTabla } = await this.supabase.client
         .from('usuarios').select('id').eq('auth_id', data.user?.id).single();

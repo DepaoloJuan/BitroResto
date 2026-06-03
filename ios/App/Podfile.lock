@@ -11,6 +11,8 @@ PODS:
     - Capacitor
   - CapacitorKeyboard (8.0.3):
     - Capacitor
+  - CapacitorLocalNotifications (8.2.0):
+    - Capacitor
   - CapacitorMlkitBarcodeScanning (8.1.0):
     - Capacitor
     - GoogleMLKit/BarcodeScanning (~> 8.0.0)
@@ -71,6 +73,7 @@ DEPENDENCIES:
   - "CapacitorCordova (from `../../node_modules/@capacitor/ios`)"
   - "CapacitorHaptics (from `../../node_modules/@capacitor/haptics`)"
   - "CapacitorKeyboard (from `../../node_modules/@capacitor/keyboard`)"
+  - "CapacitorLocalNotifications (from `../../node_modules/@capacitor/local-notifications`)"
   - "CapacitorMlkitBarcodeScanning (from `../../node_modules/@capacitor-mlkit/barcode-scanning`)"
   - "CapacitorStatusBar (from `../../node_modules/@capacitor/status-bar`)"
 
@@ -102,6 +105,8 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/@capacitor/haptics"
   CapacitorKeyboard:
     :path: "../../node_modules/@capacitor/keyboard"
+  CapacitorLocalNotifications:
+    :path: "../../node_modules/@capacitor/local-notifications"
   CapacitorMlkitBarcodeScanning:
     :path: "../../node_modules/@capacitor-mlkit/barcode-scanning"
   CapacitorStatusBar:
@@ -114,6 +119,7 @@ SPEC CHECKSUMS:
   CapacitorCordova: c07921bdcfec6f691bae22274446b4d606ebf6a4
   CapacitorHaptics: 296f771ecd89c7a1bd92a7b6826a7d268e2e70f5
   CapacitorKeyboard: 31c8285d92c9d1410071d52449f16d2c6673b6f4
+  CapacitorLocalNotifications: 2615aa008f608b95d3921a778ee1988abf1e6148
   CapacitorMlkitBarcodeScanning: 31c6af9f39873ff69e16ed5b39ebe2e1915f16fe
   CapacitorStatusBar: 01d5763b4ed720de5ce2edbc938de6a98f4c8f32
   GoogleDataTransport: aae35b7ea0c09004c3797d53c8c41f66f219d6a7
@@ -129,6 +135,6 @@ SPEC CHECKSUMS:
   nanopb: fad817b59e0457d11a5dfbde799381cd727c1275
   PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47
 
-PODFILE CHECKSUM: 38855bcb0b66c9b6dcea6f60224219d8569e62b8
+PODFILE CHECKSUM: 736da3dff29445a7becc9b090d98fad2c5c4a80d
 
 COCOAPODS: 1.16.2
