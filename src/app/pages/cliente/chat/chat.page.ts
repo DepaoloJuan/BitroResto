@@ -9,7 +9,6 @@ import { addIcons } from 'ionicons';
 import { chatbubblesOutline, sendOutline } from 'ionicons/icons';
 import { AuthService } from '../../../core/services/auth';
 import { SupabaseService } from '../../../core/services/supabase';
-import { NotificacionesService } from '../../../core/services/notificaciones';
 import { Consulta, Mesa } from '../../../core/models';
 import { RealtimeChannel } from '@supabase/supabase-js';
 
@@ -26,7 +25,6 @@ import { RealtimeChannel } from '@supabase/supabase-js';
 export class ChatPage implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly supabase = inject(SupabaseService);
-  private readonly notificaciones = inject(NotificacionesService);
   private readonly destroyRef = inject(DestroyRef);
 
   mensajes = signal<Consulta[]>([]);
@@ -90,7 +88,6 @@ export class ChatPage implements OnInit {
       mensaje: texto, tipo: 'cliente',
     });
     if (!error) {
-      await this.notificaciones.enviar('Nueva consulta', `Mesa ${this.mesa()?.numero}: ${texto}`);
       this.nuevoMensaje.set('');
       await this.cargarMensajes();
     }

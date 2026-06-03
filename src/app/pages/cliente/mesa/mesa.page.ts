@@ -15,6 +15,7 @@ import {
 } from 'ionicons/icons';
 import { AuthService } from '../../../core/services/auth';
 import { SupabaseService } from '../../../core/services/supabase';
+import { NotificacionesService } from '../../../core/services/notificaciones';
 import { LoadingComponent } from '../../../shared/components/loading/loading.component';
 import { Mesa, Pedido } from '../../../core/models';
 import { RealtimeChannel } from '@supabase/supabase-js';
@@ -33,6 +34,7 @@ import { RealtimeChannel } from '@supabase/supabase-js';
 export class MesaPage implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly supabase = inject(SupabaseService);
+  private readonly notificaciones = inject(NotificacionesService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly destroyRef = inject(DestroyRef);
@@ -173,7 +175,16 @@ export class MesaPage implements OnInit {
     if (!this.mesaId) return;
     this.canal = this.supabase.client
       .channel('mesa_hub_' + this.mesaId)
-      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'pedidos', filter: `mesa_id=eq.${this.mesaId}` }, () => this.cargarPedido())
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'pedidos', filter: `mesa_id=eq.${this.mesaId}` },
+        async (payload) => {
+          const estado = (payload.new as any)?.estado;
+          if (estado === 'rechazado_mozo') {
+            await this.notificaciones.enviar('Pedido rechazado', 'El mozo rechazó tu pedido. Podés modificarlo y reenviarlo.');
+          } else if (estado === 'listo') {
+            await this.notificaciones.enviar('¡Tu pedido está listo!', 'Ya llega el mozo con tu pedido.');
+          }
+          await this.cargarPedido();
+        })
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'mesas', filter: `id=eq.${this.mesaId}` }, () => this.cargarPedido())
       .subscribe();
   }
@@ -181,7 +192,8 @@ export class MesaPage implements OnInit {
   async confirmarRecepcion() {
     const p = this.pedido();
     if (!p?.id) return;
-    await this.supabase.client.from('pedidos').update({ estado: 'recibido' }).eq('id', p.id);
+    const { error } = await this.supabase.client.from('pedidos').update({ estado: 'recibido' }).eq('id', p.id);
+    if (!error) await this.cargarPedido();
   }
 
   ir(ruta: string) { this.router.navigate([ruta]); }

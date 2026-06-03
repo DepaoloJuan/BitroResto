@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
+import { Router } from '@angular/router';
 import {
   IonHeader, IonToolbar, IonTitle, IonContent, IonCard, IonCardHeader, IonCardTitle,
   IonCardSubtitle, IonCardContent, IonButton, IonIcon, IonButtons, IonBackButton,
@@ -36,6 +37,7 @@ interface PreguntaTrivia {
 export class JuegosPage implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly supabase = inject(SupabaseService);
+  private readonly router = inject(Router);
 
   pedidoId = signal<string | null>(null);
   descuentoObtenido = signal(0);
@@ -231,5 +233,6 @@ export class JuegosPage implements OnInit {
     this.modalMemoria.set(false);
     this.modalAhorcado.set(false);
     this.modalPregunta.set(false);
+    this.router.navigate(['/cliente/mesa'], { replaceUrl: true });
   }
 }

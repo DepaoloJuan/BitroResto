@@ -78,7 +78,10 @@ export class ListaEsperaPage implements OnInit {
     this.canal = this.supabase.client
       .channel('lista_espera_cambios')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'lista_espera' },
-        () => this.cargarClientes())
+        async () => {
+          await this.notificaciones.enviar('Nueva solicitud de mesa', 'Hay un cliente esperando una mesa.');
+          await this.cargarClientes();
+        })
       .subscribe();
   }
 
@@ -92,7 +95,6 @@ export class ListaEsperaPage implements OnInit {
       const { error: errorMesa } = await this.supabase.client
         .from('mesas').update({ estado: 'ocupada' }).eq('id', cliente._mesa_seleccionada);
       if (errorMesa) throw errorMesa;
-      await this.notificaciones.enviar('¡Tu mesa está lista!', 'Se te asignó la mesa. Ya podés dirigirte a ella.');
       cliente._exito = 'Mesa asignada correctamente.';
       setTimeout(() => this.cargarDatos(), 1500);
     } catch (e: unknown) {

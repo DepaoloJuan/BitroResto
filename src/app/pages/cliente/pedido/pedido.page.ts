@@ -11,7 +11,6 @@ import { removeCircleOutline, addCircleOutline, sendOutline, timeOutline, cartOu
 import { AuthService } from '../../../core/services/auth';
 import { SupabaseService } from '../../../core/services/supabase';
 import { HapticsService } from '../../../core/services/haptics.service';
-import { NotificacionesService } from '../../../core/services/notificaciones';
 import { Plato, Bebida, Producto } from '../../../core/models';
 
 @Component({
@@ -30,7 +29,6 @@ export class PedidoPage implements OnInit {
   private readonly supabase = inject(SupabaseService);
   readonly router = inject(Router);
   private readonly haptics = inject(HapticsService);
-  private readonly notificaciones = inject(NotificacionesService);
 
   seccion = signal<'platos' | 'bebidas'>('platos');
   items = signal<Producto[]>([]);
@@ -71,7 +69,8 @@ export class PedidoPage implements OnInit {
     if (!this.mesaId) return;
     const { data } = await this.supabase.client
       .from('pedidos').select('id, estado, pedido_items(*)')
-      .eq('mesa_id', this.mesaId).in('estado', ['esperando_mozo', 'rechazado_mozo'])
+      .eq('mesa_id', this.mesaId)
+      .in('estado', ['esperando_mozo', 'rechazado_mozo', 'en_cocina', 'listo', 'pago_solicitado'])
       .order('fecha_creacion', { ascending: false }).limit(1).maybeSingle();
     this.pedidoExistente.set(data);
     if (data?.estado === 'rechazado_mozo') {
@@ -113,7 +112,8 @@ export class PedidoPage implements OnInit {
 
   async confirmarPedido() {
     if (!this.mesaId || !this.itemsSeleccionados().length) return;
-    if (this.pedidoExistente()?.estado === 'esperando_mozo') return;
+    const estadoActual = this.pedidoExistente()?.estado ?? '';
+    if (['esperando_mozo', 'pago_solicitado'].includes(estadoActual)) return;
     const usuario = this.authService.getUsuarioActual();
     try {
       this.enviando.set(true);
@@ -143,7 +143,6 @@ export class PedidoPage implements OnInit {
         );
         if (eItems) throw eItems;
       }
-      await this.notificaciones.enviar('Nuevo pedido', 'Hay un nuevo pedido esperando confirmación.');
       this.router.navigate(['/cliente/mesa'], { replaceUrl: true });
     } catch (e: unknown) {
       await this.haptics.error();

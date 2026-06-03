@@ -10,6 +10,7 @@ import { addIcons } from 'ionicons';
 import { chatbubblesOutline, sendOutline } from 'ionicons/icons';
 import { AuthService } from '../../../core/services/auth';
 import { SupabaseService } from '../../../core/services/supabase';
+import { NotificacionesService } from '../../../core/services/notificaciones';
 import { Mesa, Consulta } from '../../../core/models';
 import { RealtimeChannel } from '@supabase/supabase-js';
 
@@ -29,6 +30,7 @@ interface MesaConMensajes extends Mesa { mensajes: Consulta[]; _respuesta: strin
 export class ChatPage implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly supabase = inject(SupabaseService);
+  private readonly notificaciones = inject(NotificacionesService);
   private readonly destroyRef = inject(DestroyRef);
 
   mesas = signal<MesaConMensajes[]>([]);
@@ -68,7 +70,10 @@ export class ChatPage implements OnInit {
     this.canal = this.supabase.client
       .channel('chat_mozo')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'consultas' },
-        () => this.cargarMensajes())
+        async () => {
+          await this.notificaciones.enviar('Nueva consulta', 'Un cliente envió una consulta.');
+          await this.cargarMensajes();
+        })
       .subscribe();
   }
 

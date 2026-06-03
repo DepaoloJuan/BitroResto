@@ -11,7 +11,6 @@ import { BarcodeScanner, BarcodeFormat } from '@capacitor-mlkit/barcode-scanning
 import { SupabaseService } from '../../../core/services/supabase';
 import { AuthService } from '../../../core/services/auth';
 import { CamaraService } from '../../../core/services/camara.service';
-import { NotificacionesService } from '../../../core/services/notificaciones';
 
 @Component({
   selector: 'app-anonimo',
@@ -28,7 +27,6 @@ export class AnonimoPage {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
   private readonly camaraService = inject(CamaraService);
-  private readonly notificaciones = inject(NotificacionesService);
 
   nombre = signal('');
   foto = signal('');
@@ -84,7 +82,6 @@ export class AnonimoPage {
         tipo_cliente: 'anonimo', estado: 'esperando',
       });
       if (error) throw error;
-      await this.notificaciones.enviar('Nueva solicitud de mesa', `${this.nombre().trim()} está esperando una mesa.`);
       this.authService.setUsuarioAnonimo({
         id: '', auth_id: '', nombre: this.nombre().trim(), apellido: '',
         dni: '', email: '', foto: this.foto() || null, perfil: 'anonimo', estado: 'aprobado',

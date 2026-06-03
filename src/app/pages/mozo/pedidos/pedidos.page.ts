@@ -64,7 +64,17 @@ export class PedidosPage implements OnInit {
     this.canal = this.supabase.client
       .channel('pedidos_mozo')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'pedidos' },
-        () => this.cargarPedidos())
+        async (payload) => {
+          const estado = (payload.new as any)?.estado;
+          if (estado === 'esperando_mozo') {
+            await this.notificaciones.enviar('Nuevo pedido', 'Hay un nuevo pedido esperando confirmación.');
+          } else if (estado === 'pago_solicitado') {
+            await this.notificaciones.enviar('Cuenta solicitada', 'Un cliente está solicitando la cuenta.');
+          } else if (estado === 'listo') {
+            await this.notificaciones.enviar('Pedido listo', 'Un pedido está listo para entregar.');
+          }
+          await this.cargarPedidos();
+        })
       .subscribe();
   }
 
@@ -80,7 +90,6 @@ export class PedidosPage implements OnInit {
       const { error } = await this.supabase.client
         .from('pedidos').update({ estado: 'en_cocina' }).eq('id', pedido.id);
       if (error) throw error;
-      await this.notificaciones.enviar('Nuevo pedido en cocina', 'Hay un nuevo pedido para preparar.');
       pedido._exito = 'Pedido confirmado y enviado a cocina/bar.';
       setTimeout(() => this.cargarPedidos(), 1500);
     } catch (e: unknown) { await this.haptics.error(); pedido._error = (e as Error).message; }
@@ -91,7 +100,6 @@ export class PedidosPage implements OnInit {
       const { error } = await this.supabase.client
         .from('pedidos').update({ estado: 'rechazado_mozo' }).eq('id', pedido.id);
       if (error) throw error;
-      await this.notificaciones.enviar('Pedido rechazado', 'El mozo rechazó tu pedido. Podés modificarlo y reenviarlo.');
       pedido._exito = 'Pedido rechazado. El cliente deberá modificarlo.';
       setTimeout(() => this.cargarPedidos(), 1500);
     } catch (e: unknown) { await this.haptics.error(); pedido._error = (e as Error).message; }

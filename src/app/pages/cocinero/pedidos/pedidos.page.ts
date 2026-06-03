@@ -67,7 +67,12 @@ export class PedidosPage implements OnInit {
     this.canal = this.supabase.client
       .channel('pedidos_cocina')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'pedidos' },
-        () => this.cargarPedidos())
+        async (payload) => {
+          if ((payload.new as any)?.estado === 'en_cocina') {
+            await this.notificaciones.enviar('Nuevo pedido en cocina', 'Hay un nuevo pedido para preparar.');
+          }
+          await this.cargarPedidos();
+        })
       .subscribe();
   }
 
@@ -91,7 +96,6 @@ export class PedidosPage implements OnInit {
       .from('pedido_items').select('estado').eq('pedido_id', pedidoId);
     if (data?.every(i => i.estado === 'listo')) {
       await this.supabase.client.from('pedidos').update({ estado: 'listo' }).eq('id', pedidoId);
-      await this.notificaciones.enviar('Pedido listo', 'Un pedido está completo y listo para entregar.');
     }
   }
 }

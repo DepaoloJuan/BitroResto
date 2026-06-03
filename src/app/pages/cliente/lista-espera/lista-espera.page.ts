@@ -8,6 +8,7 @@ import { addIcons } from 'ionicons';
 import { timeOutline, hourglassOutline, checkmarkCircleOutline, barChartOutline } from 'ionicons/icons';
 import { AuthService } from '../../../core/services/auth';
 import { SupabaseService } from '../../../core/services/supabase';
+import { NotificacionesService } from '../../../core/services/notificaciones';
 import { Mesa } from '../../../core/models';
 import { RealtimeChannel } from '@supabase/supabase-js';
 
@@ -24,6 +25,7 @@ import { RealtimeChannel } from '@supabase/supabase-js';
 export class ListaEsperaPage implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly supabase = inject(SupabaseService);
+  private readonly notificaciones = inject(NotificacionesService);
   readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -69,7 +71,12 @@ export class ListaEsperaPage implements OnInit {
       .on('postgres_changes', {
         event: 'UPDATE', schema: 'public', table: 'lista_espera',
         filter: `usuario_id=eq.${usuario.id}`,
-      }, () => this.verificarEstado())
+      }, async (payload) => {
+        if ((payload.new as any)?.estado === 'asignado') {
+          await this.notificaciones.enviar('¡Tu mesa está lista!', 'Se te asignó la mesa. Ya podés dirigirte a ella.');
+        }
+        await this.verificarEstado();
+      })
       .subscribe();
   }
 

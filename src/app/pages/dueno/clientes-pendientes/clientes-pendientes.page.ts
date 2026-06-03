@@ -8,6 +8,7 @@ import { addIcons } from 'ionicons';
 import { checkmarkOutline, closeOutline, checkmarkCircleOutline } from 'ionicons/icons';
 import { SupabaseService } from '../../../core/services/supabase';
 import { AuthService } from '../../../core/services/auth';
+import { NotificacionesService } from '../../../core/services/notificaciones';
 import { LoadingComponent } from '../../../shared/components/loading/loading.component';
 import { Usuario } from '../../../core/models';
 import { RealtimeChannel } from '@supabase/supabase-js';
@@ -29,6 +30,7 @@ interface ClienteUI extends Usuario { _exito: string; _error: string; }
 export class ClientesPendientesPage implements OnInit {
   private readonly supabase = inject(SupabaseService);
   private readonly authService = inject(AuthService);
+  private readonly notificaciones = inject(NotificacionesService);
   private readonly destroyRef = inject(DestroyRef);
 
   clientes = signal<ClienteUI[]>([]);
@@ -55,7 +57,10 @@ export class ClientesPendientesPage implements OnInit {
     this.canal = this.supabase.client
       .channel('clientes_pendientes')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'usuarios' },
-        () => this.cargarClientes())
+        async () => {
+          await this.notificaciones.enviar('Nuevo cliente pendiente', 'Hay un cliente esperando aprobación.');
+          await this.cargarClientes();
+        })
       .subscribe();
   }
 

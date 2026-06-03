@@ -87,6 +87,9 @@
           <p class="ion-text-center" [style.color]="mensajeMemoria().includes('¡') ? 'green' : 'red'">
             {{ mensajeMemoria() }}
           </p>
+          <ion-button expand="block" class="ion-margin-top" (click)="cerrarModal()">
+            Volver a la mesa
+          </ion-button>
         }
       </ion-content>
     </ng-template>
@@ -124,6 +127,9 @@
           <p [style.color]="mensajeAhorcado().includes('¡') ? 'green' : 'red'">
             {{ mensajeAhorcado() }}
           </p>
+          <ion-button expand="block" class="ion-margin-top" (click)="cerrarModal()">
+            Volver a la mesa
+          </ion-button>
         }
       </ion-content>
     </ng-template>
@@ -154,6 +160,9 @@
           <p [style.color]="mensajePregunta().includes('¡') ? 'green' : 'red'">
             {{ mensajePregunta() }}
           </p>
+          <ion-button expand="block" class="ion-margin-top" (click)="cerrarModal()">
+            Volver a la mesa
+          </ion-button>
         }
       </ion-content>
     </ng-template>
