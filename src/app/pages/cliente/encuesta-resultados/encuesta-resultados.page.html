@@ -9,34 +9,34 @@
 
 <ion-content class="ion-padding">
 
-  @if (cargando) {
+  @if (cargando()) {
     <app-loading />
   }
 
-  @if (!cargando && encuestas.length === 0) {
+  @if (!cargando() && encuestas().length === 0) {
     <div class="ion-text-center ion-padding">
       <ion-icon name="bar-chart-outline" size="large"></ion-icon>
       <p>Todavía no hay encuestas registradas.</p>
     </div>
   }
 
-  @if (!cargando && encuestas.length > 0) {
+  @if (!cargando() && encuestas().length > 0) {
 
     <!-- Indicador de página -->
     <div class="indicador ion-text-center ion-margin-bottom">
       <ion-text color="medium">
-        Gráfico {{ graficosActivo + 1 }} de {{ graficos.length }}
+        Gráfico {{ graficosActivo() + 1 }} de {{ graficos.length }}
       </ion-text>
     </div>
 
     <!-- Título y subtítulo del gráfico activo -->
     <ion-card>
       <ion-card-header>
-        <ion-card-title>{{ graficos[graficosActivo].titulo }}</ion-card-title>
-        <ion-card-subtitle>{{ graficos[graficosActivo].subtitulo }}</ion-card-subtitle>
+        <ion-card-title>{{ graficos[graficosActivo()].titulo }}</ion-card-title>
+        <ion-card-subtitle>{{ graficos[graficosActivo()].subtitulo }}</ion-card-subtitle>
       </ion-card-header>
       <ion-card-content>
-        <canvas [id]="graficos[graficosActivo].canvasId"></canvas>
+        <canvas [id]="graficos[graficosActivo()].canvasId"></canvas>
       </ion-card-content>
     </ion-card>
 
@@ -44,7 +44,7 @@
     <div class="navegacion ion-margin-top">
       <ion-button
         fill="outline"
-        [disabled]="graficosActivo === 0"
+        [disabled]="graficosActivo() === 0"
         (click)="anterior()">
         <ion-icon slot="start" name="chevron-back-outline"></ion-icon>
         Anterior
@@ -52,7 +52,7 @@
 
       <ion-button
         fill="outline"
-        [disabled]="graficosActivo === graficos.length - 1"
+        [disabled]="graficosActivo() === graficos.length - 1"
         (click)="siguiente()">
         Siguiente
         <ion-icon slot="end" name="chevron-forward-outline"></ion-icon>

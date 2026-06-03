@@ -9,8 +9,7 @@
 
 <ion-content class="ion-padding">
 
-   <!--  tomar foto -->
-   <div class="foto-container" (click)="tomarFoto()">
+  <div class="foto-container" (click)="tomarFoto()">
     @if (form.foto) {
       <img [src]="form.foto" class="foto-preview" />
     } @else {
@@ -20,96 +19,74 @@
       <ion-icon name="camera-outline"></ion-icon>
     </div>
   </div>
+  @if (errores()['foto']) {
+    <ion-text color="danger"><small>{{ errores()['foto'] }}</small></ion-text>
+  }
 
-    @if (errores.foto) {
-      <ion-text color="danger">
-        <small>{{ errores.foto }}</small>
-      </ion-text>
-    }
-
-<!--  escanear DNI  -->
   <div class="scan-container">
-  <ion-button expand="block" fill="outline" class="btn-scan" (click)="escanearDni()">
-    <ion-icon name="scan-outline" slot="start"></ion-icon>
-    Escanear DNI
-  </ion-button>
-</div>
-
-@if (errorEscaneo) {
-  <ion-text color="danger">
-    <p>{{ errorEscaneo }}</p>
-  </ion-text>
-}
-
+    <ion-button expand="block" fill="outline" class="btn-scan" (click)="escanearDni()">
+      <ion-icon name="scan-outline" slot="start"></ion-icon>
+      Escanear DNI
+    </ion-button>
+  </div>
+  @if (errorEscaneo()) {
+    <ion-text color="danger"><p>{{ errorEscaneo() }}</p></ion-text>
+  }
 
   <ion-item lines="none">
     <ion-label position="floating">Nombre *</ion-label>
     <ion-input [(ngModel)]="form.nombre" type="text"></ion-input>
   </ion-item>
-  @if (errores.nombre) {
-    <ion-text color="danger">
-      <small>{{ errores.nombre }}</small>
-    </ion-text>
+  @if (errores()['nombre']) {
+    <ion-text color="danger"><small>{{ errores()['nombre'] }}</small></ion-text>
   }
 
   <ion-item lines="none">
     <ion-label position="floating">Apellido *</ion-label>
     <ion-input [(ngModel)]="form.apellido" type="text"></ion-input>
   </ion-item>
-  @if (errores.apellido) {
-    <ion-text color="danger">
-      <small>{{ errores.apellido }}</small>
-    </ion-text>
+  @if (errores()['apellido']) {
+    <ion-text color="danger"><small>{{ errores()['apellido'] }}</small></ion-text>
   }
 
   <ion-item lines="none">
     <ion-label position="floating">DNI *</ion-label>
     <ion-input [(ngModel)]="form.dni" type="text" maxlength="8" inputmode="numeric"></ion-input>
   </ion-item>
-  @if (errores.dni) {
-    <ion-text color="danger">
-      <small>{{ errores.dni }}</small>
-    </ion-text>
+  @if (errores()['dni']) {
+    <ion-text color="danger"><small>{{ errores()['dni'] }}</small></ion-text>
   }
 
   <ion-item lines="none">
     <ion-label position="floating">CUIL *</ion-label>
     <ion-input [(ngModel)]="form.cuil" type="text" maxlength="11" inputmode="numeric"></ion-input>
   </ion-item>
-  @if (errores.cuil) {
-    <ion-text color="danger">
-      <small>{{ errores.cuil }}</small>
-    </ion-text>
+  @if (errores()['cuil']) {
+    <ion-text color="danger"><small>{{ errores()['cuil'] }}</small></ion-text>
   }
 
   <ion-item lines="none">
     <ion-label position="floating">Correo electrónico *</ion-label>
     <ion-input [(ngModel)]="form.email" type="email"></ion-input>
   </ion-item>
-  @if (errores.email) {
-    <ion-text color="danger">
-      <small>{{ errores.email }}</small>
-    </ion-text>
+  @if (errores()['email']) {
+    <ion-text color="danger"><small>{{ errores()['email'] }}</small></ion-text>
   }
 
   <ion-item lines="none">
     <ion-label position="floating">Contraseña *</ion-label>
     <ion-input [(ngModel)]="form.password" type="password"></ion-input>
   </ion-item>
-  @if (errores.password) {
-    <ion-text color="danger">
-      <small>{{ errores.password }}</small>
-    </ion-text>
+  @if (errores()['password']) {
+    <ion-text color="danger"><small>{{ errores()['password'] }}</small></ion-text>
   }
 
   <ion-item lines="none">
     <ion-label position="floating">Confirmar contraseña *</ion-label>
     <ion-input [(ngModel)]="form.confirmarPassword" type="password"></ion-input>
   </ion-item>
-  @if (errores.confirmarPassword) {
-    <ion-text color="danger">
-      <small>{{ errores.confirmarPassword }}</small>
-    </ion-text>
+  @if (errores()['confirmarPassword']) {
+    <ion-text color="danger"><small>{{ errores()['confirmarPassword'] }}</small></ion-text>
   }
 
   <ion-item lines="none">
@@ -122,34 +99,20 @@
       <ion-select-option value="supervisor">Supervisor</ion-select-option>
     </ion-select>
   </ion-item>
-  @if (errores.perfil) {
-    <ion-text color="danger">
-      <small>{{ errores.perfil }}</small>
-    </ion-text>
+  @if (errores()['perfil']) {
+    <ion-text color="danger"><small>{{ errores()['perfil'] }}</small></ion-text>
   }
 
- 
-
-@if (errores.foto) {
-  <ion-text color="danger">
-    <small>{{ errores.foto }}</small>
-  </ion-text>
-}
-
-  @if (errorGeneral) {
-    <ion-text color="danger">
-      <p>{{ errorGeneral }}</p>
-    </ion-text>
+  @if (errorGeneral()) {
+    <ion-text color="danger"><p>{{ errorGeneral() }}</p></ion-text>
   }
 
-  @if (exitoso) {
-    <ion-text color="success">
-      <p>¡Empleado agregado correctamente!</p>
-    </ion-text>
+  @if (exitoso()) {
+    <ion-text color="success"><p>¡Empleado agregado correctamente!</p></ion-text>
   }
 
-  <ion-button expand="block" (click)="guardar()" [disabled]="cargando" class="ion-margin-top">
-    @if (cargando) {
+  <ion-button expand="block" (click)="guardar()" [disabled]="cargando()" class="ion-margin-top">
+    @if (cargando()) {
       <ion-spinner name="crescent"></ion-spinner>
     } @else {
       <span>Guardar empleado</span>

@@ -13,40 +13,32 @@
     <ion-label position="floating">Nombre *</ion-label>
     <ion-input [(ngModel)]="form.nombre" type="text"></ion-input>
   </ion-item>
-  @if (errores.nombre) {
-    <ion-text color="danger">
-      <small>{{ errores.nombre }}</small>
-    </ion-text>
+  @if (errores()['nombre']) {
+    <ion-text color="danger"><small>{{ errores()['nombre'] }}</small></ion-text>
   }
 
   <ion-item lines="none">
     <ion-label position="floating">Descripción *</ion-label>
     <ion-textarea [(ngModel)]="form.descripcion" rows="3"></ion-textarea>
   </ion-item>
-  @if (errores.descripcion) {
-    <ion-text color="danger">
-      <small>{{ errores.descripcion }}</small>
-    </ion-text>
+  @if (errores()['descripcion']) {
+    <ion-text color="danger"><small>{{ errores()['descripcion'] }}</small></ion-text>
   }
 
   <ion-item lines="none">
     <ion-label position="floating">Tiempo de elaboración (minutos) *</ion-label>
     <ion-input [(ngModel)]="form.tiempo_elaboracion" type="number"></ion-input>
   </ion-item>
-  @if (errores.tiempo_elaboracion) {
-    <ion-text color="danger">
-      <small>{{ errores.tiempo_elaboracion }}</small>
-    </ion-text>
+  @if (errores()['tiempo_elaboracion']) {
+    <ion-text color="danger"><small>{{ errores()['tiempo_elaboracion'] }}</small></ion-text>
   }
 
   <ion-item lines="none">
     <ion-label position="floating">Precio *</ion-label>
     <ion-input [(ngModel)]="form.precio" type="number"></ion-input>
   </ion-item>
-  @if (errores.precio) {
-    <ion-text color="danger">
-      <small>{{ errores.precio }}</small>
-    </ion-text>
+  @if (errores()['precio']) {
+    <ion-text color="danger"><small>{{ errores()['precio'] }}</small></ion-text>
   }
 
   <ion-list-header>
@@ -70,26 +62,20 @@
       }
     </ion-row>
   </ion-grid>
-  @if (errores.fotos) {
-    <ion-text color="danger">
-      <small>{{ errores.fotos }}</small>
-    </ion-text>
+  @if (errores()['fotos']) {
+    <ion-text color="danger"><small>{{ errores()['fotos'] }}</small></ion-text>
   }
 
-  @if (errorGeneral) {
-    <ion-text color="danger">
-      <p>{{ errorGeneral }}</p>
-    </ion-text>
+  @if (errorGeneral()) {
+    <ion-text color="danger"><p>{{ errorGeneral() }}</p></ion-text>
   }
 
-  @if (exitoso) {
-    <ion-text color="success">
-      <p>¡Bebida agregada correctamente!</p>
-    </ion-text>
+  @if (exitoso()) {
+    <ion-text color="success"><p>¡Bebida agregada correctamente!</p></ion-text>
   }
 
-  <ion-button expand="block" (click)="guardar()" [disabled]="cargando" class="ion-margin-top">
-    @if (cargando) {
+  <ion-button expand="block" (click)="guardar()" [disabled]="cargando()" class="ion-margin-top">
+    @if (cargando()) {
       <ion-spinner name="crescent"></ion-spinner>
     } @else {
       <span>Guardar bebida</span>

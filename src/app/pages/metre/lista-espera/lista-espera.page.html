@@ -9,18 +9,18 @@
 
 <ion-content class="ion-padding">
 
-  @if (cargando) {
+  @if (cargando()) {
     <app-loading />
   }
 
-  @if (!cargando && clientes.length === 0) {
+  @if (!cargando() && clientes().length === 0) {
     <div class="ion-text-center ion-padding">
       <ion-icon name="people-outline" size="large"></ion-icon>
       <p>No hay clientes en espera.</p>
     </div>
   }
 
-  @for (cliente of clientes; track cliente.id) {
+  @for (cliente of clientes(); track cliente.id) {
     <ion-card>
       <ion-card-header>
         <ion-grid>
@@ -48,7 +48,7 @@
         <ion-item lines="none">
           <ion-label>Asignar mesa</ion-label>
           <ion-select [(ngModel)]="cliente._mesa_seleccionada" placeholder="Seleccioná una mesa">
-            @for (mesa of mesasDisponibles; track mesa.id) {
+            @for (mesa of mesasDisponibles(); track mesa.id) {
               <ion-select-option [value]="mesa.id">
                 Mesa {{ mesa.numero }} - {{ mesa.tipo }} ({{ mesa.capacidad }} personas)
               </ion-select-option>

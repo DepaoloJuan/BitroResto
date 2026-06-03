@@ -1,75 +1,63 @@
-import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import {
-  IonContent,
-  IonItem,
-  IonLabel,
-  IonInput,
-  IonButton,
-  IonIcon
+  IonContent, IonItem, IonLabel, IonInput, IonButton, IonIcon,
 } from '@ionic/angular/standalone';
-import { personCircleOutline } from 'ionicons/icons'; 
+import { personCircleOutline } from 'ionicons/icons';
+import { addIcons } from 'ionicons';
 import { AuthService } from '../../core/services/auth';
-import { SupabaseService } from '../../core/services/supabase';
 import { HapticsService } from '../../core/services/haptics.service';
 
 @Component({
   selector: 'app-login',
   templateUrl: './login.page.html',
   styleUrls: ['./login.page.scss'],
-  standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
-    IonContent,
-    IonItem,
-    IonLabel,
-    IonIcon,
-    IonInput,
-    IonButton,
+    IonContent, IonItem, IonLabel, IonInput, IonButton, IonIcon,
     RouterLink,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LoginPage {
-  email = '';
-  password = '';
-  errores: any = {};
-  errorGeneral = '';
-  cargando = false;
+  private readonly authService = inject(AuthService);
+  private readonly haptics = inject(HapticsService);
 
-  // Usuarios de ingreso rápido — reemplazá con los emails/passwords reales de tu Supabase
-  private usuariosRapidos: Record<string, { email: string; password: string }> =
-    {
-      dueño:      { email: 'dueno@resto.com',      password: '123456' },
-      supervisor: { email: 'supervisor@resto.com', password: '123456' },
-      metre:      { email: 'metre@resto.com',       password: '123456' },
-      mozo:       { email: 'mozo@resto.com',        password: '123456' },
-      cocinero:   { email: 'cocinero@resto.com',    password: '123456' },
-      cantinero:  { email: 'bartender@resto.com',   password: '123456' },
-      cliente:    { email: 'cliente@resto.com',     password: '123456' },
-    };
+  email = signal('');
+  password = signal('');
+  errores = signal<Record<string, string>>({});
+  errorGeneral = signal('');
+  cargando = signal(false);
 
-  constructor(
-    private authService: AuthService,
-    private router: Router,
-    private haptics: HapticsService,
-  ) {}
+  private readonly usuariosRapidos: Record<string, { email: string; password: string }> = {
+    dueño:      { email: 'dueno@resto.com',      password: '123456' },
+    supervisor: { email: 'supervisor@resto.com', password: '123456' },
+    metre:      { email: 'metre@resto.com',       password: '123456' },
+    mozo:       { email: 'mozo@resto.com',        password: '123456' },
+    cocinero:   { email: 'cocinero@resto.com',    password: '123456' },
+    cantinero:  { email: 'bartender@resto.com',   password: '123456' },
+    cliente:    { email: 'cliente@resto.com',     password: '123456' },
+  };
+
+  constructor() {
+    addIcons({ personCircleOutline });
+  }
 
   async validar(): Promise<boolean> {
-    this.errores = {};
-    if (!this.email) {
-      this.errores.email = 'El correo electrónico es obligatorio.';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.email)) {
-      this.errores.email = 'El formato del correo no es válido.';
+    const errs: Record<string, string> = {};
+    if (!this.email()) {
+      errs['email'] = 'El correo electrónico es obligatorio.';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.email())) {
+      errs['email'] = 'El formato del correo no es válido.';
     }
-    if (!this.password) {
-      this.errores.password = 'La contraseña es obligatoria.';
-    } else if (this.password.length < 6) {
-      this.errores.password = 'La contraseña debe tener al menos 6 caracteres.';
+    if (!this.password()) {
+      errs['password'] = 'La contraseña es obligatoria.';
+    } else if (this.password().length < 6) {
+      errs['password'] = 'La contraseña debe tener al menos 6 caracteres.';
     }
-    if (Object.keys(this.errores).length > 0) {
+    this.errores.set(errs);
+    if (Object.keys(errs).length > 0) {
       await this.haptics.error();
       return false;
     }
@@ -77,27 +65,25 @@ export class LoginPage {
   }
 
   async login() {
-    this.errorGeneral = '';
+    this.errorGeneral.set('');
     if (!await this.validar()) return;
-
     try {
-      this.cargando = true;
-      const usuario = await this.authService.login(this.email, this.password);
+      this.cargando.set(true);
+      const usuario = await this.authService.login(this.email(), this.password());
       this.authService.redirigirSegunPerfil(usuario.perfil);
-    } catch (error: any) {
+    } catch (error: unknown) {
       await this.haptics.error();
-      this.errorGeneral =
-        error.message || 'Error al iniciar sesión. Verificá tus credenciales.';
+      this.errorGeneral.set((error as Error).message || 'Error al iniciar sesión. Verificá tus credenciales.');
     } finally {
-      this.cargando = false;
+      this.cargando.set(false);
     }
   }
 
   async loginRapido(perfil: string) {
     const credenciales = this.usuariosRapidos[perfil];
     if (!credenciales) return;
-    this.email = credenciales.email;
-    this.password = credenciales.password;
+    this.email.set(credenciales.email);
+    this.password.set(credenciales.password);
     await this.login();
   }
 }

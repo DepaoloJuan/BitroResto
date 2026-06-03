@@ -10,14 +10,14 @@
 <ion-content class="ion-padding">
 
   <div class="chat-container">
-    @for (mensaje of mensajes; track mensaje.id) {
+    @for (mensaje of mensajes(); track mensaje.id) {
       <div class="mensaje"
         [class.mensaje-cliente]="mensaje.tipo === 'cliente'"
         [class.mensaje-mozo]="mensaje.tipo === 'mozo'">
         <div class="burbuja">
           <p class="remitente">{{ mensaje.nombre_remitente }}</p>
           @if (mensaje.tipo === 'cliente') {
-            <p class="mesa">Mesa {{ mesa?.numero }}</p>
+            <p class="mesa">Mesa {{ mesa()?.numero }}</p>
           }
           <p class="texto">{{ mensaje.mensaje }}</p>
           <p class="fecha">{{ mensaje.fecha | date:'HH:mm' }}</p>
@@ -25,7 +25,7 @@
       </div>
     }
 
-    @if (mensajes.length === 0) {
+    @if (mensajes().length === 0) {
       <div class="ion-text-center ion-padding">
         <ion-icon name="chatbubbles-outline" size="large"></ion-icon>
         <p>Aún no hay mensajes. ¡Enviá tu primera consulta!</p>
@@ -38,8 +38,8 @@
 <ion-footer>
   <ion-toolbar>
     <ion-item lines="none">
-      <ion-input [(ngModel)]="nuevoMensaje" placeholder="Escribí tu consulta..."></ion-input>
-      <ion-button slot="end" (click)="enviar()" [disabled]="!nuevoMensaje.trim()">
+      <ion-input [ngModel]="nuevoMensaje()" (ngModelChange)="nuevoMensaje.set($event)" placeholder="Escribí tu consulta..."></ion-input>
+      <ion-button slot="end" (click)="enviar()" [disabled]="!nuevoMensaje().trim()">
         <ion-icon name="send-outline"></ion-icon>
       </ion-button>
     </ion-item>

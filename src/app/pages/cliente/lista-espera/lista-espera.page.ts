@@ -1,129 +1,97 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { CommonModule } from '@angular/common';
 import {
-  IonHeader,
-  IonToolbar,
-  IonTitle,
-  IonContent,
-  IonButton,
-  IonIcon,
-  IonSpinner,
-  IonText,
-  IonButtons,
-  IonBackButton,
+  IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonIcon,
+  IonSpinner, IonText, IonButtons, IonBackButton,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import {
-  timeOutline,
-  hourglassOutline,
-  checkmarkCircleOutline,
-  barChartOutline,
-} from 'ionicons/icons';
+import { timeOutline, hourglassOutline, checkmarkCircleOutline, barChartOutline } from 'ionicons/icons';
 import { AuthService } from '../../../core/services/auth';
 import { SupabaseService } from '../../../core/services/supabase';
+import { Mesa } from '../../../core/models';
+import { RealtimeChannel } from '@supabase/supabase-js';
 
 @Component({
   selector: 'app-lista-espera',
   templateUrl: './lista-espera.page.html',
   styleUrls: ['./lista-espera.page.scss'],
-  standalone: true,
   imports: [
-    CommonModule,
-    IonHeader,
-    IonToolbar,
-    IonTitle,
-    IonContent,
-    IonButton,
-    IonIcon,
-    IonSpinner,
-    IonText,
-    IonButtons,
-    IonBackButton,
+    IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonIcon,
+    IonSpinner, IonText, IonButtons, IonBackButton,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ListaEsperaPage implements OnInit {
-  usuario: any;
-  yaEnEspera = false;
-  mesaAsignada: any = null;
-  cargando = false;
-  errorGeneral = '';
+  private readonly authService = inject(AuthService);
+  private readonly supabase = inject(SupabaseService);
+  readonly router = inject(Router);
+  private readonly destroyRef = inject(DestroyRef);
 
-  constructor(
-    private authService: AuthService,
-    private supabase: SupabaseService,
-    public router: Router,
-  ) {
+  protected readonly usuario = this.authService.usuario;
+  yaEnEspera = signal(false);
+  mesaAsignada = signal<Mesa | null>(null);
+  cargando = signal(false);
+  errorGeneral = signal('');
+
+  private canal?: RealtimeChannel;
+
+  constructor() {
     addIcons({ timeOutline, hourglassOutline, checkmarkCircleOutline, barChartOutline });
+    this.destroyRef.onDestroy(() => {
+      if (this.canal) this.supabase.client.removeChannel(this.canal);
+    });
   }
 
   async ngOnInit() {
-    this.usuario = this.authService.getUsuarioActual();
     await this.verificarEstado();
     this.suscribirCambios();
   }
 
   async verificarEstado() {
+    const usuario = this.authService.getUsuarioActual();
+    if (!usuario) return;
     const { data } = await this.supabase.client
-      .from('lista_espera')
-      .select('*, mesas(*)')
-      .eq('usuario_id', this.usuario.id)
-      .order('fecha_ingreso', { ascending: false })
-      .limit(1)
-      .single();
-
+      .from('lista_espera').select('*, mesas(*)')
+      .eq('usuario_id', usuario.id).order('fecha_ingreso', { ascending: false }).limit(1).single();
     if (!data) return;
-
     if (data.estado === 'esperando') {
-      this.yaEnEspera = true;
+      this.yaEnEspera.set(true);
     } else if (data.estado === 'asignado' && data.mesas) {
-      this.mesaAsignada = data.mesas;
+      this.mesaAsignada.set(data.mesas as Mesa);
     }
   }
 
   suscribirCambios() {
-    this.supabase.client
+    const usuario = this.authService.getUsuarioActual();
+    if (!usuario) return;
+    this.canal = this.supabase.client
       .channel('espera_cliente')
-      .on(
-        'postgres_changes',
-        {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'lista_espera',
-          filter: `usuario_id=eq.${this.usuario.id}`,
-        },
-        () => {
-          this.verificarEstado();
-        },
-      )
+      .on('postgres_changes', {
+        event: 'UPDATE', schema: 'public', table: 'lista_espera',
+        filter: `usuario_id=eq.${usuario.id}`,
+      }, () => this.verificarEstado())
       .subscribe();
   }
 
   async anotarse() {
-    this.errorGeneral = '';
+    this.errorGeneral.set('');
+    const usuario = this.authService.getUsuarioActual();
+    if (!usuario) return;
     try {
-      this.cargando = true;
-
+      this.cargando.set(true);
       const { error } = await this.supabase.client.from('lista_espera').insert({
-        nombre: `${this.usuario.nombre} ${this.usuario.apellido}`,
-        foto: this.usuario.foto || null,
-        tipo_cliente: 'registrado',
-        usuario_id: this.usuario.id,
-        estado: 'esperando',
+        nombre: `${usuario.nombre} ${usuario.apellido}`,
+        foto: usuario.foto || null, tipo_cliente: 'registrado',
+        usuario_id: usuario.id, estado: 'esperando',
       });
-
       if (error) throw error;
-
-      this.yaEnEspera = true;
-    } catch (error: any) {
-      this.errorGeneral =
-        error.message || 'Error al anotarse en la lista de espera.';
+      this.yaEnEspera.set(true);
+    } catch (e: unknown) {
+      this.errorGeneral.set((e as Error).message || 'Error al anotarse en la lista de espera.');
     } finally {
-      this.cargando = false;
+      this.cargando.set(false);
     }
   }
 
-  ir(ruta: string) {
-    this.router.navigate([ruta]);
-  }
+  ir(ruta: string) { this.router.navigate([ruta]); }
 }

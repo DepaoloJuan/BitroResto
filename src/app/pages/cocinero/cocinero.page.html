@@ -1,6 +1,6 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>Hola, {{ usuario?.nombre }}!</ion-title>
+    <ion-title>Hola, {{ usuario()?.nombre }}!</ion-title>
     <ion-buttons slot="end">
       <ion-button (click)="cerrarSesion()">
         <ion-icon name="log-out-outline"></ion-icon>

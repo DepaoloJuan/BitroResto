@@ -1,304 +1,235 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import {
-  IonHeader,
-  IonToolbar,
-  IonTitle,
-  IonContent,
-  IonCard,
-  IonCardHeader,
-  IonCardTitle,
-  IonCardSubtitle,
-  IonCardContent,
-  IonButton,
-  IonIcon,
-  IonButtons,
-  IonBackButton,
-  IonBadge,
-  IonModal,
-  IonItem,
-  IonLabel,
+  IonHeader, IonToolbar, IonTitle, IonContent, IonCard, IonCardHeader, IonCardTitle,
+  IonCardSubtitle, IonCardContent, IonButton, IonIcon, IonButtons, IonBackButton,
+  IonBadge, IonModal, IonItem, IonLabel,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { giftOutline } from 'ionicons/icons';
 import { AuthService } from '../../../core/services/auth';
 import { SupabaseService } from '../../../core/services/supabase';
 
+interface CartaMemoria {
+  id: number;
+  emoji: string;
+  volteada: boolean;
+  encontrada: boolean;
+}
+
+interface PreguntaTrivia {
+  pregunta: string;
+  opciones: string[];
+  respuesta: string;
+}
+
 @Component({
   selector: 'app-juegos',
   templateUrl: './juegos.page.html',
   styleUrls: ['./juegos.page.scss'],
-  standalone: true,
   imports: [
-    CommonModule,
-    IonHeader,
-    IonToolbar,
-    IonTitle,
-    IonContent,
-    IonCard,
-    IonCardHeader,
-    IonCardTitle,
-    IonCardSubtitle,
-    IonCardContent,
-    IonButton,
-    IonIcon,
-    IonButtons,
-    IonBackButton,
-    IonBadge,
-    IonModal,
-    IonItem,
-    IonLabel,
+    IonHeader, IonToolbar, IonTitle, IonContent, IonCard, IonCardHeader, IonCardTitle,
+    IonCardSubtitle, IonCardContent, IonButton, IonIcon, IonButtons, IonBackButton,
+    IonBadge, IonModal, IonItem, IonLabel,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class JuegosPage implements OnInit {
-  usuario: any;
-  pedidoId: string | null = null;
-  descuentoObtenido = 0;
-  juegosJugados: string[] = [];
+  private readonly authService = inject(AuthService);
+  private readonly supabase = inject(SupabaseService);
 
-  // Memoria
-  modalMemoria = false;
-  cartasMemoria: any[] = [];
-  cartasVolteadas: any[] = [];
-  intentosMemoria = 0;
-  mensajeMemoria = '';
-  primerIntento = true;
+  pedidoId = signal<string | null>(null);
+  descuentoObtenido = signal(0);
+  juegosJugados = signal<string[]>([]);
 
-  // Ahorcado
-  modalAhorcado = false;
-  palabraSecreta = '';
-  palabraMostrada: string[] = [];
-  letrasUsadas: string[] = [];
-  erroresAhorcado = 0;
-  mensajeAhorcado = '';
-  abecedario = 'ABCDEFGHIJKLMNÑOPQRSTUVWXYZ'.split('');
+  modalMemoria = signal(false);
+  cartasMemoria = signal<CartaMemoria[]>([]);
+  intentosMemoria = signal(0);
+  mensajeMemoria = signal('');
+  private cartasVolteadas: CartaMemoria[] = [];
+  private primerIntentoMemoria = true;
 
-  // Pregunta
-  modalPregunta = false;
-  preguntaActual: any = null;
-  respondida = false;
-  mensajePregunta = '';
+  modalAhorcado = signal(false);
+  palabraSecreta = signal('');
+  palabraMostrada = signal<string[]>([]);
+  letrasUsadas = signal<string[]>([]);
+  erroresAhorcado = signal(0);
+  mensajeAhorcado = signal('');
+  private primerIntentoAhorcado = true;
+  readonly abecedario = 'ABCDEFGHIJKLMNÑOPQRSTUVWXYZ'.split('');
 
-  private emojis = ['🍕', '🍔', '🍣', '🍜', '🍰', '🥗', '🍷', '🥩'];
-  private palabras = [
-    'PIZZA',
-    'MILANESA',
-    'EMPANADA',
-    'HAMBURGUESA',
-    'ENSALADA',
-  ];
-  private preguntas = [
-    {
-      pregunta: '¿En qué año se fundó la ciudad de Buenos Aires?',
-      opciones: ['1536', '1580', '1620', '1776'],
-      respuesta: '1580',
-    },
-    {
-      pregunta: '¿Cuál es el río más largo de Argentina?',
-      opciones: ['Paraná', 'Uruguay', 'Colorado', 'Negro'],
-      respuesta: 'Paraná',
-    },
-    {
-      pregunta: '¿Cuántos jugadores tiene un equipo de fútbol?',
-      opciones: ['9', '10', '11', '12'],
-      respuesta: '11',
-    },
+  modalPregunta = signal(false);
+  preguntaActual = signal<PreguntaTrivia | null>(null);
+  respondida = signal(false);
+  mensajePregunta = signal('');
+
+  private readonly emojis = ['🍕', '🍔', '🍣', '🍜', '🍰', '🥗', '🍷', '🥩'];
+  private readonly palabras = ['PIZZA', 'MILANESA', 'EMPANADA', 'HAMBURGUESA', 'ENSALADA'];
+  private readonly preguntas: PreguntaTrivia[] = [
+    { pregunta: '¿En qué año se fundó la ciudad de Buenos Aires?', opciones: ['1536', '1580', '1620', '1776'], respuesta: '1580' },
+    { pregunta: '¿Cuál es el río más largo de Argentina?', opciones: ['Paraná', 'Uruguay', 'Colorado', 'Negro'], respuesta: 'Paraná' },
+    { pregunta: '¿Cuántos jugadores tiene un equipo de fútbol?', opciones: ['9', '10', '11', '12'], respuesta: '11' },
   ];
 
-  constructor(
-    private authService: AuthService,
-    private supabase: SupabaseService,
-  ) {
-    addIcons({ giftOutline });
-  }
+  constructor() { addIcons({ giftOutline }); }
 
   async ngOnInit() {
-    this.usuario = this.authService.getUsuarioActual();
     await this.cargarPedidoActual();
     await this.cargarDescuento();
   }
 
   async cargarPedidoActual() {
-    const mesaData = await this.supabase.client
-      .from('lista_espera')
-      .select('mesa_id')
-      .eq('usuario_id', this.usuario.id)
-      .eq('estado', 'asignado')
-      .single();
-
-    if (!mesaData.data?.mesa_id) return;
-
-    const pedidoData = await this.supabase.client
-      .from('pedidos')
-      .select('id')
-      .eq('mesa_id', mesaData.data.mesa_id)
-      .not('estado', 'in', '("pagado","cancelado")')
-      .order('fecha_creacion', { ascending: false })
-      .limit(1)
-      .single();
-
-    this.pedidoId = pedidoData.data?.id || null;
+    const usuario = this.authService.getUsuarioActual();
+    if (!usuario) return;
+    const { data: espera } = await this.supabase.client
+      .from('lista_espera').select('mesa_id').eq('usuario_id', usuario.id).eq('estado', 'asignado').single();
+    if (!espera?.mesa_id) return;
+    const { data: pedido } = await this.supabase.client
+      .from('pedidos').select('id').eq('mesa_id', espera.mesa_id)
+      .not('estado', 'in', '("pagado","cancelado")').order('fecha_creacion', { ascending: false }).limit(1).single();
+    this.pedidoId.set(pedido?.id || null);
   }
 
   async cargarDescuento() {
-    if (!this.pedidoId) return;
-
+    const pid = this.pedidoId();
+    if (!pid) return;
+    const usuario = this.authService.getUsuarioActual();
+    if (!usuario) return;
     const { data } = await this.supabase.client
-      .from('descuentos')
-      .select('*')
-      .eq('usuario_id', this.usuario.id)
-      .eq('pedido_id', this.pedidoId)
-      .order('fecha', { ascending: false })
-      .limit(1)
-      .single();
-
+      .from('descuentos').select('*').eq('usuario_id', usuario.id).eq('pedido_id', pid)
+      .order('fecha', { ascending: false }).limit(1).single();
     if (data) {
-      this.descuentoObtenido = data.porcentaje;
-      this.juegosJugados = [data.juego];
+      this.descuentoObtenido.set(data.porcentaje);
+      this.juegosJugados.set([data.juego]);
     }
   }
 
   juegoJugado(juego: string): boolean {
-    return this.descuentoObtenido > 0 && !this.juegosJugados.includes(juego)
-      ? false
-      : this.juegosJugados.includes(juego);
+    return this.juegosJugados().includes(juego);
   }
 
   // ---- MEMORIA ----
   jugarMemoria() {
-    this.primerIntento = true;
-    this.intentosMemoria = 0;
-    this.mensajeMemoria = '';
+    this.primerIntentoMemoria = true;
     this.cartasVolteadas = [];
+    this.intentosMemoria.set(0);
+    this.mensajeMemoria.set('');
     const pares = [...this.emojis, ...this.emojis]
       .sort(() => Math.random() - 0.5)
-      .map((emoji, i) => ({
-        id: i,
-        emoji,
-        volteada: false,
-        encontrada: false,
-      }));
-    this.cartasMemoria = pares;
-    this.modalMemoria = true;
+      .map((emoji, i): CartaMemoria => ({ id: i, emoji, volteada: false, encontrada: false }));
+    this.cartasMemoria.set(pares);
+    this.modalMemoria.set(true);
   }
 
-  voltearCarta(carta: any) {
-    if (carta.volteada || carta.encontrada || this.cartasVolteadas.length === 2)
-      return;
-    carta.volteada = true;
-    this.cartasVolteadas.push(carta);
-
+  voltearCarta(carta: CartaMemoria) {
+    if (carta.volteada || carta.encontrada || this.cartasVolteadas.length === 2) return;
+    this.cartasMemoria.update(cs => cs.map(c => c.id === carta.id ? { ...c, volteada: true } : c));
+    const cartaActualizada = this.cartasMemoria().find(c => c.id === carta.id)!;
+    this.cartasVolteadas.push(cartaActualizada);
     if (this.cartasVolteadas.length === 2) {
-      this.intentosMemoria++;
+      this.intentosMemoria.update(v => v + 1);
       setTimeout(() => this.verificarPar(), 800);
     }
   }
 
-  verificarPar() {
+  private verificarPar() {
     const [a, b] = this.cartasVolteadas;
     if (a.emoji === b.emoji) {
-      a.encontrada = b.encontrada = true;
+      this.cartasMemoria.update(cs => cs.map(c => (c.id === a.id || c.id === b.id) ? { ...c, encontrada: true } : c));
     } else {
-      a.volteada = b.volteada = false;
-      if (this.primerIntento) this.primerIntento = false;
+      this.cartasMemoria.update(cs => cs.map(c => (c.id === a.id || c.id === b.id) ? { ...c, volteada: false } : c));
+      if (this.primerIntentoMemoria) this.primerIntentoMemoria = false;
     }
     this.cartasVolteadas = [];
-
-    const ganó = this.cartasMemoria.every((c) => c.encontrada);
-    if (ganó) {
-      if (this.intentosMemoria === this.emojis.length) {
-        this.mensajeMemoria =
-          '¡Ganaste en el primer intento! +10% de descuento';
+    const gano = this.cartasMemoria().every(c => c.encontrada);
+    if (gano) {
+      if (this.intentosMemoria() === this.emojis.length) {
+        this.mensajeMemoria.set('¡Ganaste en el primer intento! +10% de descuento');
         this.guardarDescuento(10, 'memoria');
       } else {
-        this.mensajeMemoria =
-          '¡Completaste el juego! Sin descuento (no fue en el primer intento)';
+        this.mensajeMemoria.set('¡Completaste el juego! Sin descuento (no fue en el primer intento)');
       }
     }
   }
 
   // ---- AHORCADO ----
   jugarAhorcado() {
-    this.palabraSecreta =
-      this.palabras[Math.floor(Math.random() * this.palabras.length)];
-    this.palabraMostrada = Array(this.palabraSecreta.length).fill('_');
-    this.letrasUsadas = [];
-    this.erroresAhorcado = 0;
-    this.mensajeAhorcado = '';
-    this.primerIntento = true;
-    this.modalAhorcado = true;
+    const palabra = this.palabras[Math.floor(Math.random() * this.palabras.length)];
+    this.palabraSecreta.set(palabra);
+    this.palabraMostrada.set(Array(palabra.length).fill('_'));
+    this.letrasUsadas.set([]);
+    this.erroresAhorcado.set(0);
+    this.mensajeAhorcado.set('');
+    this.primerIntentoAhorcado = true;
+    this.modalAhorcado.set(true);
   }
 
   adivinarLetra(letra: string) {
-    if (this.letrasUsadas.includes(letra)) return;
-    this.letrasUsadas.push(letra);
-
-    if (this.palabraSecreta.includes(letra)) {
-      this.palabraSecreta.split('').forEach((l, i) => {
-        if (l === letra) this.palabraMostrada[i] = letra;
-      });
-      const ganó = !this.palabraMostrada.includes('_');
-      if (ganó) {
-        if (this.primerIntento) {
-          this.mensajeAhorcado =
-            '¡Ganaste en el primer intento! +15% de descuento';
+    if (this.letrasUsadas().includes(letra)) return;
+    this.letrasUsadas.update(ls => [...ls, letra]);
+    const secreto = this.palabraSecreta();
+    if (secreto.includes(letra)) {
+      this.palabraMostrada.update(mostrada =>
+        mostrada.map((l, i) => secreto[i] === letra ? letra : l)
+      );
+      const gano = !this.palabraMostrada().includes('_');
+      if (gano) {
+        if (this.primerIntentoAhorcado) {
+          this.mensajeAhorcado.set('¡Ganaste en el primer intento! +15% de descuento');
           this.guardarDescuento(15, 'ahorcado');
         } else {
-          this.mensajeAhorcado = '¡Adivinaste la palabra! Sin descuento';
+          this.mensajeAhorcado.set('¡Adivinaste la palabra! Sin descuento');
         }
       }
     } else {
-      this.erroresAhorcado++;
-      this.primerIntento = false;
-      if (this.erroresAhorcado >= 6) {
-        this.mensajeAhorcado = `Perdiste. La palabra era: ${this.palabraSecreta}`;
+      this.erroresAhorcado.update(v => v + 1);
+      this.primerIntentoAhorcado = false;
+      if (this.erroresAhorcado() >= 6) {
+        this.mensajeAhorcado.set(`Perdiste. La palabra era: ${secreto}`);
       }
     }
   }
 
   getColorLetra(letra: string): string {
-    if (!this.letrasUsadas.includes(letra)) return 'primary';
-    return this.palabraSecreta.includes(letra) ? 'success' : 'danger';
+    if (!this.letrasUsadas().includes(letra)) return 'primary';
+    return this.palabraSecreta().includes(letra) ? 'success' : 'danger';
   }
 
   // ---- PREGUNTA ----
   jugarPregunta() {
-    this.preguntaActual =
-      this.preguntas[Math.floor(Math.random() * this.preguntas.length)];
-    this.respondida = false;
-    this.mensajePregunta = '';
-    this.modalPregunta = true;
+    this.preguntaActual.set(this.preguntas[Math.floor(Math.random() * this.preguntas.length)]);
+    this.respondida.set(false);
+    this.mensajePregunta.set('');
+    this.modalPregunta.set(true);
   }
 
   responderPregunta(opcion: string) {
-    this.respondida = true;
-    if (opcion === this.preguntaActual.respuesta) {
-      this.mensajePregunta = '¡Correcto! +20% de descuento';
+    this.respondida.set(true);
+    const pregunta = this.preguntaActual();
+    if (!pregunta) return;
+    if (opcion === pregunta.respuesta) {
+      this.mensajePregunta.set('¡Correcto! +20% de descuento');
       this.guardarDescuento(20, 'pregunta');
     } else {
-      this.mensajePregunta = `Incorrecto. La respuesta era: ${this.preguntaActual.respuesta}`;
+      this.mensajePregunta.set(`Incorrecto. La respuesta era: ${pregunta.respuesta}`);
     }
   }
 
-  async guardarDescuento(porcentaje: number, juego: string) {
-    if (this.descuentoObtenido > 0) return;
-
+  private async guardarDescuento(porcentaje: number, juego: string) {
+    if (this.descuentoObtenido() > 0) return;
+    const usuario = this.authService.getUsuarioActual();
+    if (!usuario) return;
     const { error } = await this.supabase.client.from('descuentos').insert({
-      usuario_id: this.usuario.id,
-      pedido_id: this.pedidoId,
-      porcentaje,
-      juego,
+      usuario_id: usuario.id, pedido_id: this.pedidoId(), porcentaje, juego,
     });
-
     if (!error) {
-      this.descuentoObtenido = porcentaje;
-      this.juegosJugados.push(juego);
+      this.descuentoObtenido.set(porcentaje);
+      this.juegosJugados.update(js => [...js, juego]);
     }
   }
 
   cerrarModal() {
-    this.modalMemoria = false;
-    this.modalAhorcado = false;
-    this.modalPregunta = false;
+    this.modalMemoria.set(false);
+    this.modalAhorcado.set(false);
+    this.modalPregunta.set(false);
   }
 }

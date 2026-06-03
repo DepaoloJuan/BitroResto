@@ -9,18 +9,18 @@
 
 <ion-content class="ion-padding">
 
-  @if (cargando) {
+  @if (cargando()) {
     <app-loading />
   }
 
-  @if (!cargando && clientes.length === 0) {
+  @if (!cargando() && clientes().length === 0) {
     <div class="ion-text-center ion-padding">
       <ion-icon name="checkmark-circle-outline" size="large" color="success"></ion-icon>
       <p>No hay clientes pendientes de aprobación.</p>
     </div>
   }
 
-  @for (cliente of clientes; track cliente.id) {
+  @for (cliente of clientes(); track cliente.id) {
     <ion-card>
       <ion-card-header>
         <ion-grid>
@@ -53,16 +53,11 @@
             </ion-button>
           </ion-col>
         </ion-row>
-
         @if (cliente._exito) {
-          <ion-text color="success">
-            <small>{{ cliente._exito }}</small>
-          </ion-text>
+          <ion-text color="success"><small>{{ cliente._exito }}</small></ion-text>
         }
         @if (cliente._error) {
-          <ion-text color="danger">
-            <small>{{ cliente._error }}</small>
-          </ion-text>
+          <ion-text color="danger"><small>{{ cliente._error }}</small></ion-text>
         }
       </ion-card-content>
     </ion-card>

@@ -12,28 +12,28 @@
         <ion-label position="floating">Correo electrónico</ion-label>
         <ion-input
           type="email"
-          [(ngModel)]="email"
+          [ngModel]="email()" (ngModelChange)="email.set($event)"
           placeholder="ejemplo@correo.com">
         </ion-input>
       </ion-item>
-      @if (errores.email) {
-        <p class="error-msg">{{ errores.email }}</p>
+      @if (errores()['email']) {
+        <p class="error-msg">{{ errores()['email'] }}</p>
       }
 
       <ion-item lines="none" class="input-item">
         <ion-label position="floating">Contraseña</ion-label>
         <ion-input
           type="password"
-          [(ngModel)]="password"
+          [ngModel]="password()" (ngModelChange)="password.set($event)"
           placeholder="••••••••">
         </ion-input>
       </ion-item>
-      @if (errores.password) {
-        <p class="error-msg">{{ errores.password }}</p>
+      @if (errores()['password']) {
+        <p class="error-msg">{{ errores()['password'] }}</p>
       }
 
-      @if (errorGeneral) {
-        <p class="error-msg error-general">{{ errorGeneral }}</p>
+      @if (errorGeneral()) {
+        <p class="error-msg error-general">{{ errorGeneral() }}</p>
       }
 
       <ion-button expand="block" class="btn-ingresar" (click)="login()">

@@ -1,135 +1,85 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
-  IonHeader,
-  IonToolbar,
-  IonTitle,
-  IonContent,
-  IonCard,
-  IonCardHeader,
-  IonCardTitle,
-  IonCardContent,
-  IonItem,
-  IonInput,
-  IonButton,
-  IonIcon,
-  IonSpinner,
-  IonButtons,
-  IonBackButton,
+  IonHeader, IonToolbar, IonTitle, IonContent, IonCard, IonCardHeader,
+  IonCardTitle, IonCardContent, IonItem, IonInput, IonButton, IonIcon,
+  IonSpinner, IonButtons, IonBackButton,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { chatbubblesOutline, sendOutline } from 'ionicons/icons';
 import { AuthService } from '../../../core/services/auth';
 import { SupabaseService } from '../../../core/services/supabase';
+import { Mesa, Consulta } from '../../../core/models';
+import { RealtimeChannel } from '@supabase/supabase-js';
+
+interface MesaConMensajes extends Mesa { mensajes: Consulta[]; _respuesta: string; }
 
 @Component({
   selector: 'app-chat',
   templateUrl: './chat.page.html',
   styleUrls: ['./chat.page.scss'],
-  standalone: true,
   imports: [
-    CommonModule,
-    FormsModule,
-    IonHeader,
-    IonToolbar,
-    IonTitle,
-    IonContent,
-    IonCard,
-    IonCardHeader,
-    IonCardTitle,
-    IonCardContent,
-    IonItem,
-    IonInput,
-    IonButton,
-    IonIcon,
-    IonSpinner,
-    IonButtons,
-    IonBackButton,
+    DatePipe, FormsModule, IonHeader, IonToolbar, IonTitle, IonContent, IonCard, IonCardHeader,
+    IonCardTitle, IonCardContent, IonItem, IonInput, IonButton, IonIcon,
+    IonSpinner, IonButtons, IonBackButton,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ChatPage implements OnInit {
-  mesas: any[] = [];
-  cargando = false;
-  usuario: any;
+  private readonly authService = inject(AuthService);
+  private readonly supabase = inject(SupabaseService);
+  private readonly destroyRef = inject(DestroyRef);
 
-  constructor(
-    private authService: AuthService,
-    private supabase: SupabaseService,
-  ) {
+  mesas = signal<MesaConMensajes[]>([]);
+  cargando = signal(false);
+
+  private canal?: RealtimeChannel;
+
+  constructor() {
     addIcons({ chatbubblesOutline, sendOutline });
+    this.destroyRef.onDestroy(() => {
+      if (this.canal) this.supabase.client.removeChannel(this.canal);
+    });
   }
 
   async ngOnInit() {
-    this.usuario = this.authService.getUsuarioActual();
     await this.cargarMensajes();
     this.suscribirCambios();
   }
 
   async cargarMensajes() {
-    this.cargando = true;
-
-    // Traer todas las mesas ocupadas
+    this.cargando.set(true);
     const { data: mesasOcupadas } = await this.supabase.client
-      .from('mesas')
-      .select('*')
-      .eq('estado', 'ocupada')
-      .not('tipo', 'in', '("entrada","propinas")');
-
-    if (!mesasOcupadas || mesasOcupadas.length === 0) {
-      this.mesas = [];
-      this.cargando = false;
-      return;
-    }
-
-    // Traer mensajes de esas mesas
-    const mesaIds = mesasOcupadas.map((m) => m.id);
+      .from('mesas').select('*').eq('estado', 'ocupada').not('tipo', 'in', '("entrada","propinas")');
+    if (!mesasOcupadas?.length) { this.mesas.set([]); this.cargando.set(false); return; }
+    const mesaIds = mesasOcupadas.map(m => m.id);
     const { data: mensajes } = await this.supabase.client
-      .from('consultas')
-      .select('*')
-      .in('mesa_id', mesaIds)
-      .order('fecha', { ascending: true });
-
-    this.mesas = mesasOcupadas
-      .map((mesa) => ({
-        ...mesa,
-        mensajes: (mensajes || []).filter((m) => m.mesa_id === mesa.id),
-        _respuesta: '',
-      }))
-      .filter((m) => m.mensajes.length > 0);
-
-    this.cargando = false;
+      .from('consultas').select('*').in('mesa_id', mesaIds).order('fecha', { ascending: true });
+    this.mesas.set(
+      mesasOcupadas
+        .map(mesa => ({ ...mesa, mensajes: (mensajes || []).filter(m => m.mesa_id === mesa.id), _respuesta: '' }) as MesaConMensajes)
+        .filter(m => m.mensajes.length > 0)
+    );
+    this.cargando.set(false);
   }
 
   suscribirCambios() {
-    this.supabase.client
+    this.canal = this.supabase.client
       .channel('chat_mozo')
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'consultas',
-        },
-        () => this.cargarMensajes(),
-      )
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'consultas' },
+        () => this.cargarMensajes())
       .subscribe();
   }
 
-  async responder(mesa: any) {
+  async responder(mesa: MesaConMensajes) {
     if (!mesa._respuesta.trim()) return;
-
+    const usuario = this.authService.getUsuarioActual();
     const { error } = await this.supabase.client.from('consultas').insert({
-      mesa_id: mesa.id,
-      usuario_id: this.usuario.id,
-      nombre_remitente: `${this.usuario.nombre} (Mozo)`,
-      mensaje: mesa._respuesta.trim(),
-      tipo: 'mozo',
+      mesa_id: mesa.id, usuario_id: usuario?.id,
+      nombre_remitente: `${usuario?.nombre} (Mozo)`,
+      mensaje: mesa._respuesta.trim(), tipo: 'mozo',
     });
-
-    if (!error) {
-      mesa._respuesta = '';
-      await this.cargarMensajes();
-    }
+    if (!error) { mesa._respuesta = ''; await this.cargarMensajes(); }
   }
 }

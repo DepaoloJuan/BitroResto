@@ -9,7 +9,7 @@
 
 <ion-content class="ion-padding">
 
-  @if (yaRespondio) {
+  @if (yaRespondio()) {
     <div class="ion-text-center ion-padding">
       <ion-icon name="checkmark-circle-outline" size="large" color="success"></ion-icon>
       <h2>¡Gracias por tu opinión!</h2>
@@ -21,10 +21,9 @@
     </div>
   }
 
-  @if (!yaRespondio) {
+  @if (!yaRespondio()) {
     <h2>¿Cómo fue tu experiencia?</h2>
 
-    <!-- Atención: estrellas -->
     <ion-card>
       <ion-card-header>
         <ion-card-title>Atención del personal</ion-card-title>
@@ -41,11 +40,10 @@
         </div>
       </ion-card-content>
     </ion-card>
-    @if (errores.atencion) {
-      <ion-text color="danger"><small>{{ errores.atencion }}</small></ion-text>
+    @if (errores()['atencion']) {
+      <ion-text color="danger"><small>{{ errores()['atencion'] }}</small></ion-text>
     }
 
-    <!-- Comida: rango -->
     <ion-card>
       <ion-card-header>
         <ion-card-title>Calidad de la comida</ion-card-title>
@@ -59,7 +57,6 @@
       </ion-card-content>
     </ion-card>
 
-    <!-- Ambiente: opciones -->
     <ion-card>
       <ion-card-header>
         <ion-card-title>Ambiente del local</ion-card-title>
@@ -89,11 +86,10 @@
         </ion-radio-group>
       </ion-card-content>
     </ion-card>
-    @if (errores.ambiente) {
-      <ion-text color="danger"><small>{{ errores.ambiente }}</small></ion-text>
+    @if (errores()['ambiente']) {
+      <ion-text color="danger"><small>{{ errores()['ambiente'] }}</small></ion-text>
     }
 
-    <!-- Volvería: select -->
     <ion-card>
       <ion-card-header>
         <ion-card-title>¿Volvería al restaurante?</ion-card-title>
@@ -106,16 +102,16 @@
         </ion-select>
       </ion-card-content>
     </ion-card>
-    @if (errores.volveria) {
-      <ion-text color="danger"><small>{{ errores.volveria }}</small></ion-text>
+    @if (errores()['volveria']) {
+      <ion-text color="danger"><small>{{ errores()['volveria'] }}</small></ion-text>
     }
 
-    @if (errorGeneral) {
-      <ion-text color="danger"><p>{{ errorGeneral }}</p></ion-text>
+    @if (errorGeneral()) {
+      <ion-text color="danger"><p>{{ errorGeneral() }}</p></ion-text>
     }
 
-    <ion-button expand="block" (click)="enviar()" [disabled]="cargando" class="ion-margin-top">
-      @if (cargando) {
+    <ion-button expand="block" (click)="enviar()" [disabled]="cargando()" class="ion-margin-top">
+      @if (cargando()) {
         <ion-spinner name="crescent"></ion-spinner>
       } @else {
         Enviar encuesta

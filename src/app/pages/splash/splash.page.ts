@@ -1,34 +1,31 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
+import { IonContent } from '@ionic/angular/standalone';
 import { AudioService } from '../../core/services/audio';
 import { NotificacionesService } from '../../core/services/notificaciones';
-import { IonContent } from '@ionic/angular/standalone';
-import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-splash',
   templateUrl: './splash.page.html',
   styleUrls: ['./splash.page.scss'],
-  standalone: true,
-  imports: [IonContent, CommonModule],
+  imports: [IonContent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SplashPage implements OnInit {
-  animando = false;
-  mostrarTexto = false;
-  mostrarIntegrantes = false;
+  private readonly router = inject(Router);
+  private readonly audio = inject(AudioService);
+  private readonly notificaciones = inject(NotificacionesService);
 
-  constructor(
-    private router: Router,
-    private audio: AudioService,
-    private notificaciones: NotificacionesService,
-  ) {}
+  animando = signal(false);
+  mostrarTexto = signal(false);
+  mostrarIntegrantes = signal(false);
 
   async ngOnInit() {
     await this.notificaciones.inicializar();
     this.audio.reproducirInicio();
-    setTimeout(() => (this.animando = true), 300);
-    setTimeout(() => (this.mostrarTexto = true), 600);
-    setTimeout(() => (this.mostrarIntegrantes = true), 1000);
+    setTimeout(() => this.animando.set(true), 300);
+    setTimeout(() => this.mostrarTexto.set(true), 600);
+    setTimeout(() => this.mostrarIntegrantes.set(true), 1000);
     setTimeout(() => this.router.navigate(['/login']), 3500);
   }
 }

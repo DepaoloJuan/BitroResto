@@ -9,11 +9,11 @@
 
 <ion-content class="ion-padding">
 
-  @if (cargando) {
+  @if (cargando()) {
     <app-loading />
   }
 
-  @if (!cargando && pedido) {
+  @if (!cargando() && pedido()) {
 
     <!-- Detalle del pedido -->
     <ion-card>
@@ -21,7 +21,7 @@
         <ion-card-title>Detalle del pedido</ion-card-title>
       </ion-card-header>
       <ion-card-content>
-        @for (item of pedido.pedido_items; track item.id) {
+        @for (item of pedido()!.pedido_items; track item.id) {
           <ion-item lines="none">
             <ion-label>{{ item.nombre }} x{{ item.cantidad }}</ion-label>
             <ion-note slot="end">${{ item.precio * item.cantidad }}</ion-note>
@@ -31,7 +31,7 @@
     </ion-card>
 
     <!-- Descuento por juegos -->
-    @if (descuento > 0) {
+    @if (descuento() > 0) {
       <ion-card>
         <ion-card-header>
           <ion-card-title>Descuento por juegos</ion-card-title>
@@ -39,8 +39,8 @@
         <ion-card-content>
           <ion-item lines="none" color="success">
             <ion-icon name="gift-outline" slot="start"></ion-icon>
-            <ion-label>Descuento {{ descuento }}%</ion-label>
-            <ion-note slot="end">-${{ montoDescuento }}</ion-note>
+            <ion-label>Descuento {{ descuento() }}%</ion-label>
+            <ion-note slot="end">-${{ montoDescuento() }}</ion-note>
           </ion-item>
         </ion-card-content>
       </ion-card>
@@ -53,7 +53,7 @@
         <ion-card-subtitle>Seleccioná tu nivel de satisfacción</ion-card-subtitle>
       </ion-card-header>
       <ion-card-content>
-        <ion-radio-group [(ngModel)]="propinaPorcentaje">
+        <ion-radio-group [ngModel]="propinaPorcentaje()" (ngModelChange)="propinaPorcentaje.set($event)">
           <ion-item lines="none">
             <ion-radio slot="start" [value]="20"></ion-radio>
             <ion-label>Excelente — 20%</ion-label>
@@ -75,7 +75,7 @@
             <ion-label>Malo — 0%</ion-label>
           </ion-item>
         </ion-radio-group>
-        @if (propinaPorcentaje === null) {
+        @if (propinaPorcentaje() === null) {
           <ion-text color="danger">
             <small>Debés seleccionar una opción de propina para poder pagar.</small>
           </ion-text>
@@ -88,33 +88,33 @@
       <ion-card-content>
         <ion-item lines="none" color="primary">
           <ion-label><strong>Subtotal</strong></ion-label>
-          <ion-note slot="end" style="color:white">${{ pedido.total }}</ion-note>
+          <ion-note slot="end" style="color:white">${{ pedido()!.total }}</ion-note>
         </ion-item>
-        @if (descuento > 0) {
+        @if (descuento() > 0) {
           <ion-item lines="none" color="primary">
-            <ion-label><strong>Descuento {{ descuento }}%</strong></ion-label>
-            <ion-note slot="end" style="color:white">-${{ montoDescuento }}</ion-note>
+            <ion-label><strong>Descuento {{ descuento() }}%</strong></ion-label>
+            <ion-note slot="end" style="color:white">-${{ montoDescuento() }}</ion-note>
           </ion-item>
         }
-        @if (propinaPorcentaje > 0) {
+        @if (propinaPorcentaje() > 0) {
           <ion-item lines="none" color="primary">
-            <ion-label><strong>Propina {{ propinaPorcentaje }}%</strong></ion-label>
-            <ion-note slot="end" style="color:white">+${{ montoPropina }}</ion-note>
+            <ion-label><strong>Propina {{ propinaPorcentaje() }}%</strong></ion-label>
+            <ion-note slot="end" style="color:white">+${{ montoPropina() }}</ion-note>
           </ion-item>
         }
         <ion-item lines="none" color="primary">
           <ion-label><h1><strong>TOTAL</strong></h1></ion-label>
           <ion-note slot="end">
-            <h1 style="color:white; font-size: 1.8rem"><strong>${{ totalFinal }}</strong></h1>
+            <h1 style="color:white; font-size: 1.8rem"><strong>${{ totalFinal() }}</strong></h1>
           </ion-note>
         </ion-item>
       </ion-card-content>
     </ion-card>
 
-    @if (pedido.estado === 'entregado') {
+    @if (pedido()!.estado === 'entregado') {
       <ion-button expand="block" color="success" (click)="solicitarCuenta()"
-        [disabled]="enviando || propinaPorcentaje === null" class="ion-margin-top">
-        @if (enviando) {
+        [disabled]="enviando() || propinaPorcentaje() === null" class="ion-margin-top">
+        @if (enviando()) {
           <ion-spinner name="crescent"></ion-spinner>
         } @else {
           <ion-icon name="cash-outline" slot="start"></ion-icon>
@@ -123,15 +123,15 @@
       </ion-button>
     }
 
-    @if (pedido.estado === 'pago_solicitado') {
+    @if (pedido()!.estado === 'pago_solicitado') {
       <ion-item lines="none" color="warning" class="ion-margin-top">
         <ion-icon name="hourglass-outline" slot="start"></ion-icon>
         <ion-label>Esperando confirmación del mozo...</ion-label>
       </ion-item>
     }
 
-    @if (errorGeneral) {
-      <ion-text color="danger"><p>{{ errorGeneral }}</p></ion-text>
+    @if (errorGeneral()) {
+      <ion-text color="danger"><p>{{ errorGeneral() }}</p></ion-text>
     }
   }
 

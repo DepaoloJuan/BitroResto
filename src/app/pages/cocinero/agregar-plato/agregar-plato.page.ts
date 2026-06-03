@@ -1,170 +1,90 @@
-import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
-  IonHeader,
-  IonToolbar,
-  IonTitle,
-  IonContent,
-  IonItem,
-  IonLabel,
-  IonInput,
-  IonButton,
-  IonText,
-  IonSpinner,
-  IonButtons,
-  IonBackButton,
-  IonTextarea,
-  IonGrid,
-  IonRow,
-  IonCol,
-  IonIcon,
-  IonListHeader,
+  IonHeader, IonToolbar, IonTitle, IonContent, IonItem, IonLabel, IonInput, IonButton,
+  IonText, IonSpinner, IonButtons, IonBackButton, IonTextarea, IonGrid, IonRow, IonCol,
+  IonIcon, IonListHeader,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { cameraOutline } from 'ionicons/icons';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { SupabaseService } from '../../../core/services/supabase';
 import { HapticsService } from '../../../core/services/haptics.service';
+import { FormProducto } from '../../../core/models';
 
 @Component({
   selector: 'app-agregar-plato',
   templateUrl: './agregar-plato.page.html',
   styleUrls: ['./agregar-plato.page.scss'],
-  standalone: true,
   imports: [
-    CommonModule,
-    FormsModule,
-    IonHeader,
-    IonToolbar,
-    IonTitle,
-    IonContent,
-    IonItem,
-    IonLabel,
-    IonInput,
-    IonButton,
-    IonText,
-    IonSpinner,
-    IonButtons,
-    IonBackButton,
-    IonTextarea,
-    IonGrid,
-    IonRow,
-    IonCol,
-    IonIcon,
-    IonListHeader,
+    FormsModule, IonHeader, IonToolbar, IonTitle, IonContent, IonItem, IonLabel, IonInput,
+    IonButton, IonText, IonSpinner, IonButtons, IonBackButton, IonTextarea, IonGrid,
+    IonRow, IonCol, IonIcon, IonListHeader,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AgregarPlatoPage {
-  form = {
-    nombre: '',
-    descripcion: '',
-    tiempo_elaboracion: '',
-    precio: '',
-    fotos: ['', '', ''],
-  };
+  private readonly supabase = inject(SupabaseService);
+  private readonly haptics = inject(HapticsService);
 
-  errores: any = {};
-  errorGeneral = '';
-  exitoso = false;
-  cargando = false;
+  private readonly formVacio: FormProducto = { nombre: '', descripcion: '', tiempo_elaboracion: '', precio: '', fotos: ['', '', ''] };
+  form: FormProducto = { ...this.formVacio, fotos: ['', '', ''] };
+  errores = signal<Record<string, string>>({});
+  errorGeneral = signal('');
+  exitoso = signal(false);
+  cargando = signal(false);
 
-  constructor(private supabase: SupabaseService, private haptics: HapticsService) {
-    addIcons({ cameraOutline });
-  }
+  constructor() { addIcons({ cameraOutline }); }
 
   async seleccionarFoto(index: number) {
     try {
       const foto = await Camera.getPhoto({
-        quality: 90,
-        allowEditing: false,
-        resultType: CameraResultType.DataUrl,
-        source: CameraSource.Prompt,
+        quality: 90, allowEditing: false,
+        resultType: CameraResultType.DataUrl, source: CameraSource.Prompt,
       });
       this.form.fotos[index] = foto.dataUrl ?? '';
-      this.errores.fotos = '';
-    } catch (error) {
-      // el usuario canceló, no mostrar nada
-    }
+      this.errores.update(e => ({ ...e, fotos: '' }));
+    } catch {}
   }
 
   async validar(): Promise<boolean> {
-    this.errores = {};
-
-    if (!this.form.nombre.trim())
-      this.errores.nombre = 'El nombre es obligatorio.';
-
-    if (!this.form.descripcion.trim())
-      this.errores.descripcion = 'La descripción es obligatoria.';
-
-    if (!this.form.tiempo_elaboracion)
-      this.errores.tiempo_elaboracion =
-        'El tiempo de elaboración es obligatorio.';
-    else if (Number(this.form.tiempo_elaboracion) <= 0)
-      this.errores.tiempo_elaboracion = 'El tiempo debe ser mayor a cero.';
-
-    if (!this.form.precio) this.errores.precio = 'El precio es obligatorio.';
-    else if (Number(this.form.precio) <= 0)
-      this.errores.precio = 'El precio debe ser mayor a cero.';
-
-    const fotosValidas = this.form.fotos.filter((f) => f.trim() !== '');
-    if (fotosValidas.length === 0)
-      this.errores.fotos = 'Debe ingresar al menos una foto.';
-
-    if (Object.keys(this.errores).length > 0) {
-      await this.haptics.error();
-      return false;
-    }
+    const f = this.form;
+    const errs: Record<string, string> = {};
+    if (!f.nombre.trim()) errs['nombre'] = 'El nombre es obligatorio.';
+    if (!f.descripcion.trim()) errs['descripcion'] = 'La descripción es obligatoria.';
+    if (!f.tiempo_elaboracion) errs['tiempo_elaboracion'] = 'El tiempo de elaboración es obligatorio.';
+    else if (Number(f.tiempo_elaboracion) <= 0) errs['tiempo_elaboracion'] = 'El tiempo debe ser mayor a cero.';
+    if (!f.precio) errs['precio'] = 'El precio es obligatorio.';
+    else if (Number(f.precio) <= 0) errs['precio'] = 'El precio debe ser mayor a cero.';
+    if (!f.fotos.some(fo => fo.trim())) errs['fotos'] = 'Debe ingresar al menos una foto.';
+    this.errores.set(errs);
+    if (Object.keys(errs).length > 0) { await this.haptics.error(); return false; }
     return true;
   }
 
   async guardar() {
-    this.errorGeneral = '';
-    this.exitoso = false;
-
+    this.errorGeneral.set('');
+    this.exitoso.set(false);
     if (!await this.validar()) return;
-
     try {
-      this.cargando = true;
-
-      // Verificar que no exista un plato con ese nombre
-      const { data: platoExistente } = await this.supabase.client
-        .from('platos')
-        .select('id')
-        .ilike('nombre', this.form.nombre.trim())
-        .single();
-
-      if (platoExistente) {
-        this.errorGeneral = `Ya existe un plato llamado "${this.form.nombre}".`;
-        return;
-      }
-
+      this.cargando.set(true);
+      const f = this.form;
+      const { data: existente } = await this.supabase.client
+        .from('platos').select('id').ilike('nombre', f.nombre.trim()).single();
+      if (existente) { this.errorGeneral.set(`Ya existe un plato llamado "${f.nombre}".`); return; }
       const { error } = await this.supabase.client.from('platos').insert({
-        nombre: this.form.nombre.trim(),
-        descripcion: this.form.descripcion.trim(),
-        tiempo_elaboracion: Number(this.form.tiempo_elaboracion),
-        precio: Number(this.form.precio),
-        foto1: this.form.fotos[0] || null,
-        foto2: this.form.fotos[1] || null,
-        foto3: this.form.fotos[2] || null,
+        nombre: f.nombre.trim(), descripcion: f.descripcion.trim(),
+        tiempo_elaboracion: Number(f.tiempo_elaboracion), precio: Number(f.precio),
+        foto1: f.fotos[0] || null, foto2: f.fotos[1] || null, foto3: f.fotos[2] || null,
       });
-
       if (error) throw error;
-
-      this.exitoso = true;
-      this.form = {
-        nombre: '',
-        descripcion: '',
-        tiempo_elaboracion: '',
-        precio: '',
-        fotos: ['', '', ''],
-      };
-    } catch (error: any) {
+      this.exitoso.set(true);
+      this.form = { ...this.formVacio, fotos: ['', '', ''] };
+    } catch (e: unknown) {
       await this.haptics.error();
-      this.errorGeneral =
-        error.message || 'Ocurrió un error al guardar el plato.';
+      this.errorGeneral.set((e as Error).message || 'Ocurrió un error al guardar el plato.');
     } finally {
-      this.cargando = false;
+      this.cargando.set(false);
     }
   }
 }

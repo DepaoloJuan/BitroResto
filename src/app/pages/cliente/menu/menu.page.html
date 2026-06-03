@@ -9,7 +9,7 @@
 
 <ion-content>
 
-  <ion-segment [(ngModel)]="seccion" (ionChange)="cambiarSeccion()">
+  <ion-segment [ngModel]="seccion()" (ngModelChange)="seccion.set($event)" (ionChange)="cambiarSeccion()">
     <ion-segment-button value="platos">
       <ion-label>Platos</ion-label>
     </ion-segment-button>
@@ -18,11 +18,11 @@
     </ion-segment-button>
   </ion-segment>
 
-  @if (cargando) {
+  @if (cargando()) {
     <app-loading />
   }
 
-  @for (item of items; track item.id) {
+  @for (item of items(); track item.id) {
     <ion-card class="ion-margin">
       <div class="fotos-container">
         <div class="fotos-scroll">

@@ -1,78 +1,36 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { CommonModule } from '@angular/common';
 import {
-  IonHeader,
-  IonToolbar,
-  IonTitle,
-  IonContent,
-  IonButtons,
-  IonButton,
-  IonIcon,
-  IonGrid,
-  IonRow,
-  IonCol,
-  IonCard,
-  IonCardContent,
+  IonHeader, IonToolbar, IonTitle, IonContent, IonButtons, IonButton,
+  IonIcon, IonGrid, IonRow, IonCol, IonCard, IonCardContent,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import {
-  peopleOutline,
-  personAddOutline,
-  gridOutline,
-  qrCodeOutline,
-  cashOutline,
-  logOutOutline,
-} from 'ionicons/icons';
+import { peopleOutline, personAddOutline, gridOutline, qrCodeOutline, cashOutline, logOutOutline } from 'ionicons/icons';
 import { AuthService } from '../../core/services/auth';
+import { Usuario } from '../../core/models';
 
 @Component({
   selector: 'app-dueno',
   templateUrl: './dueno.page.html',
   styleUrls: ['./dueno.page.scss'],
-  standalone: true,
   imports: [
-    CommonModule,
-    IonHeader,
-    IonToolbar,
-    IonTitle,
-    IonContent,
-    IonButtons,
-    IonButton,
-    IonIcon,
-    IonGrid,
-    IonRow,
-    IonCol,
-    IonCard,
-    IonCardContent,
+    IonHeader, IonToolbar, IonTitle, IonContent, IonButtons, IonButton,
+    IonIcon, IonGrid, IonRow, IonCol, IonCard, IonCardContent,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DuenoPage implements OnInit {
-  usuario: any;
+  private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
 
-  constructor(
-    private authService: AuthService,
-    private router: Router,
-  ) {
-    addIcons({
-      peopleOutline,
-      personAddOutline,
-      gridOutline,
-      qrCodeOutline,
-      cashOutline,
-      logOutOutline,
-    });
+  protected readonly usuario = this.authService.usuario;
+
+  constructor() {
+    addIcons({ peopleOutline, personAddOutline, gridOutline, qrCodeOutline, cashOutline, logOutOutline });
   }
 
-  ngOnInit() {
-    this.usuario = this.authService.getUsuarioActual();
-  }
+  ngOnInit() {}
 
-  ir(ruta: string) {
-    this.router.navigate([ruta]);
-  }
-
-  async cerrarSesion() {
-    await this.authService.logout();
-  }
+  ir(ruta: string) { this.router.navigate([ruta]); }
+  async cerrarSesion() { await this.authService.logout(); }
 }

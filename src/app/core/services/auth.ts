@@ -1,29 +1,31 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import { Router } from '@angular/router';
+import { Usuario } from '../models';
 import { SupabaseService } from './supabase';
 import { AudioService } from './audio';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private usuarioActual: any = null;
+  private readonly supabase = inject(SupabaseService);
+  private readonly router = inject(Router);
+  private readonly audio = inject(AudioService);
 
-  constructor(
-    private supabase: SupabaseService,
-    private router: Router,
-    private audio: AudioService,
-  ) {
+  private readonly _usuario = signal<Usuario | null>(null);
+  readonly usuario = this._usuario.asReadonly();
+
+  constructor() {
     const anonimo = sessionStorage.getItem('usuario_anonimo');
     if (anonimo) {
-      this.usuarioActual = JSON.parse(anonimo);
+      this._usuario.set(JSON.parse(anonimo));
     }
   }
 
-  getUsuarioActual() {
-    return this.usuarioActual;
+  getUsuarioActual(): Usuario | null {
+    return this._usuario();
   }
 
-  setUsuarioAnonimo(usuario: any) {
-    this.usuarioActual = usuario;
+  setUsuarioAnonimo(usuario: Usuario | null): void {
+    this._usuario.set(usuario);
     if (usuario) {
       sessionStorage.setItem('usuario_anonimo', JSON.stringify(usuario));
     } else {
@@ -31,15 +33,10 @@ export class AuthService {
     }
   }
 
-  async login(email: string, password: string) {
-    const { data, error } = await this.supabase.client.auth.signInWithPassword({
-      email,
-      password,
-    });
-
+  async login(email: string, password: string): Promise<Usuario> {
+    const { data, error } = await this.supabase.client.auth.signInWithPassword({ email, password });
     if (error) throw error;
 
-    // Buscar datos del usuario en nuestra tabla
     const { data: usuario, error: errorUsuario } = await this.supabase.client
       .from('usuarios')
       .select('*')
@@ -47,25 +44,22 @@ export class AuthService {
       .single();
 
     if (errorUsuario) throw errorUsuario;
-
     if (usuario.estado !== 'aprobado') {
-      throw new Error(
-        'Tu cuenta está pendiente de aprobación o fue rechazada.',
-      );
+      throw new Error('Tu cuenta está pendiente de aprobación o fue rechazada.');
     }
 
-    this.usuarioActual = usuario;
-    return usuario;
+    this._usuario.set(usuario as Usuario);
+    return usuario as Usuario;
   }
 
-  async logout() {
+  async logout(): Promise<void> {
     this.audio.reproducirCierre();
     await this.supabase.client.auth.signOut();
-    this.usuarioActual = null;
+    this._usuario.set(null);
     this.router.navigate(['/login']);
   }
 
-  redirigirSegunPerfil(perfil: string) {
+  redirigirSegunPerfil(perfil: string): void {
     const rutas: Record<string, string> = {
       dueño: '/dueno',
       supervisor: '/supervisor',
@@ -76,8 +70,6 @@ export class AuthService {
       bartender: '/cantinero',
       cliente: '/cliente/home',
     };
-
-    const ruta = rutas[perfil] || '/login';
-    this.router.navigate([ruta]);
+    this.router.navigate([rutas[perfil] ?? '/login']);
   }
 }

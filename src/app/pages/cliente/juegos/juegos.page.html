@@ -9,10 +9,10 @@
 
 <ion-content class="ion-padding">
 
-  @if (descuentoObtenido) {
+  @if (descuentoObtenido()) {
     <ion-item color="success" lines="none" class="ion-margin-bottom">
       <ion-icon name="gift-outline" slot="start"></ion-icon>
-      <ion-label>¡Obtuviste un {{ descuentoObtenido }}% de descuento!</ion-label>
+      <ion-label>¡Obtuviste un {{ descuentoObtenido() }}% de descuento!</ion-label>
     </ion-item>
   }
 
@@ -59,7 +59,7 @@
   </ion-card>
 
   <!-- Juego Memoria -->
-  <ion-modal [isOpen]="modalMemoria" (didDismiss)="cerrarModal()">
+  <ion-modal [isOpen]="modalMemoria()" (didDismiss)="cerrarModal()">
     <ng-template>
       <ion-header>
         <ion-toolbar>
@@ -70,9 +70,9 @@
         </ion-toolbar>
       </ion-header>
       <ion-content class="ion-padding">
-        <p class="ion-text-center">Intentos: {{ intentosMemoria }}</p>
+        <p class="ion-text-center">Intentos: {{ intentosMemoria() }}</p>
         <div class="grilla-memoria">
-          @for (carta of cartasMemoria; track carta.id) {
+          @for (carta of cartasMemoria(); track carta.id) {
             <div class="carta" [class.volteada]="carta.volteada || carta.encontrada"
               [class.encontrada]="carta.encontrada" (click)="voltearCarta(carta)">
               @if (carta.volteada || carta.encontrada) {
@@ -83,9 +83,9 @@
             </div>
           }
         </div>
-        @if (mensajeMemoria) {
-          <p class="ion-text-center" [style.color]="mensajeMemoria.includes('¡') ? 'green' : 'red'">
-            {{ mensajeMemoria }}
+        @if (mensajeMemoria()) {
+          <p class="ion-text-center" [style.color]="mensajeMemoria().includes('¡') ? 'green' : 'red'">
+            {{ mensajeMemoria() }}
           </p>
         }
       </ion-content>
@@ -93,7 +93,7 @@
   </ion-modal>
 
   <!-- Juego Ahorcado -->
-  <ion-modal [isOpen]="modalAhorcado" (didDismiss)="cerrarModal()">
+  <ion-modal [isOpen]="modalAhorcado()" (didDismiss)="cerrarModal()">
     <ng-template>
       <ion-header>
         <ion-toolbar>
@@ -104,25 +104,25 @@
         </ion-toolbar>
       </ion-header>
       <ion-content class="ion-padding ion-text-center">
-        <p>Errores: {{ erroresAhorcado }} / 6</p>
+        <p>Errores: {{ erroresAhorcado() }} / 6</p>
         <div class="palabra-ahorcado">
-          @for (letra of palabraMostrada; track $index) {
+          @for (letra of palabraMostrada(); track $index) {
             <span class="letra-casilla">{{ letra }}</span>
           }
         </div>
         <div class="letras-ahorcado">
           @for (letra of abecedario; track letra) {
             <ion-button size="small" fill="outline"
-              [disabled]="letrasUsadas.includes(letra)"
+              [disabled]="letrasUsadas().includes(letra)"
               [color]="getColorLetra(letra)"
               (click)="adivinarLetra(letra)">
               {{ letra }}
             </ion-button>
           }
         </div>
-        @if (mensajeAhorcado) {
-          <p [style.color]="mensajeAhorcado.includes('¡') ? 'green' : 'red'">
-            {{ mensajeAhorcado }}
+        @if (mensajeAhorcado()) {
+          <p [style.color]="mensajeAhorcado().includes('¡') ? 'green' : 'red'">
+            {{ mensajeAhorcado() }}
           </p>
         }
       </ion-content>
@@ -130,7 +130,7 @@
   </ion-modal>
 
   <!-- Juego Pregunta -->
-  <ion-modal [isOpen]="modalPregunta" (didDismiss)="cerrarModal()">
+  <ion-modal [isOpen]="modalPregunta()" (didDismiss)="cerrarModal()">
     <ng-template>
       <ion-header>
         <ion-toolbar>
@@ -141,18 +141,18 @@
         </ion-toolbar>
       </ion-header>
       <ion-content class="ion-padding ion-text-center">
-        <h2>{{ preguntaActual?.pregunta }}</h2>
+        <h2>{{ preguntaActual()?.pregunta }}</h2>
         <div class="opciones-pregunta">
-          @for (opcion of preguntaActual?.opciones; track opcion) {
+          @for (opcion of preguntaActual()?.opciones ?? []; track opcion) {
             <ion-button expand="block" fill="outline" (click)="responderPregunta(opcion)"
-              [disabled]="respondida">
+              [disabled]="respondida()">
               {{ opcion }}
             </ion-button>
           }
         </div>
-        @if (mensajePregunta) {
-          <p [style.color]="mensajePregunta.includes('¡') ? 'green' : 'red'">
-            {{ mensajePregunta }}
+        @if (mensajePregunta()) {
+          <p [style.color]="mensajePregunta().includes('¡') ? 'green' : 'red'">
+            {{ mensajePregunta() }}
           </p>
         }
       </ion-content>

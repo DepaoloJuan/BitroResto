@@ -35,14 +35,14 @@
   </ion-list>
 
   <div class="qr-wrapper">
-    @if (qrPropinas) {
-      <img [src]="qrPropinas" alt="QR Propinas" />
+    @if (qrPropinas()) {
+      <img [src]="qrPropinas()" alt="QR Propinas" />
     } @else {
       <ion-spinner name="crescent"></ion-spinner>
     }
   </div>
 
-  @if (qrPropinas) {
+  @if (qrPropinas()) {
     <ion-button expand="block" (click)="descargar()" class="ion-margin-top">
       <ion-icon name="download-outline" slot="start"></ion-icon>
       Descargar QR

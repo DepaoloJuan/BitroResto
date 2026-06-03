@@ -1,20 +1,9 @@
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
-  IonHeader,
-  IonToolbar,
-  IonTitle,
-  IonContent,
-  IonItem,
-  IonLabel,
-  IonInput,
-  IonButton,
-  IonText,
-  IonSpinner,
-  IonButtons,
-  IonBackButton,
+  IonHeader, IonToolbar, IonTitle, IonContent, IonItem, IonLabel, IonInput,
+  IonButton, IonText, IonSpinner, IonButtons, IonBackButton,
 } from '@ionic/angular/standalone';
 import { SupabaseService } from '../../../core/services/supabase';
 
@@ -22,113 +11,60 @@ import { SupabaseService } from '../../../core/services/supabase';
   selector: 'app-agregar-cliente',
   templateUrl: './agregar-cliente.page.html',
   styleUrls: ['./agregar-cliente.page.scss'],
-  standalone: true,
   imports: [
-    CommonModule,
-    FormsModule,
-    IonHeader,
-    IonToolbar,
-    IonTitle,
-    IonContent,
-    IonItem,
-    IonLabel,
-    IonInput,
-    IonButton,
-    IonText,
-    IonSpinner,
-    IonButtons,
-    IonBackButton,
+    FormsModule, IonHeader, IonToolbar, IonTitle, IonContent, IonItem,
+    IonLabel, IonInput, IonButton, IonText, IonSpinner, IonButtons, IonBackButton,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AgregarClientePage {
-  form = {
-    nombre: '',
-    apellido: '',
-    dni: '',
-    email: '',
-    password: '',
-    confirmarPassword: '',
-    foto: '',
-  };
+  private readonly supabase = inject(SupabaseService);
+  private readonly router = inject(Router);
 
-  errores: any = {};
-  errorGeneral = '';
-  exitoso = false;
-  cargando = false;
-
-  constructor(
-    private supabase: SupabaseService,
-    private router: Router,
-  ) {}
+  form = { nombre: '', apellido: '', dni: '', email: '', password: '', confirmarPassword: '', foto: '' };
+  errores = signal<Record<string, string>>({});
+  errorGeneral = signal('');
+  exitoso = signal(false);
+  cargando = signal(false);
 
   validar(): boolean {
-    this.errores = {};
-
-    if (!this.form.nombre.trim())
-      this.errores.nombre = 'El nombre es obligatorio.';
-
-    if (!this.form.apellido.trim())
-      this.errores.apellido = 'El apellido es obligatorio.';
-
-    if (!this.form.dni.trim()) this.errores.dni = 'El DNI es obligatorio.';
-    else if (!/^\d{7,8}$/.test(this.form.dni))
-      this.errores.dni = 'El DNI debe tener 7 u 8 dígitos numéricos.';
-
-    if (!this.form.email.trim())
-      this.errores.email = 'El correo electrónico es obligatorio.';
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.form.email))
-      this.errores.email = 'El formato del correo no es válido.';
-
-    if (!this.form.password.trim())
-      this.errores.password = 'La contraseña es obligatoria.';
-    else if (this.form.password.length < 6)
-      this.errores.password = 'La contraseña debe tener al menos 6 caracteres.';
-
-    if (!this.form.confirmarPassword.trim())
-      this.errores.confirmarPassword = 'Debe confirmar la contraseña.';
-    else if (this.form.password !== this.form.confirmarPassword)
-      this.errores.confirmarPassword = 'Las contraseñas no coinciden.';
-
-    return Object.keys(this.errores).length === 0;
+    const f = this.form;
+    const errs: Record<string, string> = {};
+    if (!f.nombre.trim()) errs['nombre'] = 'El nombre es obligatorio.';
+    if (!f.apellido.trim()) errs['apellido'] = 'El apellido es obligatorio.';
+    if (!f.dni.trim()) errs['dni'] = 'El DNI es obligatorio.';
+    else if (!/^\d{7,8}$/.test(f.dni)) errs['dni'] = 'El DNI debe tener 7 u 8 dígitos numéricos.';
+    if (!f.email.trim()) errs['email'] = 'El correo electrónico es obligatorio.';
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(f.email)) errs['email'] = 'El formato del correo no es válido.';
+    if (!f.password.trim()) errs['password'] = 'La contraseña es obligatoria.';
+    else if (f.password.length < 6) errs['password'] = 'La contraseña debe tener al menos 6 caracteres.';
+    if (!f.confirmarPassword.trim()) errs['confirmarPassword'] = 'Debe confirmar la contraseña.';
+    else if (f.password !== f.confirmarPassword) errs['confirmarPassword'] = 'Las contraseñas no coinciden.';
+    this.errores.set(errs);
+    return Object.keys(errs).length === 0;
   }
 
   async registrar() {
-    this.errorGeneral = '';
-    this.exitoso = false;
-
+    this.errorGeneral.set('');
+    this.exitoso.set(false);
     if (!this.validar()) return;
-
     try {
-      this.cargando = true;
-
-      const { data, error } = await this.supabase.client.auth.signUp({
-        email: this.form.email,
-        password: this.form.password,
-      });
-
+      this.cargando.set(true);
+      const f = this.form;
+      const { data, error } = await this.supabase.client.auth.signUp({ email: f.email, password: f.password });
       if (error) throw error;
-
-      const { error: errorInsert } = await this.supabase.client
-        .from('usuarios')
-        .insert({
-          auth_id: data.user?.id,
-          nombre: this.form.nombre.trim(),
-          apellido: this.form.apellido.trim(),
-          dni: this.form.dni.trim(),
-          email: this.form.email.trim(),
-          perfil: 'cliente',
-          foto: this.form.foto || null,
-          estado: 'aprobado',
-        });
-
+      const { error: errorInsert } = await this.supabase.client.from('usuarios').insert({
+        auth_id: data.user?.id, nombre: f.nombre.trim(), apellido: f.apellido.trim(),
+        dni: f.dni.trim(), email: f.email.trim(), perfil: 'cliente',
+        foto: f.foto || null, estado: 'aprobado',
+      });
       if (errorInsert) throw errorInsert;
-
-      this.exitoso = true;
+      this.exitoso.set(true);
       setTimeout(() => this.router.navigate(['/metre']), 1500);
-    } catch (error: any) {
-      this.errorGeneral = error.message || 'Ocurrió un error al registrar el cliente.';
+    } catch (e: unknown) {
+      this.errorGeneral.set((e as Error).message || 'Ocurrió un error al registrar el cliente.');
     } finally {
-      this.cargando = false;
+      this.cargando.set(false);
     }
   }
 }

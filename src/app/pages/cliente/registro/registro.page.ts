@@ -1,20 +1,8 @@
-import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
-  IonHeader,
-  IonToolbar,
-  IonTitle,
-  IonContent,
-  IonItem,
-  IonLabel,
-  IonInput,
-  IonButton,
-  IonText,
-  IonSpinner,
-  IonButtons,
-  IonBackButton,
-  IonIcon
+  IonHeader, IonToolbar, IonTitle, IonContent, IonItem, IonLabel, IonInput, IonButton,
+  IonText, IonSpinner, IonButtons, IonBackButton, IonIcon,
 } from '@ionic/angular/standalone';
 import { Router } from '@angular/router';
 import { SupabaseService } from '../../../core/services/supabase';
@@ -22,239 +10,155 @@ import { AuthService } from '../../../core/services/auth';
 import { cameraOutline, personCircleOutline } from 'ionicons/icons';
 import { BarcodeScanner, BarcodeFormat } from '@capacitor-mlkit/barcode-scanning';
 import { addIcons } from 'ionicons';
-import { CamaraService } from 'src/app/core/services/camara.service';
+import { CamaraService } from '../../../core/services/camara.service';
 import { HapticsService } from '../../../core/services/haptics.service';
 import { NotificacionesService } from '../../../core/services/notificaciones';
+import { FormRegistro } from '../../../core/models';
+import { RealtimeChannel } from '@supabase/supabase-js';
 
+type EstadoRegistro = 'pendiente' | 'aprobado' | 'rechazado';
 
 @Component({
   selector: 'app-registro',
   templateUrl: './registro.page.html',
   styleUrls: ['./registro.page.scss'],
-  standalone: true,
   imports: [
-    CommonModule,
-    FormsModule,
-    IonHeader,
-    IonToolbar,
-    IonTitle,
-    IonContent,
-    IonItem,
-    IonLabel,
-    IonInput,
-    IonButton,
-    IonText,
-    IonSpinner,
-    IonButtons,
-    IonBackButton,
-    IonIcon
+    FormsModule, IonHeader, IonToolbar, IonTitle, IonContent, IonItem, IonLabel, IonInput,
+    IonButton, IonText, IonSpinner, IonButtons, IonBackButton, IonIcon,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RegistroPage {
-  form = {
-    nombre: '',
-    apellido: '',
-    dni: '',
-    cuil: '',
-    email: '',
-    password: '',
-    confirmarPassword: '',
-    foto: '',
+  private readonly supabase = inject(SupabaseService);
+  private readonly camaraService = inject(CamaraService);
+  private readonly router = inject(Router);
+  private readonly authService = inject(AuthService);
+  private readonly haptics = inject(HapticsService);
+  private readonly notificaciones = inject(NotificacionesService);
+  private readonly destroyRef = inject(DestroyRef);
+
+  private readonly formVacio: FormRegistro = {
+    nombre: '', apellido: '', dni: '', cuil: '', email: '', password: '', confirmarPassword: '', foto: '',
   };
 
-  errores: any = {};
-  errorGeneral = '';
-  errorEscaneo = '';
-  esperandoAprobacion = false;
-  estadoRegistro: 'pendiente' | 'aprobado' | 'rechazado' = 'pendiente';
-  usuarioRegistradoId = '';
-  cargando = false;
+  form: FormRegistro = { ...this.formVacio };
+  errores = signal<Record<string, string>>({});
+  errorGeneral = signal('');
+  errorEscaneo = signal('');
+  esperandoAprobacion = signal(false);
+  estadoRegistro = signal<EstadoRegistro>('pendiente');
+  cargando = signal(false);
 
-  constructor(
-    private supabase: SupabaseService,
-    private camaraService: CamaraService,
-    private router: Router,
-    private authService: AuthService,
-    private haptics: HapticsService,
-    private notificaciones: NotificacionesService,
-  ) {
+  private canal?: RealtimeChannel;
+
+  constructor() {
     addIcons({ personCircleOutline, cameraOutline });
+    this.destroyRef.onDestroy(() => {
+      if (this.canal) this.supabase.client.removeChannel(this.canal);
+    });
   }
 
   async tomarFoto() {
     try {
-      this.form.foto = await this.camaraService.tomarFoto();
-    } catch (error) {
-      console.error('Error al tomar foto:', error);
-    }
+      this.form.foto = '';
+      const foto = await this.camaraService.tomarFoto();
+      this.form.foto = foto;
+    } catch { /* usuario canceló */ }
   }
 
   async escanearDni() {
-    this.errorEscaneo = '';
+    this.errorEscaneo.set('');
     try {
       const { supported } = await BarcodeScanner.isSupported();
-      if (!supported) {
-        this.errorEscaneo = 'Este dispositivo no soporta la lectura de códigos QR.';
-        return;
-      }
-
+      if (!supported) { this.errorEscaneo.set('Este dispositivo no soporta la lectura de códigos QR.'); return; }
       await BarcodeScanner.requestPermissions();
-
-      const { barcodes } = await BarcodeScanner.scan({
-        formats: [BarcodeFormat.Pdf417],
-      });
-
+      const { barcodes } = await BarcodeScanner.scan({ formats: [BarcodeFormat.Pdf417] });
       if (barcodes.length === 0) return;
-
       const raw = barcodes[0].rawValue ?? '';
       const partes = raw.split('@');
-
       if (raw && partes.length >= 5) {
         this.form.apellido = partes[1]?.trim() ?? '';
-        this.form.nombre   = partes[2]?.trim() ?? '';
-        this.form.dni      = partes[4]?.trim() ?? '';
+        this.form.nombre = partes[2]?.trim() ?? '';
+        this.form.dni = partes[4]?.trim() ?? '';
       } else {
-        this.errorEscaneo = 'No se pudo leer el DNI. Asegurate de enfocar el código del dorso.';
+        this.errorEscaneo.set('No se pudo leer el DNI. Asegurate de enfocar el código del dorso.');
       }
-    } catch (error: any) {
-      if (error?.message === 'scan canceled.' || error?.errorMessage === 'scan canceled.') {
-        // el usuario canceló, no mostrar nada
-      } else if (error?.isAcquireTimeout) {
-        this.errorEscaneo = 'Tiempo de espera agotado. Intentá de nuevo.';
-      } else {
-        this.errorEscaneo = 'Ocurrió un error al leer el DNI. Intentá de nuevo.';
-      }
+    } catch (error: unknown) {
+      const e = error as any;
+      if (e?.message === 'scan canceled.' || e?.errorMessage === 'scan canceled.') return;
+      if (e?.isAcquireTimeout) { this.errorEscaneo.set('Tiempo de espera agotado. Intentá de nuevo.'); }
+      else { this.errorEscaneo.set('Ocurrió un error al leer el DNI. Intentá de nuevo.'); }
     }
   }
 
-
   escucharEstado(usuarioId: string) {
-    this.supabase.client
+    this.canal = this.supabase.client
       .channel('estado_registro_' + usuarioId)
       .on('postgres_changes', {
-        event: 'UPDATE',
-        schema: 'public',
-        table: 'usuarios',
-        filter: `id=eq.${usuarioId}`,
+        event: 'UPDATE', schema: 'public', table: 'usuarios', filter: `id=eq.${usuarioId}`,
       }, async (payload: any) => {
         const nuevoEstado = payload.new.estado;
-
         if (nuevoEstado === 'aprobado') {
-          this.estadoRegistro = 'aprobado';
+          this.estadoRegistro.set('aprobado');
           try {
-            const usuario = await this.authService.login(
-              this.form.email,
-              this.form.password,
-            );
+            const f = this.form;
+            const usuario = await this.authService.login(f.email, f.password);
             this.authService.redirigirSegunPerfil(usuario.perfil);
-          } catch (e) {
-            this.router.navigate(['/login']);
-          }
+          } catch { this.router.navigate(['/login']); }
         } else if (nuevoEstado === 'rechazado') {
-          this.estadoRegistro = 'rechazado';
-          this.esperandoAprobacion = false;
-          setTimeout(() => {
-            this.router.navigate(['/login']);
-          }, 3000);
+          this.estadoRegistro.set('rechazado');
+          this.esperandoAprobacion.set(false);
+          setTimeout(() => this.router.navigate(['/login']), 3000);
         }
       })
       .subscribe();
   }
 
   async validar(): Promise<boolean> {
-    this.errores = {};
-
-    if (!this.form.foto)
-      this.errores.foto = 'La foto es obligatoria.';
-
-    if (!this.form.nombre.trim())
-      this.errores.nombre = 'El nombre es obligatorio.';
-
-    if (!this.form.apellido.trim())
-      this.errores.apellido = 'El apellido es obligatorio.';
-
-    if (!this.form.dni.trim()) this.errores.dni = 'El DNI es obligatorio.';
-    else if (!/^\d{7,8}$/.test(this.form.dni))
-      this.errores.dni = 'El DNI debe tener 7 u 8 dígitos numéricos.';
-
-    if (!this.form.cuil.trim())
-      this.errores.cuil = 'El CUIL es obligatorio.';
-    else if (!/^\d{11}$/.test(this.form.cuil))
-      this.errores.cuil = 'El CUIL debe tener 11 dígitos numéricos.';
-
-    if (!this.form.email.trim())
-      this.errores.email = 'El correo electrónico es obligatorio.';
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.form.email))
-      this.errores.email = 'El formato del correo no es válido.';
-
-    if (!this.form.password.trim())
-      this.errores.password = 'La contraseña es obligatoria.';
-    else if (this.form.password.length < 6)
-      this.errores.password = 'La contraseña debe tener al menos 6 caracteres.';
-
-    if (!this.form.confirmarPassword.trim())
-      this.errores.confirmarPassword = 'Debe confirmar la contraseña.';
-    else if (this.form.password !== this.form.confirmarPassword)
-      this.errores.confirmarPassword = 'Las contraseñas no coinciden.';
-
-    if (Object.keys(this.errores).length > 0) {
-      await this.haptics.error();
-      return false;
-    }
+    const f = this.form;
+    const errs: Record<string, string> = {};
+    if (!f.foto) errs['foto'] = 'La foto es obligatoria.';
+    if (!f.nombre.trim()) errs['nombre'] = 'El nombre es obligatorio.';
+    if (!f.apellido.trim()) errs['apellido'] = 'El apellido es obligatorio.';
+    if (!f.dni.trim()) errs['dni'] = 'El DNI es obligatorio.';
+    else if (!/^\d{7,8}$/.test(f.dni)) errs['dni'] = 'El DNI debe tener 7 u 8 dígitos numéricos.';
+    if (!f.cuil.trim()) errs['cuil'] = 'El CUIL es obligatorio.';
+    else if (!/^\d{11}$/.test(f.cuil)) errs['cuil'] = 'El CUIL debe tener 11 dígitos numéricos.';
+    if (!f.email.trim()) errs['email'] = 'El correo electrónico es obligatorio.';
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(f.email)) errs['email'] = 'El formato del correo no es válido.';
+    if (!f.password.trim()) errs['password'] = 'La contraseña es obligatoria.';
+    else if (f.password.length < 6) errs['password'] = 'La contraseña debe tener al menos 6 caracteres.';
+    if (!f.confirmarPassword.trim()) errs['confirmarPassword'] = 'Debe confirmar la contraseña.';
+    else if (f.password !== f.confirmarPassword) errs['confirmarPassword'] = 'Las contraseñas no coinciden.';
+    this.errores.set(errs);
+    if (Object.keys(errs).length > 0) { await this.haptics.error(); return false; }
     return true;
   }
 
   async registrar() {
-    this.errorGeneral = '';
-
+    this.errorGeneral.set('');
     if (!await this.validar()) return;
-
+    const f = this.form;
     try {
-      this.cargando = true;
-
-      // Crear usuario en Supabase Auth
-      const { data, error } = await this.supabase.client.auth.signUp({
-        email: this.form.email,
-        password: this.form.password,
-      });
-
+      this.cargando.set(true);
+      const { data, error } = await this.supabase.client.auth.signUp({ email: f.email, password: f.password });
       if (error) throw error;
-
-      // Insertar en tabla usuarios con estado pendiente
-      const { error: errorInsert } = await this.supabase.client
-        .from('usuarios')
-        .insert({
-          auth_id: data.user?.id,
-          nombre: this.form.nombre.trim(),
-          apellido: this.form.apellido.trim(),
-          dni: this.form.dni.trim(),
-          cuil: this.form.cuil.trim(),
-          email: this.form.email.trim(),
-          perfil: 'cliente',
-          foto: this.form.foto || null,
-          estado: 'pendiente',
-        });
-
+      const { error: errorInsert } = await this.supabase.client.from('usuarios').insert({
+        auth_id: data.user?.id, nombre: f.nombre.trim(), apellido: f.apellido.trim(),
+        dni: f.dni.trim(), cuil: f.cuil.trim(), email: f.email.trim(),
+        perfil: 'cliente', foto: f.foto || null, estado: 'pendiente',
+      });
       if (errorInsert) throw errorInsert;
-
       await this.notificaciones.enviar('Nuevo cliente pendiente', 'Hay un cliente esperando aprobación.');
-
-      this.esperandoAprobacion = true;
-      this.usuarioRegistradoId = data.user?.id ?? '';
+      this.esperandoAprobacion.set(true);
       const { data: usuarioTabla } = await this.supabase.client
-        .from('usuarios')
-        .select('id')
-        .eq('auth_id', data.user?.id)
-        .single();
-
-      if (usuarioTabla) {
-        this.escucharEstado(usuarioTabla.id);
-      }
-    } catch (error: any) {
+        .from('usuarios').select('id').eq('auth_id', data.user?.id).single();
+      if (usuarioTabla) this.escucharEstado(usuarioTabla.id);
+    } catch (e: unknown) {
       await this.haptics.error();
-      this.errorGeneral = error.message || 'Ocurrió un error al registrarse.';
+      this.errorGeneral.set((e as Error).message || 'Ocurrió un error al registrarse.');
     } finally {
-      this.cargando = false;
+      this.cargando.set(false);
     }
   }
 }

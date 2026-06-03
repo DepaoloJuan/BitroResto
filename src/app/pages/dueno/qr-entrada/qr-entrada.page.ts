@@ -1,15 +1,7 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import {
-  IonHeader,
-  IonToolbar,
-  IonTitle,
-  IonContent,
-  IonButton,
-  IonIcon,
-  IonSpinner,
-  IonButtons,
-  IonBackButton,
+  IonHeader, IonToolbar, IonTitle, IonContent, IonButton,
+  IonIcon, IonSpinner, IonButtons, IonBackButton,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { downloadOutline } from 'ionicons/icons';
@@ -20,50 +12,34 @@ import { AuthService } from '../../../core/services/auth';
   selector: 'app-qr-entrada',
   templateUrl: './qr-entrada.page.html',
   styleUrls: ['./qr-entrada.page.scss'],
-  standalone: true,
   imports: [
-    CommonModule,
-    IonHeader,
-    IonToolbar,
-    IonTitle,
-    IonContent,
-    IonButton,
-    IonIcon,
-    IonSpinner,
-    IonButtons,
-    IonBackButton,
+    IonHeader, IonToolbar, IonTitle, IonContent, IonButton,
+    IonIcon, IonSpinner, IonButtons, IonBackButton,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QrEntradaPage implements OnInit {
-  qrEntrada = '';
-  backHref = '/dueno';
+  private readonly supabase = inject(SupabaseService);
+  private readonly authService = inject(AuthService);
 
-  constructor(
-    private supabase: SupabaseService,
-    private authService: AuthService,
-  ) {
+  qrEntrada = signal('');
+  backHref = signal('/dueno');
+
+  constructor() {
     addIcons({ downloadOutline });
     const usuario = this.authService.getUsuarioActual();
-    if (usuario?.perfil === 'supervisor') {
-      this.backHref = '/supervisor';
-    }
+    if (usuario?.perfil === 'supervisor') this.backHref.set('/supervisor');
   }
 
   async ngOnInit() {
     const { data } = await this.supabase.client
-      .from('mesas')
-      .select('qr_codigo')
-      .eq('tipo', 'entrada')
-      .single();
-
-    if (data?.qr_codigo) {
-      this.qrEntrada = data.qr_codigo;
-    }
+      .from('mesas').select('qr_codigo').eq('tipo', 'entrada').single();
+    if (data?.qr_codigo) this.qrEntrada.set(data.qr_codigo);
   }
 
   descargar() {
     const link = document.createElement('a');
-    link.href = this.qrEntrada;
+    link.href = this.qrEntrada();
     link.download = 'qr-entrada-local.png';
     link.click();
   }
