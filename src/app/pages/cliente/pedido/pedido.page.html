@@ -137,7 +137,7 @@
 <ion-footer>
   <ion-toolbar>
     <ion-button expand="block" color="primary" class="ion-margin"
-      [disabled]="itemsSeleccionados().length === 0 || enviando()"
+      [disabled]="itemsSeleccionados().length === 0 || enviando() || pedidoExistente()?.estado === 'esperando_mozo' || pedidoExistente()?.estado === 'pago_solicitado'"
       (click)="confirmarPedido()">
       @if (enviando()) {
         <ion-spinner name="crescent"></ion-spinner>
