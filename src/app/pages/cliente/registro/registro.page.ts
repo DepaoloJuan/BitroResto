@@ -1,5 +1,6 @@
 import {
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   DestroyRef,
   inject,
@@ -39,6 +40,7 @@ type EstadoRegistro = 'pendiente' | 'aprobado' | 'rechazado';
 
 @Component({
   selector: 'app-registro',
+  standalone: true,
   templateUrl: './registro.page.html',
   styleUrls: ['./registro.page.scss'],
   imports: [
@@ -66,6 +68,7 @@ export class RegistroPage {
   private readonly authService = inject(AuthService);
   private readonly haptics = inject(HapticsService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   private readonly formVacio: FormRegistro = {
     nombre: '',
@@ -100,6 +103,7 @@ export class RegistroPage {
       this.form.foto = '';
       const foto = await this.camaraService.tomarFoto();
       this.form.foto = foto;
+      this.cdr.markForCheck();
     } catch {
       /* usuario canceló */
     }
@@ -126,6 +130,7 @@ export class RegistroPage {
         this.form.apellido = partes[1]?.trim() ?? '';
         this.form.nombre = partes[2]?.trim() ?? '';
         this.form.dni = partes[4]?.trim() ?? '';
+        this.cdr.markForCheck();
       } else {
         this.errorEscaneo.set(
           'No se pudo leer el DNI. Asegurate de enfocar el código del dorso.',
@@ -222,10 +227,11 @@ export class RegistroPage {
         password: f.password,
       });
       if (error) throw error;
+      if (!data.user) throw new Error('No se pudo crear el usuario.');
       const { error: errorInsert } = await this.supabase.client
         .from('usuarios')
         .insert({
-          auth_id: data.user?.id,
+          auth_id: data.user.id,
           nombre: f.nombre.trim(),
           apellido: f.apellido.trim(),
           dni: f.dni.trim(),
@@ -240,7 +246,7 @@ export class RegistroPage {
       const { data: usuarioTabla } = await this.supabase.client
         .from('usuarios')
         .select('id')
-        .eq('auth_id', data.user?.id)
+        .eq('auth_id', data.user.id)
         .single();
       if (usuarioTabla) this.escucharEstado(usuarioTabla.id);
     } catch (e: unknown) {
