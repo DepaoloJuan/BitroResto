@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/cor
 import { FormsModule } from '@angular/forms';
 import {
   IonHeader, IonToolbar, IonTitle, IonContent, IonItem, IonLabel, IonInput,
-  IonButton, IonText, IonSelect, IonSelectOption, IonSpinner, IonButtons,
+  IonButton, IonText, IonSelect, IonSelectOption, IonButtons,
   IonBackButton, IonIcon,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
@@ -21,7 +21,7 @@ import { LoadingComponent } from '../../../shared/components/loading/loading.com
   styleUrls: ['./agregar-empleado.page.scss'],
   imports: [
     FormsModule, IonHeader, IonToolbar, IonTitle, IonContent, IonItem, IonLabel,
-    IonInput, IonButton, IonText, IonSelect, IonSelectOption, IonSpinner,
+    IonInput, IonButton, IonText, IonSelect, IonSelectOption,
     IonButtons, IonBackButton, IonIcon, LoadingComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
