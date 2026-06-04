@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import {
   IonHeader, IonToolbar, IonTitle, IonContent, IonButtons, IonButton,
@@ -6,7 +6,10 @@ import {
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { peopleOutline, personAddOutline, gridOutline, qrCodeOutline, cashOutline, logOutOutline } from 'ionicons/icons';
+import { RealtimeChannel } from '@supabase/supabase-js';
 import { AuthService } from '../../core/services/auth';
+import { SupabaseService } from '../../core/services/supabase';
+import { NotificacionesService } from '../../core/services/notificaciones';
 
 @Component({
   selector: 'app-supervisor',
@@ -18,14 +21,36 @@ import { AuthService } from '../../core/services/auth';
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SupervisorPage {
+export class SupervisorPage implements OnInit {
   private readonly authService = inject(AuthService);
+  private readonly supabase = inject(SupabaseService);
+  private readonly notificaciones = inject(NotificacionesService);
   private readonly router = inject(Router);
+  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly usuario = this.authService.usuario;
+  private canal?: RealtimeChannel;
 
   constructor() {
     addIcons({ peopleOutline, personAddOutline, gridOutline, qrCodeOutline, cashOutline, logOutOutline });
+    this.destroyRef.onDestroy(() => {
+      if (this.canal) this.supabase.client.removeChannel(this.canal);
+    });
+  }
+
+  ngOnInit() {
+    this.canal = this.supabase.client
+      .channel('supervisor_clientes_pendientes')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'usuarios' },
+        async (payload: any) => {
+          if (payload.new?.perfil === 'cliente' && payload.new?.estado === 'pendiente') {
+            await this.notificaciones.enviar(
+              'Nuevo cliente pendiente',
+              'Hay un cliente esperando aprobación.',
+            );
+          }
+        })
+      .subscribe();
   }
 
   ir(ruta: string) { this.router.navigate([ruta]); }

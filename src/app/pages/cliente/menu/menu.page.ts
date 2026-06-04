@@ -1,8 +1,8 @@
 import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
-  IonHeader, IonToolbar, IonTitle, IonContent, IonCard, IonCardHeader, IonCardTitle,
-  IonCardSubtitle, IonCardContent, IonButtons, IonBackButton, IonSegment, IonSegmentButton, IonLabel,
+  IonHeader, IonToolbar, IonTitle, IonContent,
+  IonButtons, IonBackButton, IonSegment, IonSegmentButton, IonLabel,
 } from '@ionic/angular/standalone';
 import { SupabaseService } from '../../../core/services/supabase';
 import { LoadingComponent } from '../../../shared/components/loading/loading.component';
@@ -13,9 +13,8 @@ import { Plato, Bebida } from '../../../core/models';
   templateUrl: './menu.page.html',
   styleUrls: ['./menu.page.scss'],
   imports: [
-    FormsModule, IonHeader, IonToolbar, IonTitle, IonContent, IonCard, IonCardHeader,
-    IonCardTitle, IonCardSubtitle, IonCardContent, IonButtons, IonBackButton,
-    IonSegment, IonSegmentButton, IonLabel, LoadingComponent,
+    FormsModule, IonHeader, IonToolbar, IonTitle, IonContent,
+    IonButtons, IonBackButton, IonSegment, IonSegmentButton, IonLabel, LoadingComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

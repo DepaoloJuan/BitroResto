@@ -7,46 +7,53 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
+<ion-content [scrollY]="false">
+  <div class="menu-wrapper">
 
-  <ion-segment [ngModel]="seccion()" (ngModelChange)="seccion.set($event)" (ionChange)="cambiarSeccion()">
-    <ion-segment-button value="platos">
-      <ion-label>Platos</ion-label>
-    </ion-segment-button>
-    <ion-segment-button value="bebidas">
-      <ion-label>Bebidas</ion-label>
-    </ion-segment-button>
-  </ion-segment>
+    <ion-segment [ngModel]="seccion()" (ngModelChange)="seccion.set($event)" (ionChange)="cambiarSeccion()">
+      <ion-segment-button value="platos">
+        <ion-label>Platos</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="bebidas">
+        <ion-label>Bebidas</ion-label>
+      </ion-segment-button>
+    </ion-segment>
 
-  @if (cargando()) {
-    <app-loading />
-  }
-
-  @for (item of items(); track item.id) {
-    <ion-card class="ion-margin">
-      <div class="fotos-container">
-        <div class="fotos-scroll">
-          @if (item.foto1) {
-            <img [src]="item.foto1" alt="Foto 1" class="foto-item" />
-          }
-          @if (item.foto2) {
-            <img [src]="item.foto2" alt="Foto 2" class="foto-item" />
-          }
-          @if (item.foto3) {
-            <img [src]="item.foto3" alt="Foto 3" class="foto-item" />
-          }
-        </div>
+    @if (cargando()) {
+      <div class="loading-center">
+        <app-loading />
       </div>
-      <ion-card-header>
-        <ion-card-title>{{ item.nombre }}</ion-card-title>
-        <ion-card-subtitle>
-          ${{ item.precio }} — {{ item.tiempo_elaboracion }} min.
-        </ion-card-subtitle>
-      </ion-card-header>
-      <ion-card-content>
-        <p>{{ item.descripcion }}</p>
-      </ion-card-content>
-    </ion-card>
-  }
+    }
 
+    @if (!cargando()) {
+      <div class="snap-container">
+        @for (item of items(); track item.id) {
+          <div class="snap-item">
+
+            <div class="fotos-carousel">
+              <div class="fotos-scroll">
+                @if (item.foto1) {
+                  <img [src]="item.foto1" alt="Foto 1" class="foto-item" />
+                }
+                @if (item.foto2) {
+                  <img [src]="item.foto2" alt="Foto 2" class="foto-item" />
+                }
+                @if (item.foto3) {
+                  <img [src]="item.foto3" alt="Foto 3" class="foto-item" />
+                }
+              </div>
+            </div>
+
+            <div class="item-info">
+              <p class="item-meta">${{ item.precio }} — {{ item.tiempo_elaboracion }} min.</p>
+              <h2 class="item-nombre">{{ item.nombre }}</h2>
+              <p class="item-desc">{{ item.descripcion }}</p>
+            </div>
+
+          </div>
+        }
+      </div>
+    }
+
+  </div>
 </ion-content>

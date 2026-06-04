@@ -38,6 +38,8 @@ export class ListaEsperaPage implements OnInit {
   errorQR = signal('');
   yaEnEspera = signal(false);
   mesaAsignada = signal<Mesa | null>(null);
+  escaneandoMesa = signal(false);
+  errorQRMesa = signal('');
   cargando = signal(false);
   errorGeneral = signal('');
 
@@ -136,6 +138,42 @@ export class ListaEsperaPage implements OnInit {
       await this.haptics.error();
     } finally {
       this.cargando.set(false);
+    }
+  }
+
+  async escanearQrMesa() {
+    this.errorQRMesa.set('');
+    this.escaneandoMesa.set(true);
+    try {
+      const { supported } = await BarcodeScanner.isSupported();
+      if (!supported) {
+        this.errorQRMesa.set('Este dispositivo no soporta la lectura de códigos QR.');
+        await this.haptics.error();
+        return;
+      }
+      await BarcodeScanner.requestPermissions();
+      const { barcodes } = await BarcodeScanner.scan({ formats: [BarcodeFormat.QrCode] });
+      if (barcodes.length === 0) return;
+
+      const valor = barcodes[0].rawValue ?? '';
+      const match = valor.match(/[?&]id=([^&]+)/);
+      const mesaIdEscaneado = match?.[1];
+      const mesa = this.mesaAsignada();
+
+      if (!mesaIdEscaneado || mesaIdEscaneado !== mesa?.id) {
+        await this.haptics.error();
+        this.errorQRMesa.set(`Esta no es tu mesa. Tu mesa es la número ${mesa?.numero}.`);
+        return;
+      }
+
+      this.router.navigate(['/cliente/mesa'], { state: { qrValidado: true } });
+    } catch (error: unknown) {
+      const e = error as any;
+      if (e?.message === 'scan canceled.' || e?.errorMessage === 'scan canceled.') return;
+      this.errorQRMesa.set('Ocurrió un error al leer el QR. Intentá de nuevo.');
+      await this.haptics.error();
+    } finally {
+      this.escaneandoMesa.set(false);
     }
   }
 

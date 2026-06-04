@@ -57,10 +57,7 @@ export class ClientesPendientesPage implements OnInit {
     this.canal = this.supabase.client
       .channel('clientes_pendientes')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'usuarios' },
-        async () => {
-          await this.notificaciones.enviar('Nuevo cliente pendiente', 'Hay un cliente esperando aprobación.');
-          await this.cargarClientes();
-        })
+        async () => { await this.cargarClientes(); })
       .subscribe();
   }
 

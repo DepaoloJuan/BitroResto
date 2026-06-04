@@ -10,43 +10,82 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
-  <ion-grid>
-    <ion-row>
-      <ion-col size="12">
-        <ion-item lines="none" color="success">
-          <ion-icon name="checkmark-circle-outline" slot="start"></ion-icon>
-          <ion-label>Mesa {{ mesa()?.numero }} asignada</ion-label>
-        </ion-item>
-      </ion-col>
+<ion-content class="ion-padding">
 
-      <ion-col size="12">
-        <ion-card button (click)="ir('/cliente/menu')">
-          <ion-card-content>
-            <ion-icon name="restaurant-outline"></ion-icon>
-            <p>Ver menú</p>
-          </ion-card-content>
-        </ion-card>
-      </ion-col>
+  @if (!qrEscaneado()) {
+    <div class="ion-text-center ion-padding">
+      <ion-icon name="qr-code-outline" style="font-size: 80px; color: var(--ion-color-primary)"></ion-icon>
+      <h2>Escaneá el QR de tu mesa</h2>
+      <p>Para acceder a las opciones de tu mesa, escaneá el código QR que se encuentra sobre la mesa.</p>
 
-      <ion-col size="12">
-        <ion-card button (click)="ir('/cliente/chat')">
-          <ion-card-content>
-            <ion-icon name="chatbubbles-outline"></ion-icon>
-            <p>Consultar al mozo</p>
-          </ion-card-content>
-        </ion-card>
-      </ion-col>
+      @if (errorQRMesa()) {
+        <ion-text color="danger">
+          <p>{{ errorQRMesa() }}</p>
+        </ion-text>
+      }
 
-      <ion-col size="12">
-        <ion-card button (click)="verEncuestas()">
-          <ion-card-content>
-            <ion-icon name="bar-chart-outline"></ion-icon>
-            <p>Ver resultados de encuestas</p>
-          </ion-card-content>
-        </ion-card>
-      </ion-col>
+      <ion-button expand="block" (click)="escanearQrMesa()" [disabled]="escaneandoQR()" class="ion-margin-top">
+        @if (escaneandoQR()) {
+          <ion-spinner name="crescent"></ion-spinner>
+        } @else {
+          <ion-icon name="scan-outline" slot="start"></ion-icon>
+          Escanear QR de la mesa
+        }
+      </ion-button>
+    </div>
+  }
 
-    </ion-row>
-  </ion-grid>
+  @if (qrEscaneado()) {
+    <ion-grid>
+      <ion-row>
+
+        <ion-col size="12">
+          <ion-item lines="none" color="success">
+            <ion-icon name="checkmark-circle-outline" slot="start"></ion-icon>
+            <ion-label>Mesa {{ mesa()?.numero }} asignada</ion-label>
+          </ion-item>
+        </ion-col>
+
+        <ion-col size="6">
+          <ion-card button (click)="ir('/cliente/menu')">
+            <ion-card-content class="opcion">
+              <ion-icon name="restaurant-outline" size="large"></ion-icon>
+              <p>Ver menú</p>
+            </ion-card-content>
+          </ion-card>
+        </ion-col>
+
+        <ion-col size="6">
+          <ion-card button (click)="ir('/cliente/chat')">
+            <ion-card-content class="opcion">
+              <ion-icon name="chatbubbles-outline" size="large"></ion-icon>
+              <p>Consultar al mozo</p>
+            </ion-card-content>
+          </ion-card>
+        </ion-col>
+
+        @if (puedeCuenta()) {
+          <ion-col size="6">
+            <ion-card button (click)="ir('/cliente/cuenta')">
+              <ion-card-content class="opcion">
+                <ion-icon name="receipt-outline" size="large"></ion-icon>
+                <p>Pedir la cuenta</p>
+              </ion-card-content>
+            </ion-card>
+          </ion-col>
+        }
+
+        <ion-col size="6">
+          <ion-card button (click)="verEncuestas()">
+            <ion-card-content class="opcion">
+              <ion-icon name="bar-chart-outline" size="large"></ion-icon>
+              <p>Ver resultados</p>
+            </ion-card-content>
+          </ion-card>
+        </ion-col>
+
+      </ion-row>
+    </ion-grid>
+  }
+
 </ion-content>

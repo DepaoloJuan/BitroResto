@@ -4,18 +4,20 @@ import { TitleCasePipe } from '@angular/common';
 import {
   IonHeader, IonToolbar, IonTitle, IonContent, IonButtons, IonButton, IonIcon,
   IonGrid, IonRow, IonCol, IonCard, IonCardHeader, IonCardTitle, IonCardSubtitle,
-  IonCardContent, IonItem, IonLabel,
+  IonCardContent, IonItem, IonLabel, IonText, IonSpinner,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
   checkmarkCircleOutline, restaurantOutline, cartOutline, chatbubblesOutline,
   gameControllerOutline, starOutline, receiptOutline, barChartOutline, logOutOutline,
   hourglassOutline, closeCircleOutline, checkmarkDoneOutline, bicycleOutline,
-  timeOutline, peopleOutline, ellipse,
+  timeOutline, peopleOutline, ellipse, scanOutline, qrCodeOutline, chevronForwardOutline,
 } from 'ionicons/icons';
+import { BarcodeScanner, BarcodeFormat } from '@capacitor-mlkit/barcode-scanning';
 import { AuthService } from '../../../core/services/auth';
 import { SupabaseService } from '../../../core/services/supabase';
 import { NotificacionesService } from '../../../core/services/notificaciones';
+import { HapticsService } from '../../../core/services/haptics.service';
 import { LoadingComponent } from '../../../shared/components/loading/loading.component';
 import { Mesa, Pedido } from '../../../core/models';
 import { RealtimeChannel } from '@supabase/supabase-js';
@@ -27,7 +29,7 @@ import { RealtimeChannel } from '@supabase/supabase-js';
   imports: [
     TitleCasePipe, IonHeader, IonToolbar, IonTitle, IonContent, IonButtons, IonButton, IonIcon,
     IonGrid, IonRow, IonCol, IonCard, IonCardHeader, IonCardTitle, IonCardSubtitle,
-    IonCardContent, IonItem, IonLabel, LoadingComponent,
+    IonCardContent, IonItem, IonLabel, IonText, IonSpinner, LoadingComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -35,6 +37,7 @@ export class MesaPage implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly supabase = inject(SupabaseService);
   private readonly notificaciones = inject(NotificacionesService);
+  private readonly haptics = inject(HapticsService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly destroyRef = inject(DestroyRef);
@@ -44,9 +47,12 @@ export class MesaPage implements OnInit {
   pedido = signal<Pick<Pedido, 'id' | 'estado'> | null>(null);
   esAnonimo = signal(false);
   esEmpleado = signal(false);
-  mesaError = signal('');
+  qrEscaneado = signal(false);
+  escaneandoQR = signal(false);
+  errorQRMesa = signal('');
 
   private mesaId = '';
+  private mesaNumeroAsignado = 0;
   private canal?: RealtimeChannel;
 
   readonly estado = computed(() => this.pedido()?.estado ?? '');
@@ -55,7 +61,7 @@ export class MesaPage implements OnInit {
     !this.esAnonimo() && ['en_cocina', 'confirmado', 'pendiente', 'completado', 'listo', 'entregado', 'recibido'].includes(this.estado())
   );
   readonly puedeEncuesta = computed(() => ['entregado', 'recibido'].includes(this.estado()));
-  readonly puedeCuenta = computed(() => ['entregado', 'recibido'].includes(this.estado()));
+  readonly puedeCuenta = computed(() => ['listo', 'completado', 'entregado', 'recibido'].includes(this.estado()));
 
   readonly estadoTexto = computed(() => {
     const map: Record<string, string> = {
@@ -97,7 +103,7 @@ export class MesaPage implements OnInit {
       checkmarkCircleOutline, restaurantOutline, cartOutline, chatbubblesOutline,
       gameControllerOutline, starOutline, receiptOutline, barChartOutline, logOutOutline,
       hourglassOutline, closeCircleOutline, checkmarkDoneOutline, bicycleOutline,
-      timeOutline, peopleOutline, ellipse,
+      timeOutline, peopleOutline, ellipse, scanOutline, qrCodeOutline, chevronForwardOutline,
     });
     this.destroyRef.onDestroy(() => {
       if (this.canal) this.supabase.client.removeChannel(this.canal);
@@ -107,6 +113,7 @@ export class MesaPage implements OnInit {
   async ngOnInit() {
     const usuario = this.authService.getUsuarioActual();
     const perfilesEmpleado = ['metre', 'mozo', 'dueño', 'supervisor'];
+
     if (perfilesEmpleado.includes(usuario?.perfil ?? '')) {
       this.esEmpleado.set(true);
       const idQR = this.route.snapshot.queryParamMap.get('id');
@@ -115,33 +122,71 @@ export class MesaPage implements OnInit {
       this.cargando.set(false);
       return;
     }
+
     this.esAnonimo.set(!usuario?.perfil);
-    await this.resolverMesaId();
-    await this.cargarMesa();
-    await this.cargarPedido();
-    this.suscribirCambios();
+    await this.obtenerMesaAsignada();
+
+    if (history.state?.qrValidado === true && this.mesaId) {
+      this.qrEscaneado.set(true);
+      await this.cargarMesa();
+      await this.cargarPedido();
+      this.suscribirCambios();
+      return;
+    }
+
+    this.cargando.set(false);
   }
 
-  async resolverMesaId() {
+  private async obtenerMesaAsignada() {
     const usuario = this.authService.getUsuarioActual();
-    if (this.esAnonimo()) { this.mesaId = usuario?.mesa_id || ''; return; }
+    if (this.esAnonimo()) {
+      this.mesaId = usuario?.mesa_id || '';
+      return;
+    }
     const { data } = await this.supabase.client
       .from('lista_espera').select('mesa_id, mesas(numero)')
       .eq('usuario_id', usuario!.id).eq('estado', 'asignado').single();
-    const mesaAsignada = data?.mesa_id || '';
-    const idQR = this.route.snapshot.queryParamMap.get('id');
-    if (idQR && mesaAsignada && idQR !== mesaAsignada) {
-      const numeroMesa = (data?.mesas as any)?.numero;
-      this.mesaError.set(`Esta no es tu mesa. Tu mesa asignada es la número ${numeroMesa}.`);
-      this.mesaId = mesaAsignada;
-      return;
+    this.mesaId = data?.mesa_id || '';
+    this.mesaNumeroAsignado = (data?.mesas as any)?.numero ?? 0;
+  }
+
+  async escanearQrMesa() {
+    this.errorQRMesa.set('');
+    this.escaneandoQR.set(true);
+    try {
+      const { supported } = await BarcodeScanner.isSupported();
+      if (!supported) {
+        this.errorQRMesa.set('Este dispositivo no soporta la lectura de códigos QR.');
+        await this.haptics.error();
+        return;
+      }
+      await BarcodeScanner.requestPermissions();
+      const { barcodes } = await BarcodeScanner.scan({ formats: [BarcodeFormat.QrCode] });
+      if (barcodes.length === 0) return;
+
+      const valor = barcodes[0].rawValue ?? '';
+      const match = valor.match(/[?&]id=([^&]+)/);
+      const mesaIdEscaneado = match?.[1];
+
+      if (!mesaIdEscaneado || mesaIdEscaneado !== this.mesaId) {
+        await this.haptics.error();
+        this.errorQRMesa.set(`Esta no es tu mesa. Tu mesa es la número ${this.mesaNumeroAsignado}.`);
+        return;
+      }
+
+      this.qrEscaneado.set(true);
+      this.cargando.set(true);
+      await this.cargarMesa();
+      await this.cargarPedido();
+      this.suscribirCambios();
+    } catch (error: unknown) {
+      const e = error as any;
+      if (e?.message === 'scan canceled.' || e?.errorMessage === 'scan canceled.') return;
+      this.errorQRMesa.set('Ocurrió un error al leer el QR. Intentá de nuevo.');
+      await this.haptics.error();
+    } finally {
+      this.escaneandoQR.set(false);
     }
-    if (idQR && !mesaAsignada) {
-      this.mesaError.set('Todavía no tenés una mesa asignada. Esperá a que el metre te asigne una.');
-      this.cargando.set(false);
-      return;
-    }
-    this.mesaId = mesaAsignada;
   }
 
   async cargarMesa() {
@@ -185,7 +230,8 @@ export class MesaPage implements OnInit {
           }
           await this.cargarPedido();
         })
-      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'mesas', filter: `id=eq.${this.mesaId}` }, () => this.cargarPedido())
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'mesas', filter: `id=eq.${this.mesaId}` },
+        () => this.cargarPedido())
       .subscribe();
   }
 

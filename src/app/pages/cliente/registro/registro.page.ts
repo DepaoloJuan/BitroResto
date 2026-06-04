@@ -228,6 +228,9 @@ export class RegistroPage {
       });
       if (error) throw error;
       if (!data.user) throw new Error('No se pudo crear el usuario.');
+      await this.supabase.client
+        .from('usuarios').delete()
+        .eq('email', f.email.trim()).eq('estado', 'rechazado');
       const { error: errorInsert } = await this.supabase.client
         .from('usuarios')
         .insert({

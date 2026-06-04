@@ -2,11 +2,14 @@ import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit, signal 
 import { Router } from '@angular/router';
 import {
   IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonIcon, IonButtons,
+  IonText, IonSpinner,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { hourglassOutline, checkmarkCircleOutline, logOutOutline, barChartOutline } from 'ionicons/icons';
+import { hourglassOutline, checkmarkCircleOutline, logOutOutline, barChartOutline, scanOutline, qrCodeOutline } from 'ionicons/icons';
+import { BarcodeScanner, BarcodeFormat } from '@capacitor-mlkit/barcode-scanning';
 import { AuthService } from '../../../core/services/auth';
 import { SupabaseService } from '../../../core/services/supabase';
+import { HapticsService } from '../../../core/services/haptics.service';
 import { Mesa } from '../../../core/models';
 import { RealtimeChannel } from '@supabase/supabase-js';
 
@@ -14,22 +17,25 @@ import { RealtimeChannel } from '@supabase/supabase-js';
   selector: 'app-anonimo-espera',
   templateUrl: './anonimo-espera.page.html',
   styleUrls: ['./anonimo-espera.page.scss'],
-  imports: [IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonIcon, IonButtons],
+  imports: [IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonIcon, IonButtons, IonText, IonSpinner],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AnonimoEsperaPage implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly supabase = inject(SupabaseService);
+  private readonly haptics = inject(HapticsService);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly usuario = this.authService.usuario;
   mesaAsignada = signal<Mesa | null>(null);
+  escaneandoMesa = signal(false);
+  errorQRMesa = signal('');
 
   private canal?: RealtimeChannel;
 
   constructor() {
-    addIcons({ hourglassOutline, checkmarkCircleOutline, logOutOutline, barChartOutline });
+    addIcons({ hourglassOutline, checkmarkCircleOutline, logOutOutline, barChartOutline, scanOutline, qrCodeOutline });
     this.destroyRef.onDestroy(() => {
       if (this.canal) this.supabase.client.removeChannel(this.canal);
     });
@@ -63,7 +69,42 @@ export class AnonimoEsperaPage implements OnInit {
       .subscribe();
   }
 
-  irAMesa() { this.router.navigate(['/cliente/mesa']); }
+  async escanearQrMesa() {
+    this.errorQRMesa.set('');
+    this.escaneandoMesa.set(true);
+    try {
+      const { supported } = await BarcodeScanner.isSupported();
+      if (!supported) {
+        this.errorQRMesa.set('Este dispositivo no soporta la lectura de códigos QR.');
+        await this.haptics.error();
+        return;
+      }
+      await BarcodeScanner.requestPermissions();
+      const { barcodes } = await BarcodeScanner.scan({ formats: [BarcodeFormat.QrCode] });
+      if (barcodes.length === 0) return;
+
+      const valor = barcodes[0].rawValue ?? '';
+      const match = valor.match(/[?&]id=([^&]+)/);
+      const mesaIdEscaneado = match?.[1];
+      const mesa = this.mesaAsignada();
+
+      if (!mesaIdEscaneado || mesaIdEscaneado !== mesa?.id) {
+        await this.haptics.error();
+        this.errorQRMesa.set(`Esta no es tu mesa. Tu mesa es la número ${mesa?.numero}.`);
+        return;
+      }
+
+      this.router.navigate(['/cliente/anonimo-mesa'], { state: { qrValidado: true } });
+    } catch (error: unknown) {
+      const e = error as any;
+      if (e?.message === 'scan canceled.' || e?.errorMessage === 'scan canceled.') return;
+      this.errorQRMesa.set('Ocurrió un error al leer el QR. Intentá de nuevo.');
+      await this.haptics.error();
+    } finally {
+      this.escaneandoMesa.set(false);
+    }
+  }
+
   verEncuestas() { this.router.navigate(['/cliente/encuesta-resultados']); }
   salir() { this.authService.setUsuarioAnonimo(null); this.router.navigate(['/login']); }
 }

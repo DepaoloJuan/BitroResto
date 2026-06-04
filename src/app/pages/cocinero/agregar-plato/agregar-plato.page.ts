@@ -56,7 +56,7 @@ export class AgregarPlatoPage {
     else if (Number(f.tiempo_elaboracion) <= 0) errs['tiempo_elaboracion'] = 'El tiempo debe ser mayor a cero.';
     if (!f.precio) errs['precio'] = 'El precio es obligatorio.';
     else if (Number(f.precio) <= 0) errs['precio'] = 'El precio debe ser mayor a cero.';
-    if (!f.fotos.some(fo => fo.trim())) errs['fotos'] = 'Debe ingresar al menos una foto.';
+    if (!f.fotos.every(fo => fo.trim())) errs['fotos'] = 'Las 3 fotos del plato son obligatorias.';
     this.errores.set(errs);
     if (Object.keys(errs).length > 0) { await this.haptics.error(); return false; }
     return true;

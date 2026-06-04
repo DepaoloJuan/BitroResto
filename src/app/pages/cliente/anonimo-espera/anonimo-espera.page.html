@@ -27,11 +27,21 @@
   @if (mesaAsignada()) {
     <ion-icon name="checkmark-circle-outline" size="large" color="success"></ion-icon>
     <h2>¡Mesa asignada!</h2>
-    <p>Tu mesa es la número <strong>{{ mesaAsignada()!.numero }}</strong></p>
-    <p>Tipo: {{ mesaAsignada()!.tipo }}</p>
+    <p>Tu mesa es la número <strong>{{ mesaAsignada()!.numero }}</strong>. Escaneá el código QR de tu mesa para ingresar.</p>
 
-    <ion-button expand="block" color="success" (click)="irAMesa()" class="ion-margin-top">
-      Ir a mi mesa
+    @if (errorQRMesa()) {
+      <ion-text color="danger">
+        <p>{{ errorQRMesa() }}</p>
+      </ion-text>
+    }
+
+    <ion-button expand="block" color="success" (click)="escanearQrMesa()" [disabled]="escaneandoMesa()" class="ion-margin-top">
+      @if (escaneandoMesa()) {
+        <ion-spinner name="crescent"></ion-spinner>
+      } @else {
+        <ion-icon name="scan-outline" slot="start"></ion-icon>
+        Escanear QR de mi mesa
+      }
     </ion-button>
   }
 
