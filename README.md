@@ -15,19 +15,20 @@ Aplicación mobile para la gestión integral de un restaurante. Permite a los cl
 
 ---
 
-## Equipo
-
-| Integrante                    | Requerimientos asignados   |
-| ----------------------------- | -------------------------- |
-| **Juan Manuel Depaolo**       | 1, 2, 3, 4, 11, 12, 15, 16 |
-| **Cespedes, Carmen**          | 5, 6, 7, 8, 9, 17, 18      |
-| **Caballero, Jorge Ezequiel** | 10, 13, 14, 19, 20, 21, 22 |
+## Integrantes y módulos
 
 ---
 
-## División de requerimientos
+### Depaolo, Juan Manuel
 
-### Juan Manuel Depaolo
+| Campo | Detalle |
+|---|---|
+| **Apellidos y nombres** | Depaolo, Juan Manuel |
+| **Fecha de inicio** | [DD/MM/AAAA] |
+| **Fecha de finalización** | [DD/MM/AAAA] |
+| **Branch** | main |
+
+**Módulos a desarrollar:**
 
 **1. Splash screen e ícono personalizados**
 La aplicación cuenta con pantalla de inicio y ícono propios acordes a la identidad visual del restaurante.
@@ -57,6 +58,15 @@ El mozo confirma el pago, la mesa queda disponible nuevamente y se notifica al d
 
 ### Cespedes, Carmen
 
+| Campo | Detalle |
+|---|---|
+| **Apellidos y nombres** | Cespedes, Carmen |
+| **Fecha de inicio** | [DD/MM/AAAA] |
+| **Fecha de finalización** | [DD/MM/AAAA] |
+| **Branch** | main |
+
+**Módulos a desarrollar:**
+
 **5. Alta y gestión de empleados**
 El dueño y supervisor pueden registrar nuevos empleados con foto, datos personales escaneados desde el DNI y perfil asignado (metre, mozo, cocinero, cantinero, supervisor).
 
@@ -81,6 +91,15 @@ Vistas de administración con acceso a todas las funciones del negocio: empleado
 ---
 
 ### Caballero, Jorge Ezequiel
+
+| Campo | Detalle |
+|---|---|
+| **Apellidos y nombres** | Caballero, Jorge Ezequiel |
+| **Fecha de inicio** | [DD/MM/AAAA] |
+| **Fecha de finalización** | [DD/MM/AAAA] |
+| **Branch** | main |
+
+**Módulos a desarrollar:**
 
 **10. Mozo: gestión de pedidos**
 El mozo visualiza los pedidos pendientes en tiempo real, puede confirmarlos o rechazarlos, marcarlos como entregados y confirmar el pago.
