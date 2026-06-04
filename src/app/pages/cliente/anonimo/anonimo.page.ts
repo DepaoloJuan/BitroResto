@@ -50,8 +50,7 @@ export class AnonimoPage {
       const { barcodes } = await BarcodeScanner.scan({ formats: [BarcodeFormat.QrCode] });
       if (barcodes.length === 0) return;
       const valor = barcodes[0].rawValue ?? '';
-      const { data } = await this.supabase.client.from('mesas').select('id').eq('tipo', 'entrada').single();
-      if (!data || !valor.includes(data.id)) {
+      if (valor !== 'com.bitroresto.app://entrada') {
         this.errorQR.set('Este QR no es el de entrada al local. Escaneá el código QR de la puerta.');
         return;
       }

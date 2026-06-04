@@ -5,10 +5,12 @@ import {
   IonSpinner, IonText, IonButtons, IonBackButton,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { timeOutline, hourglassOutline, checkmarkCircleOutline, barChartOutline } from 'ionicons/icons';
+import { timeOutline, hourglassOutline, checkmarkCircleOutline, barChartOutline, scanOutline, qrCodeOutline } from 'ionicons/icons';
+import { BarcodeScanner, BarcodeFormat } from '@capacitor-mlkit/barcode-scanning';
 import { AuthService } from '../../../core/services/auth';
 import { SupabaseService } from '../../../core/services/supabase';
 import { NotificacionesService } from '../../../core/services/notificaciones';
+import { HapticsService } from '../../../core/services/haptics.service';
 import { Mesa } from '../../../core/models';
 import { RealtimeChannel } from '@supabase/supabase-js';
 
@@ -26,10 +28,14 @@ export class ListaEsperaPage implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly supabase = inject(SupabaseService);
   private readonly notificaciones = inject(NotificacionesService);
+  private readonly haptics = inject(HapticsService);
   readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly usuario = this.authService.usuario;
+  qrEscaneado = signal(false);
+  escaneando = signal(false);
+  errorQR = signal('');
   yaEnEspera = signal(false);
   mesaAsignada = signal<Mesa | null>(null);
   cargando = signal(false);
@@ -38,7 +44,7 @@ export class ListaEsperaPage implements OnInit {
   private canal?: RealtimeChannel;
 
   constructor() {
-    addIcons({ timeOutline, hourglassOutline, checkmarkCircleOutline, barChartOutline });
+    addIcons({ timeOutline, hourglassOutline, checkmarkCircleOutline, barChartOutline, scanOutline, qrCodeOutline });
     this.destroyRef.onDestroy(() => {
       if (this.canal) this.supabase.client.removeChannel(this.canal);
     });
@@ -49,6 +55,36 @@ export class ListaEsperaPage implements OnInit {
     this.suscribirCambios();
   }
 
+  async escanearQrEntrada() {
+    this.errorQR.set('');
+    this.escaneando.set(true);
+    try {
+      const { supported } = await BarcodeScanner.isSupported();
+      if (!supported) {
+        this.errorQR.set('Este dispositivo no soporta la lectura de códigos QR.');
+        await this.haptics.error();
+        return;
+      }
+      await BarcodeScanner.requestPermissions();
+      const { barcodes } = await BarcodeScanner.scan({ formats: [BarcodeFormat.QrCode] });
+      if (barcodes.length === 0) return;
+      const valor = barcodes[0].rawValue ?? '';
+      if (valor !== 'com.bitroresto.app://entrada') {
+        this.errorQR.set('Este QR no es el de entrada al local. Escaneá el código QR de la puerta.');
+        await this.haptics.error();
+        return;
+      }
+      this.qrEscaneado.set(true);
+    } catch (error: unknown) {
+      const e = error as any;
+      if (e?.message === 'scan canceled.' || e?.errorMessage === 'scan canceled.') return;
+      this.errorQR.set('Ocurrió un error al leer el QR. Intentá de nuevo.');
+      await this.haptics.error();
+    } finally {
+      this.escaneando.set(false);
+    }
+  }
+
   async verificarEstado() {
     const usuario = this.authService.getUsuarioActual();
     if (!usuario) return;
@@ -57,8 +93,10 @@ export class ListaEsperaPage implements OnInit {
       .eq('usuario_id', usuario.id).order('fecha_ingreso', { ascending: false }).limit(1).single();
     if (!data) return;
     if (data.estado === 'esperando') {
+      this.qrEscaneado.set(true);
       this.yaEnEspera.set(true);
     } else if (data.estado === 'asignado' && data.mesas) {
+      this.qrEscaneado.set(true);
       this.mesaAsignada.set(data.mesas as Mesa);
     }
   }
@@ -95,6 +133,7 @@ export class ListaEsperaPage implements OnInit {
       this.yaEnEspera.set(true);
     } catch (e: unknown) {
       this.errorGeneral.set((e as Error).message || 'Error al anotarse en la lista de espera.');
+      await this.haptics.error();
     } finally {
       this.cargando.set(false);
     }

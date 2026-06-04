@@ -5,7 +5,7 @@ import {
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { downloadOutline } from 'ionicons/icons';
-import { SupabaseService } from '../../../core/services/supabase';
+import * as QRCode from 'qrcode';
 import { AuthService } from '../../../core/services/auth';
 
 @Component({
@@ -19,7 +19,6 @@ import { AuthService } from '../../../core/services/auth';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QrEntradaPage implements OnInit {
-  private readonly supabase = inject(SupabaseService);
   private readonly authService = inject(AuthService);
 
   qrEntrada = signal('');
@@ -32,9 +31,8 @@ export class QrEntradaPage implements OnInit {
   }
 
   async ngOnInit() {
-    const { data } = await this.supabase.client
-      .from('mesas').select('qr_codigo').eq('tipo', 'entrada').single();
-    if (data?.qr_codigo) this.qrEntrada.set(data.qr_codigo);
+    const qrUrl = await QRCode.toDataURL('com.bitroresto.app://entrada', { width: 300 });
+    this.qrEntrada.set(qrUrl);
   }
 
   descargar() {
