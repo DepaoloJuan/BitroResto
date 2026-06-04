@@ -52,8 +52,9 @@ export class MesaPage implements OnInit {
   errorQRMesa = signal('');
 
   private mesaId = '';
-  private mesaNumeroAsignado = 0;
   private canal?: RealtimeChannel;
+  private primeraVez = true;
+  mesaAsignada = signal<{ numero: number; tipo: string } | null>(null);
 
   readonly estado = computed(() => this.pedido()?.estado ?? '');
   readonly puedePedir = computed(() => !this.estado() || this.estado() === 'rechazado_mozo');
@@ -110,6 +111,18 @@ export class MesaPage implements OnInit {
     });
   }
 
+  ionViewWillEnter() {
+    if (this.primeraVez) { this.primeraVez = false; return; }
+    if (this.esEmpleado()) return;
+    // Cada vez que el cliente vuelve a esta pantalla, requiere escanear QR de nuevo
+    this.qrEscaneado.set(false);
+    this.cargando.set(false);
+    if (this.canal) {
+      this.supabase.client.removeChannel(this.canal);
+      this.canal = undefined;
+    }
+  }
+
   async ngOnInit() {
     const usuario = this.authService.getUsuarioActual();
     const perfilesEmpleado = ['metre', 'mozo', 'dueño', 'supervisor'];
@@ -141,13 +154,19 @@ export class MesaPage implements OnInit {
     const usuario = this.authService.getUsuarioActual();
     if (this.esAnonimo()) {
       this.mesaId = usuario?.mesa_id || '';
+      if (this.mesaId) {
+        const { data } = await this.supabase.client
+          .from('mesas').select('numero, tipo').eq('id', this.mesaId).single();
+        if (data) this.mesaAsignada.set({ numero: data.numero, tipo: data.tipo });
+      }
       return;
     }
     const { data } = await this.supabase.client
-      .from('lista_espera').select('mesa_id, mesas(numero)')
+      .from('lista_espera').select('mesa_id, mesas(numero, tipo)')
       .eq('usuario_id', usuario!.id).eq('estado', 'asignado').single();
     this.mesaId = data?.mesa_id || '';
-    this.mesaNumeroAsignado = (data?.mesas as any)?.numero ?? 0;
+    const m = data?.mesas as any;
+    if (m?.numero) this.mesaAsignada.set({ numero: m.numero, tipo: m.tipo ?? '' });
   }
 
   async escanearQrMesa() {
@@ -170,7 +189,7 @@ export class MesaPage implements OnInit {
 
       if (!mesaIdEscaneado || mesaIdEscaneado !== this.mesaId) {
         await this.haptics.error();
-        this.errorQRMesa.set(`Esta no es tu mesa. Tu mesa es la número ${this.mesaNumeroAsignado}.`);
+        this.errorQRMesa.set(`Esta no es tu mesa. Tu mesa es la número ${this.mesaAsignada()?.numero}.`);
         return;
       }
 

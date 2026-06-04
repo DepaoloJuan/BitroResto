@@ -1,8 +1,10 @@
 <ion-header>
   <ion-toolbar>
-    <ion-buttons slot="start">
-      <ion-back-button defaultHref="/cliente/mesa"></ion-back-button>
-    </ion-buttons>
+    @if (!desdePago()) {
+      <ion-buttons slot="start">
+        <ion-back-button defaultHref="/cliente/mesa"></ion-back-button>
+      </ion-buttons>
+    }
     <ion-title>Encuesta de Satisfacción</ion-title>
   </ion-toolbar>
 </ion-header>
@@ -13,11 +15,19 @@
     <div class="ion-text-center ion-padding">
       <ion-icon name="checkmark-circle-outline" size="large" color="success"></ion-icon>
       <h2>¡Gracias por tu opinión!</h2>
-      <p>Ya completaste la encuesta de esta estadía.</p>
-      <ion-button expand="block" (click)="verResultados()" class="ion-margin-top">
-        <ion-icon name="bar-chart-outline" slot="start"></ion-icon>
-        Ver resultados
-      </ion-button>
+      @if (desdePago()) {
+        <p>Esperamos verte pronto. ¡Que tengas un excelente día!</p>
+        <p style="color: rgba(255,220,163,0.5); font-size: 0.85rem; margin-top: 8px;">Cerrando sesión automáticamente...</p>
+        <ion-button expand="block" color="success" (click)="finalizarSesion()" class="ion-margin-top">
+          Finalizar y salir
+        </ion-button>
+      } @else {
+        <p>Ya completaste la encuesta de esta estadía.</p>
+        <ion-button expand="block" (click)="verResultados()" class="ion-margin-top">
+          <ion-icon name="bar-chart-outline" slot="start"></ion-icon>
+          Ver resultados
+        </ion-button>
+      }
     </div>
   }
 

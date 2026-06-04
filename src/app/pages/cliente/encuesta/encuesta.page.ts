@@ -33,6 +33,7 @@ export class EncuestaPage implements OnInit {
 
   private mesaId = '';
   yaRespondio = signal(false);
+  desdePago = signal(false);
   cargando = signal(false);
   errorGeneral = signal('');
   errores = signal<Record<string, string>>({});
@@ -42,6 +43,7 @@ export class EncuestaPage implements OnInit {
   constructor() { addIcons({ star, starOutline, checkmarkCircleOutline, barChartOutline }); }
 
   async ngOnInit() {
+    if (history.state?.desdePago) this.desdePago.set(true);
     await this.obtenerMesa();
     await this.verificarEncuesta();
   }
@@ -49,14 +51,20 @@ export class EncuestaPage implements OnInit {
   async obtenerMesa() {
     const usuario = this.authService.getUsuarioActual();
     if (!usuario) return;
+    if (usuario.perfil === 'anonimo') {
+      this.mesaId = usuario.mesa_id || history.state?.mesaId || '';
+      return;
+    }
     const { data } = await this.supabase.client
-      .from('lista_espera').select('mesa_id').eq('usuario_id', usuario.id).eq('estado', 'asignado').single();
-    this.mesaId = data?.mesa_id || '';
+      .from('lista_espera').select('mesa_id')
+      .eq('usuario_id', usuario.id).in('estado', ['asignado', 'finalizado'])
+      .order('fecha_ingreso', { ascending: false }).limit(1).maybeSingle();
+    this.mesaId = data?.mesa_id || history.state?.mesaId || '';
   }
 
   async verificarEncuesta() {
     const usuario = this.authService.getUsuarioActual();
-    if (!usuario) return;
+    if (!usuario || usuario.perfil === 'anonimo') return;
     const { data } = await this.supabase.client
       .from('encuestas').select('encuesta_id').eq('usuario_id', usuario.id).eq('mesa_id', this.mesaId).single();
     this.yaRespondio.set(!!data);
@@ -84,17 +92,28 @@ export class EncuestaPage implements OnInit {
       const { error } = await this.supabase.client.from('encuestas').insert({
         atencion_puntaje: f.atencion_puntaje,
         comida_puntaje: f.comida_puntaje, ambiente_puntaje: f.ambiente_puntaje,
-        mesa_id: this.mesaId, usuario_id: usuario.id,
+        mesa_id: this.mesaId, usuario_id: usuario.id || null,
         volveria: f.volveria, fecha: new Date().toISOString(),
       });
       if (error) throw error;
       this.yaRespondio.set(true);
+      if (this.desdePago()) setTimeout(() => this.finalizarSesion(), 3000);
     } catch (e: unknown) {
       await this.haptics.error();
       this.errorGeneral.set((e as Error).message || 'Error al enviar la encuesta.');
     } finally {
       this.cargando.set(false);
     }
+  }
+
+  finalizarSesion() {
+    const usuario = this.authService.getUsuarioActual();
+    if (usuario?.perfil === 'anonimo') {
+      this.authService.setUsuarioAnonimo(null);
+    } else {
+      this.authService.logout();
+    }
+    this.router.navigate(['/login'], { replaceUrl: true });
   }
 
   verResultados() { this.router.navigate(['/cliente/encuesta-resultados']); }

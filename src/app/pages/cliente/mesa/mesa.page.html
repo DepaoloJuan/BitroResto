@@ -9,34 +9,47 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="ion-padding">
+<ion-content class="home-content" [scrollY]="false">
 
   <!-- Vista empleado -->
   @if (esEmpleado()) {
-    <ion-card>
-      <ion-card-header>
-        <ion-card-title>Mesa {{ mesa()?.numero }}</ion-card-title>
-        <ion-card-subtitle>{{ mesa()?.tipo | titlecase }}</ion-card-subtitle>
-      </ion-card-header>
-      <ion-card-content>
-        <ion-item lines="none">
-          <ion-icon name="people-outline" slot="start"></ion-icon>
-          <ion-label>Capacidad: {{ mesa()?.capacidad }} personas</ion-label>
-        </ion-item>
-        <ion-item lines="none">
-          <ion-icon name="ellipse" slot="start" [color]="mesa()?.estado === 'disponible' ? 'success' : 'danger'"></ion-icon>
-          <ion-label>{{ mesa()?.estado === 'disponible' ? 'Disponible' : 'Ocupada' }}</ion-label>
-        </ion-item>
-      </ion-card-content>
-    </ion-card>
+    <div class="empleado-wrapper">
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>Mesa {{ mesa()?.numero }}</ion-card-title>
+          <ion-card-subtitle>{{ mesa()?.tipo | titlecase }}</ion-card-subtitle>
+        </ion-card-header>
+        <ion-card-content>
+          <ion-item lines="none">
+            <ion-icon name="people-outline" slot="start"></ion-icon>
+            <ion-label>Capacidad: {{ mesa()?.capacidad }} personas</ion-label>
+          </ion-item>
+          <ion-item lines="none">
+            <ion-icon name="ellipse" slot="start" [color]="mesa()?.estado === 'disponible' ? 'success' : 'danger'"></ion-icon>
+            <ion-label>{{ mesa()?.estado === 'disponible' ? 'Disponible' : 'Ocupada' }}</ion-label>
+          </ion-item>
+        </ion-card-content>
+      </ion-card>
+    </div>
   }
 
   <!-- Vista cliente: escáner QR -->
   @if (!esEmpleado() && !qrEscaneado()) {
     <div class="qr-scan-container">
+
+      @if (mesaAsignada()) {
+        <div class="mesa-asignada-badge">
+          <ion-icon name="checkmark-circle-outline"></ion-icon>
+          <div>
+            <p class="mesa-asignada-titulo">Mesa {{ mesaAsignada()!.numero }}</p>
+            <p class="mesa-asignada-subtitulo">{{ mesaAsignada()!.tipo | titlecase }}</p>
+          </div>
+        </div>
+      }
+
       <ion-icon name="qr-code-outline" class="qr-icon"></ion-icon>
       <h2>Escaneá el QR de tu mesa</h2>
-      <p>Para acceder a las opciones de tu mesa, escaneá el código QR que se encuentra sobre la mesa.</p>
+      <p>El código QR está sobre la mesa. Apuntá la cámara para confirmar que es la tuya.</p>
 
       @if (errorQRMesa()) {
         <ion-text color="danger"><p>{{ errorQRMesa() }}</p></ion-text>
@@ -55,70 +68,63 @@
 
   <!-- Vista cliente: hub de opciones -->
   @if (!esEmpleado() && qrEscaneado()) {
-
     @if (cargando()) { <app-loading /> }
-
     @if (!cargando()) {
+      <div class="mesa-hub">
 
-      @if (estadoTexto()) {
-        <ion-item button lines="none" [color]="estadoColor()" class="estado-item ion-margin-bottom" (click)="ir('/cliente/pedido')">
-          <ion-icon [name]="estadoIcono()" slot="start"></ion-icon>
-          <ion-label>{{ estadoTexto() }}</ion-label>
-          <ion-icon name="chevron-forward-outline" slot="end"></ion-icon>
-        </ion-item>
-      }
-
-      <div class="opciones-grid">
-        <div class="menu-card" (click)="ir('/cliente/pedido')">
-          <ion-icon name="restaurant-outline"></ion-icon>
-          <p class="card-titulo">Ver menú</p>
-          <p class="card-desc">Pedí lo que quieras</p>
-        </div>
-
-        <div class="menu-card" (click)="ir('/cliente/chat')">
-          <ion-icon name="chatbubbles-outline"></ion-icon>
-          <p class="card-titulo">Consultar al mozo</p>
-          <p class="card-desc">Te respondemos en seguida</p>
-        </div>
-
-        @if (puedeJugar()) {
-          <div class="menu-card" (click)="ir('/cliente/juegos')">
-            <ion-icon name="game-controller-outline"></ion-icon>
-            <p class="card-titulo">Juegos</p>
-            <p class="card-desc">Entretenete mientras esperás</p>
-          </div>
+        @if (estadoTexto()) {
+          <ion-item button lines="none" [color]="estadoColor()" class="estado-banner" (click)="ir('/cliente/pedido')">
+            <ion-icon [name]="estadoIcono()" slot="start"></ion-icon>
+            <ion-label>{{ estadoTexto() }}</ion-label>
+            <ion-icon name="chevron-forward-outline" slot="end"></ion-icon>
+          </ion-item>
         }
 
-        @if (puedeEncuesta()) {
-          <div class="menu-card" (click)="ir('/cliente/encuesta')">
-            <ion-icon name="star-outline"></ion-icon>
-            <p class="card-titulo">Encuesta</p>
-            <p class="card-desc">Contanos tu experiencia</p>
+        <div class="opciones-grid">
+          <div class="menu-card" (click)="ir('/cliente/pedido')">
+            <ion-icon name="restaurant-outline"></ion-icon>
+            <p class="card-titulo">Ver menú</p>
+            <p class="card-desc">Pedí lo que quieras</p>
           </div>
-        }
 
-        @if (puedeCuenta()) {
-          <div class="menu-card" (click)="ir('/cliente/cuenta')">
-            <ion-icon name="receipt-outline"></ion-icon>
-            <p class="card-titulo">Pedir la cuenta</p>
-            <p class="card-desc">Cerrá tu pedido</p>
+          <div class="menu-card" (click)="ir('/cliente/chat')">
+            <ion-icon name="chatbubbles-outline"></ion-icon>
+            <p class="card-titulo">Consultar al mozo</p>
+            <p class="card-desc">Te respondemos en seguida</p>
           </div>
-        }
 
-        <div class="menu-card" (click)="ir('/cliente/encuesta-resultados')">
-          <ion-icon name="bar-chart-outline"></ion-icon>
-          <p class="card-titulo">Ver resultados</p>
-          <p class="card-desc">Estadísticas de encuestas</p>
+          @if (puedeJugar()) {
+            <div class="menu-card" (click)="ir('/cliente/juegos')">
+              <ion-icon name="game-controller-outline"></ion-icon>
+              <p class="card-titulo">Juegos</p>
+              <p class="card-desc">Entretenete mientras esperás</p>
+            </div>
+          }
+
+
+          @if (puedeCuenta()) {
+            <div class="menu-card" (click)="ir('/cliente/cuenta')">
+              <ion-icon name="receipt-outline"></ion-icon>
+              <p class="card-titulo">Pedir la cuenta</p>
+              <p class="card-desc">Cerrá tu pedido</p>
+            </div>
+          }
+
+          <div class="menu-card" (click)="ir('/cliente/encuesta-resultados')">
+            <ion-icon name="bar-chart-outline"></ion-icon>
+            <p class="card-titulo">Ver resultados</p>
+            <p class="card-desc">Estadísticas de encuestas</p>
+          </div>
         </div>
+
+        @if (estado() === 'entregado') {
+          <ion-button expand="block" color="success" class="confirmar-btn" (click)="confirmarRecepcion()">
+            <ion-icon name="checkmark-circle-outline" slot="start"></ion-icon>
+            Confirmar recepción del pedido
+          </ion-button>
+        }
+
       </div>
-
-      @if (estado() === 'entregado') {
-        <ion-button expand="block" color="success" class="ion-margin-top" (click)="confirmarRecepcion()">
-          <ion-icon name="checkmark-circle-outline" slot="start"></ion-icon>
-          Confirmar recepción del pedido
-        </ion-button>
-      }
-
     }
   }
 

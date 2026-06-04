@@ -1,14 +1,12 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import {
   IonHeader, IonToolbar, IonTitle, IonContent, IonCard, IonCardHeader,
   IonCardTitle, IonCardSubtitle, IonCardContent, IonButton, IonIcon, IonText,
   IonGrid, IonRow, IonCol, IonAvatar, IonButtons, IonBackButton, IonBadge,
-  IonItem, IonLabel, IonSelect, IonSelectOption,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { checkmarkOutline, peopleOutline } from 'ionicons/icons';
+import { checkmarkOutline, checkmarkCircle, peopleOutline } from 'ionicons/icons';
 import { SupabaseService } from '../../../core/services/supabase';
 import { LoadingComponent } from '../../../shared/components/loading/loading.component';
 import { NotificacionesService } from '../../../core/services/notificaciones';
@@ -22,10 +20,10 @@ interface ClienteEsperaUI extends ListaEspera { _mesa_seleccionada: string | nul
   templateUrl: './lista-espera.page.html',
   styleUrls: ['./lista-espera.page.scss'],
   imports: [
-    FormsModule, IonHeader, IonToolbar, IonTitle, IonContent, IonCard, IonCardHeader,
+    IonHeader, IonToolbar, IonTitle, IonContent, IonCard, IonCardHeader,
     IonCardTitle, IonCardSubtitle, IonCardContent, IonButton, IonIcon, IonText,
     IonGrid, IonRow, IonCol, IonAvatar, IonButtons, IonBackButton, IonBadge,
-    IonItem, IonLabel, IonSelect, IonSelectOption, LoadingComponent, DatePipe,
+    LoadingComponent, DatePipe,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -41,7 +39,7 @@ export class ListaEsperaPage implements OnInit {
   private canal?: RealtimeChannel;
 
   constructor() {
-    addIcons({ checkmarkOutline, peopleOutline });
+    addIcons({ checkmarkOutline, checkmarkCircle, peopleOutline });
     this.destroyRef.onDestroy(() => {
       if (this.canal) this.supabase.client.removeChannel(this.canal);
     });
@@ -83,6 +81,12 @@ export class ListaEsperaPage implements OnInit {
           await this.cargarClientes();
         })
       .subscribe();
+  }
+
+  seleccionarMesa(cliente: ClienteEsperaUI, mesaId: string) {
+    this.clientes.update(cs => cs.map(c =>
+      c.id === cliente.id ? { ...c, _mesa_seleccionada: mesaId } : c
+    ));
   }
 
   async asignarMesa(cliente: ClienteEsperaUI) {

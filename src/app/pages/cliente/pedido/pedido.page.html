@@ -7,7 +7,6 @@
   </ion-toolbar>
 </ion-header>
 
-<!-- Barra fija de resumen arriba -->
 @if (itemsSeleccionados().length > 0) {
   <div class="barra-resumen">
     <div class="resumen-dato">
@@ -21,123 +20,130 @@
   </div>
 }
 
-<ion-content>
+<ion-content [scrollY]="estadoBloqueado()">
 
-  <ion-segment [ngModel]="seccion()" (ngModelChange)="seccion.set($event)" (ionChange)="cambiarSeccion()" class="ion-margin-bottom">
-    <ion-segment-button value="platos">
-      <ion-label>🍽 Platos</ion-label>
-    </ion-segment-button>
-    <ion-segment-button value="bebidas">
-      <ion-label>🍹 Bebidas</ion-label>
-    </ion-segment-button>
-  </ion-segment>
-
-  @if (pedidoExistente()?.estado === 'pago_solicitado') {
-    <div class="ion-text-center ion-padding">
+  @if (estadoBloqueado()) {
+    <div class="estado-bloqueado ion-text-center ion-padding">
       <ion-icon name="hourglass-outline" size="large" color="warning"></ion-icon>
-      <p>La cuenta ya fue solicitada. No podés agregar más productos.</p>
+      @if (pedidoExistente()?.estado === 'pago_solicitado') {
+        <p>La cuenta ya fue solicitada. No podés agregar más productos.</p>
+      }
+      @if (pedidoExistente()?.estado === 'esperando_mozo') {
+        <p>Tu pedido está esperando confirmación del mozo. Una vez confirmado podés agregar el siguiente plato.</p>
+      }
       <ion-button expand="block" (click)="router.navigate(['/cliente/mesa'])">
         Ver estado de la mesa
       </ion-button>
     </div>
   }
 
-  @if (pedidoExistente()?.estado === 'esperando_mozo') {
-    <div class="ion-text-center ion-padding">
-      <ion-icon name="hourglass-outline" size="large" color="warning"></ion-icon>
-      <p>Tu pedido está esperando confirmación del mozo. Una vez confirmado podés pedir el siguiente plato.</p>
-      <ion-button expand="block" (click)="router.navigate(['/cliente/mesa'])">
-        Ver estado del pedido
-      </ion-button>
-    </div>
-  }
+  @if (!estadoBloqueado()) {
+    <div class="menu-wrapper">
 
-  @if (['en_cocina', 'listo'].includes(pedidoExistente()?.estado ?? '')) {
-    <div class="ion-padding">
-      <ion-text color="primary">
-        <p>Tenés un plato en preparación. Podés elegir el siguiente plato — se sumará a tu cuenta.</p>
-      </ion-text>
-    </div>
-  }
+      <ion-segment [ngModel]="seccion()" (ngModelChange)="seccion.set($event)">
+        <ion-segment-button value="platos">
+          <ion-label>Platos</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="bebidas">
+          <ion-label>Bebidas</ion-label>
+        </ion-segment-button>
+      </ion-segment>
 
-  @if (pedidoExistente()?.estado === 'rechazado_mozo') {
-    <div class="ion-padding">
-      <ion-text color="danger">
-        <p>El mozo rechazó tu pedido. Modificá los productos y cantidades y volvé a enviarlo.</p>
-      </ion-text>
-    </div>
-  }
+      @if (seccion() === 'platos') {
+        <ion-segment [ngModel]="categoria()" (ngModelChange)="categoria.set($event)">
+          <ion-segment-button value="entrada">
+            <ion-label>Entradas</ion-label>
+          </ion-segment-button>
+          <ion-segment-button value="principal">
+            <ion-label>Principales</ion-label>
+          </ion-segment-button>
+          <ion-segment-button value="postre">
+            <ion-label>Postres</ion-label>
+          </ion-segment-button>
+        </ion-segment>
+      }
 
-  @if (cargando()) {
-    <div class="ion-text-center ion-padding">
-      <ion-spinner name="crescent"></ion-spinner>
-    </div>
-  }
+      @if (['en_cocina', 'listo'].includes(pedidoExistente()?.estado ?? '')) {
+        <div class="info-banner">
+          <ion-icon name="information-circle-outline"></ion-icon>
+          <span>Tenés un plato en preparación. Podés elegir el siguiente — se sumará a tu cuenta.</span>
+        </div>
+      }
 
-  @for (item of items(); track item.id) {
-    <ion-card class="card-item" [class.seleccionado]="item._cantidad > 0">
+      @if (pedidoExistente()?.estado === 'rechazado_mozo') {
+        <div class="info-banner danger">
+          <ion-icon name="alert-circle-outline"></ion-icon>
+          <span>El mozo rechazó tu pedido. Modificá los productos y volvé a enviarlo.</span>
+        </div>
+      }
 
-      <!-- Fotos con scroll horizontal -->
-      <div class="fotos-container">
-        <div class="fotos-scroll">
-          @if (item.foto1) {
-            <img [src]="item.foto1" class="foto-item" />
-          }
-          @if (item.foto2) {
-            <img [src]="item.foto2" class="foto-item" />
-          }
-          @if (item.foto3) {
-            <img [src]="item.foto3" class="foto-item" />
+      @if (cargando()) {
+        <div class="loading-center">
+          <app-loading />
+        </div>
+      }
+
+      @if (!cargando()) {
+        <div class="snap-container">
+          @for (item of itemsFiltrados(); track item.id) {
+            <div class="snap-item" [class.seleccionado]="item._cantidad > 0">
+
+              <div class="fotos-carousel">
+                <div class="fotos-scroll">
+                  @if (item.foto1) {
+                    <img [src]="item.foto1" alt="" class="foto-item" />
+                  }
+                  @if (item.foto2) {
+                    <img [src]="item.foto2" alt="" class="foto-item" />
+                  }
+                  @if (item.foto3) {
+                    <img [src]="item.foto3" alt="" class="foto-item" />
+                  }
+                </div>
+              </div>
+
+              <div class="item-info">
+                <p class="item-meta">${{ item.precio }} — {{ item.tiempo_elaboracion }} min.</p>
+                <h2 class="item-nombre">{{ item.nombre }}</h2>
+                <p class="item-desc">{{ item.descripcion }}</p>
+
+                <div class="cantidad-control">
+                  <ion-button fill="clear" size="small" (click)="cambiarCantidad(item, -1)"
+                    [disabled]="!item._cantidad">
+                    <ion-icon name="remove-circle-outline"
+                      [color]="item._cantidad ? 'danger' : 'medium'"></ion-icon>
+                  </ion-button>
+                  <span class="cantidad-numero" [class.activo]="item._cantidad > 0">
+                    {{ item._cantidad || 0 }}
+                  </span>
+                  <ion-button fill="clear" size="small" (click)="cambiarCantidad(item, 1)">
+                    <ion-icon name="add-circle-outline" color="success"></ion-icon>
+                  </ion-button>
+                </div>
+              </div>
+
+            </div>
           }
         </div>
-      </div>
+      }
 
-      <ion-card-header>
-        <ion-card-title>{{ item.nombre }}</ion-card-title>
-        <ion-card-subtitle>
-          ${{ item.precio }} &mdash; {{ item.tiempo_elaboracion }} min.
-        </ion-card-subtitle>
-      </ion-card-header>
-
-      <ion-card-content>
-        <p>{{ item.descripcion }}</p>
-
-        <!-- Control de cantidad -->
-        <div class="cantidad-control">
-          <ion-button fill="clear" size="small" (click)="cambiarCantidad(item, -1)"
-            [disabled]="!item._cantidad">
-            <ion-icon name="remove-circle-outline" [color]="item._cantidad ? 'danger' : 'medium'"></ion-icon>
-          </ion-button>
-          <span class="cantidad-numero" [class.activo]="item._cantidad > 0">
-            {{ item._cantidad || 0 }}
-          </span>
-          <ion-button fill="clear" size="small" (click)="cambiarCantidad(item, 1)">
-            <ion-icon name="add-circle-outline" color="success"></ion-icon>
-          </ion-button>
-        </div>
-      </ion-card-content>
-
-    </ion-card>
+    </div>
   }
-
-  <!-- Espacio extra al final para que no tape el footer -->
-  <div style="height: 80px"></div>
 
 </ion-content>
 
-@if (itemsSeleccionados().length === 0 && !enviando()) {
-  <div class="ion-text-center ion-padding">
-    <ion-text color="danger">
-      <small>Seleccioná al menos un producto para enviar el pedido.</small>
+@if (!estadoBloqueado() && itemsSeleccionados().length === 0 && !enviando()) {
+  <div class="hint-enviar ion-text-center">
+    <ion-text color="medium">
+      <small>Deslizá para ver los productos y seleccioná lo que querés pedir.</small>
     </ion-text>
   </div>
 }
 
-<!-- Footer con botón de enviar -->
 <ion-footer>
   <ion-toolbar>
     <ion-button expand="block" color="primary" class="ion-margin"
-      [disabled]="itemsSeleccionados().length === 0 || enviando() || pedidoExistente()?.estado === 'esperando_mozo' || pedidoExistente()?.estado === 'pago_solicitado'"
+      [disabled]="itemsSeleccionados().length === 0 || enviando() || estadoBloqueado()"
       (click)="confirmarPedido()">
       @if (enviando()) {
         <ion-spinner name="crescent"></ion-spinner>

@@ -2,15 +2,18 @@ import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } 
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import {
-  IonHeader, IonToolbar, IonTitle, IonContent, IonFooter, IonCard, IonCardHeader,
-  IonCardTitle, IonCardSubtitle, IonCardContent, IonSpinner, IonButtons, IonBackButton,
+  IonHeader, IonToolbar, IonTitle, IonContent, IonFooter, IonSpinner, IonButtons, IonBackButton,
   IonSegment, IonSegmentButton, IonLabel, IonButton, IonIcon, IonText,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { removeCircleOutline, addCircleOutline, sendOutline, timeOutline, cartOutline, hourglassOutline } from 'ionicons/icons';
+import {
+  removeCircleOutline, addCircleOutline, sendOutline, timeOutline, cartOutline,
+  hourglassOutline, informationCircleOutline, alertCircleOutline,
+} from 'ionicons/icons';
 import { AuthService } from '../../../core/services/auth';
 import { SupabaseService } from '../../../core/services/supabase';
 import { HapticsService } from '../../../core/services/haptics.service';
+import { LoadingComponent } from '../../../shared/components/loading/loading.component';
 import { Plato, Bebida, Producto } from '../../../core/models';
 
 @Component({
@@ -18,9 +21,8 @@ import { Plato, Bebida, Producto } from '../../../core/models';
   templateUrl: './pedido.page.html',
   styleUrls: ['./pedido.page.scss'],
   imports: [
-    FormsModule, IonHeader, IonToolbar, IonTitle, IonContent, IonFooter, IonCard,
-    IonCardHeader, IonCardTitle, IonCardSubtitle, IonCardContent, IonSpinner, IonButtons,
-    IonBackButton, IonSegment, IonSegmentButton, IonLabel, IonButton, IonIcon, IonText,
+    FormsModule, IonHeader, IonToolbar, IonTitle, IonContent, IonFooter, IonSpinner, IonButtons,
+    IonBackButton, IonSegment, IonSegmentButton, IonLabel, IonButton, IonIcon, IonText, LoadingComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -31,24 +33,39 @@ export class PedidoPage implements OnInit {
   private readonly haptics = inject(HapticsService);
 
   seccion = signal<'platos' | 'bebidas'>('platos');
-  items = signal<Producto[]>([]);
-  todosLosItems = signal<Producto[]>([]);
+  categoria = signal<'entrada' | 'principal' | 'postre'>('entrada');
+  platos = signal<Producto[]>([]);
+  bebidas = signal<Producto[]>([]);
   cargando = signal(false);
   enviando = signal(false);
   pedidoExistente = signal<{ id: string; estado: string; pedido_items?: any[] } | null>(null);
   pedidoRechazadoId = signal<string | null>(null);
   private mesaId = '';
 
-  itemsSeleccionados = computed(() => this.todosLosItems().filter(i => i._cantidad > 0));
-  totalPedido = computed(() => this.itemsSeleccionados().reduce((sum, i) => sum + i.precio * i._cantidad, 0));
-  tiempoTotal = computed(() =>
+  readonly itemsFiltrados = computed(() => {
+    if (this.seccion() === 'bebidas') return this.bebidas();
+    return this.platos().filter(p => (p as any).categoria === this.categoria());
+  });
+
+  readonly todosLosItems = computed(() => [...this.platos(), ...this.bebidas()]);
+  readonly itemsSeleccionados = computed(() => this.todosLosItems().filter(i => i._cantidad > 0));
+  readonly totalPedido = computed(() =>
+    this.itemsSeleccionados().reduce((sum, i) => sum + i.precio * i._cantidad, 0)
+  );
+  readonly tiempoTotal = computed(() =>
     this.itemsSeleccionados().length > 0
       ? Math.max(...this.itemsSeleccionados().map(i => i.tiempo_elaboracion))
       : 0
   );
+  readonly estadoBloqueado = computed(() =>
+    ['pago_solicitado', 'esperando_mozo'].includes(this.pedidoExistente()?.estado ?? '')
+  );
 
   constructor() {
-    addIcons({ removeCircleOutline, addCircleOutline, sendOutline, timeOutline, cartOutline, hourglassOutline });
+    addIcons({
+      removeCircleOutline, addCircleOutline, sendOutline, timeOutline, cartOutline,
+      hourglassOutline, informationCircleOutline, alertCircleOutline,
+    });
   }
 
   async ngOnInit() {
@@ -60,6 +77,10 @@ export class PedidoPage implements OnInit {
   async obtenerMesa() {
     const usuario = this.authService.getUsuarioActual();
     if (!usuario) return;
+    if (usuario.perfil === 'anonimo') {
+      this.mesaId = usuario.mesa_id || '';
+      return;
+    }
     const { data } = await this.supabase.client
       .from('lista_espera').select('mesa_id').eq('usuario_id', usuario.id).eq('estado', 'asignado').single();
     this.mesaId = data?.mesa_id || '';
@@ -75,39 +96,36 @@ export class PedidoPage implements OnInit {
     this.pedidoExistente.set(data);
     if (data?.estado === 'rechazado_mozo') {
       this.pedidoRechazadoId.set(data.id);
-      this.todosLosItems.update(todos => todos.map(item => {
-        const prevItem = (data.pedido_items || []).find((i: any) => i.producto_id === item.id);
-        return prevItem ? { ...item, _cantidad: prevItem.cantidad } : item;
+      const prevItems = data.pedido_items || [];
+      this.platos.update(ps => ps.map(p => {
+        const prev = prevItems.find((i: any) => i.producto_id === p.id);
+        return prev ? { ...p, _cantidad: prev.cantidad } : p;
       }));
-      this.items.update(items => items.map(i => ({
-        ...i, _cantidad: this.todosLosItems().find(t => t.id === i.id)?._cantidad || 0,
-      })));
+      this.bebidas.update(bs => bs.map(b => {
+        const prev = prevItems.find((i: any) => i.producto_id === b.id);
+        return prev ? { ...b, _cantidad: prev.cantidad } : b;
+      }));
     }
   }
 
-  async cambiarSeccion() { await this.cargarItems(); }
-
   async cargarItems() {
     this.cargando.set(true);
-    const tabla = this.seccion() === 'platos' ? 'platos' : 'bebidas';
-    const { data } = await this.supabase.client.from(tabla).select('*').order('nombre', { ascending: true });
-    const tipo = this.seccion();
-    const nuevoItems: Producto[] = (data || []).map(item => {
-      const existente = this.todosLosItems().find(i => i.id === item.id);
-      return { ...(item as Plato | Bebida), _cantidad: existente?._cantidad || 0, _tipo: tipo };
-    });
-    this.items.set(nuevoItems);
-    this.todosLosItems.update(todos => [
-      ...todos.filter(i => i._tipo !== tipo),
-      ...nuevoItems,
+    const [{ data: platosData }, { data: bebidasData }] = await Promise.all([
+      this.supabase.client.from('platos').select('*').order('nombre', { ascending: true }),
+      this.supabase.client.from('bebidas').select('*').order('nombre', { ascending: true }),
     ]);
+    this.platos.set((platosData || []).map(p => ({ ...(p as Plato), _cantidad: 0, _tipo: 'platos' }) as Producto));
+    this.bebidas.set((bebidasData || []).map(b => ({ ...(b as Bebida), _cantidad: 0, _tipo: 'bebidas' }) as Producto));
     this.cargando.set(false);
   }
 
   cambiarCantidad(item: Producto, delta: number) {
     const nuevaCantidad = Math.max(0, (item._cantidad || 0) + delta);
-    item._cantidad = nuevaCantidad;
-    this.todosLosItems.update(todos => todos.map(i => i.id === item.id ? { ...i, _cantidad: nuevaCantidad } : i));
+    if (item._tipo === 'platos') {
+      this.platos.update(ps => ps.map(p => p.id === item.id ? { ...p, _cantidad: nuevaCantidad } : p));
+    } else {
+      this.bebidas.update(bs => bs.map(b => b.id === item.id ? { ...b, _cantidad: nuevaCantidad } : b));
+    }
   }
 
   async confirmarPedido() {
@@ -132,7 +150,7 @@ export class PedidoPage implements OnInit {
         if (eItems) throw eItems;
       } else {
         const { data: pedido, error } = await this.supabase.client.from('pedidos').insert({
-          mesa_id: this.mesaId, usuario_id: usuario?.id, estado: 'esperando_mozo', total: this.totalPedido(),
+          mesa_id: this.mesaId, usuario_id: usuario?.id || null, estado: 'esperando_mozo', total: this.totalPedido(),
         }).select().single();
         if (error) throw error;
         const { error: eItems } = await this.supabase.client.from('pedido_items').insert(
@@ -143,7 +161,8 @@ export class PedidoPage implements OnInit {
         );
         if (eItems) throw eItems;
       }
-      this.router.navigate(['/cliente/mesa'], { replaceUrl: true });
+      const destino = usuario?.perfil === 'anonimo' ? '/cliente/anonimo-mesa' : '/cliente/mesa';
+      this.router.navigate([destino], { replaceUrl: true });
     } catch (e: unknown) {
       await this.haptics.error();
       console.error(e);

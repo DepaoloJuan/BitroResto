@@ -14,46 +14,37 @@
   }
 
   @if (!cargando() && encuestas().length === 0) {
-    <div class="ion-text-center ion-padding">
-      <ion-icon name="bar-chart-outline" size="large"></ion-icon>
+    <div class="empty-state">
+      <ion-icon name="bar-chart-outline"></ion-icon>
       <p>Todavía no hay encuestas registradas.</p>
     </div>
   }
 
   @if (!cargando() && encuestas().length > 0) {
 
-    <!-- Indicador de página -->
-    <div class="indicador ion-text-center ion-margin-bottom">
-      <ion-text color="medium">
-        Gráfico {{ graficosActivo() + 1 }} de {{ graficos.length }}
-      </ion-text>
+    <div class="grafico-header">
+      <p class="grafico-contador">{{ graficosActivo() + 1 }} / {{ graficos.length }}</p>
+      <p class="grafico-titulo">{{ graficos[graficosActivo()].titulo }}</p>
+      <p class="grafico-subtitulo">{{ graficos[graficosActivo()].subtitulo }}</p>
+      <p class="grafico-total">{{ encuestas().length }} encuesta{{ encuestas().length !== 1 ? 's' : '' }} registrada{{ encuestas().length !== 1 ? 's' : '' }}</p>
     </div>
 
-    <!-- Título y subtítulo del gráfico activo -->
-    <ion-card>
-      <ion-card-header>
-        <ion-card-title>{{ graficos[graficosActivo()].titulo }}</ion-card-title>
-        <ion-card-subtitle>{{ graficos[graficosActivo()].subtitulo }}</ion-card-subtitle>
-      </ion-card-header>
-      <ion-card-content>
-        <canvas [id]="graficos[graficosActivo()].canvasId"></canvas>
-      </ion-card-content>
-    </ion-card>
+    <div class="canvas-wrapper">
+      <canvas [id]="graficos[graficosActivo()].canvasId"></canvas>
+    </div>
 
-    <!-- Navegación -->
-    <div class="navegacion ion-margin-top">
-      <ion-button
-        fill="outline"
-        [disabled]="graficosActivo() === 0"
-        (click)="anterior()">
+    <div class="dots-row">
+      @for (g of graficos; track $index) {
+        <div class="dot" [class.activo]="$index === graficosActivo()" (click)="irA($index)"></div>
+      }
+    </div>
+
+    <div class="navegacion">
+      <ion-button fill="outline" [disabled]="graficosActivo() === 0" (click)="anterior()">
         <ion-icon slot="start" name="chevron-back-outline"></ion-icon>
         Anterior
       </ion-button>
-
-      <ion-button
-        fill="outline"
-        [disabled]="graficosActivo() === graficos.length - 1"
-        (click)="siguiente()">
+      <ion-button fill="outline" [disabled]="graficosActivo() === graficos.length - 1" (click)="siguiente()">
         Siguiente
         <ion-icon slot="end" name="chevron-forward-outline"></ion-icon>
       </ion-button>

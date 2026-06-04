@@ -57,6 +57,14 @@ export class AnonimoMesaPage implements OnInit {
     });
   }
 
+  ionViewWillEnter() {
+    this.qrEscaneado.set(false);
+    if (this.canal) {
+      this.supabase.client.removeChannel(this.canal);
+      this.canal = undefined;
+    }
+  }
+
   async ngOnInit() {
     const u = this.authService.getUsuarioActual();
     this.mesaId = u?.mesa_id || '';

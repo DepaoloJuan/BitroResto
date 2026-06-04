@@ -7,7 +7,8 @@ import {
   IonLabel, IonNote, IonButtons, IonBackButton, IonSegment, IonSegmentButton,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { cashOutline, giftOutline, hourglassOutline } from 'ionicons/icons';
+import { cashOutline, giftOutline, hourglassOutline, qrCodeOutline, scanOutline } from 'ionicons/icons';
+import { BarcodeScanner, BarcodeFormat } from '@capacitor-mlkit/barcode-scanning';
 import { AuthService } from '../../../core/services/auth';
 import { SupabaseService } from '../../../core/services/supabase';
 import { LoadingComponent } from '../../../shared/components/loading/loading.component';
@@ -37,6 +38,9 @@ export class CuentaPage implements OnInit {
   pedido = signal<(Pedido & { total: number }) | null>(null);
   descuento = signal(0);
   propinaPorcentaje = signal(0);
+  qrPropinasEscaneado = signal(false);
+  escaneandoQRPropina = signal(false);
+  errorQRPropina = signal('');
   cargando = signal(false);
   enviando = signal(false);
   errorGeneral = signal('');
@@ -54,7 +58,7 @@ export class CuentaPage implements OnInit {
   private canal?: RealtimeChannel;
 
   constructor() {
-    addIcons({ cashOutline, giftOutline, hourglassOutline });
+    addIcons({ cashOutline, giftOutline, hourglassOutline, qrCodeOutline, scanOutline });
     this.destroyRef.onDestroy(() => {
       if (this.canal) this.supabase.client.removeChannel(this.canal);
     });
@@ -70,6 +74,10 @@ export class CuentaPage implements OnInit {
   async obtenerMesa() {
     const usuario = this.authService.getUsuarioActual();
     if (!usuario) return;
+    if (usuario.perfil === 'anonimo') {
+      this.mesaId = usuario.mesa_id || '';
+      return;
+    }
     const { data } = await this.supabase.client
       .from('lista_espera').select('mesa_id').eq('usuario_id', usuario.id).eq('estado', 'asignado').single();
     this.mesaId = data?.mesa_id || '';
@@ -104,10 +112,46 @@ export class CuentaPage implements OnInit {
 
   suscribirCambios() {
     this.canal = this.supabase.client
-      .channel('cuenta_cliente')
-      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'pedidos' },
-        () => this.cargarPedido())
+      .channel('cuenta_pagado_' + this.mesaId)
+      .on('postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'pedidos', filter: `mesa_id=eq.${this.mesaId}` },
+        async (payload) => {
+          if ((payload.new as any)?.estado === 'pagado') {
+            this.router.navigate(['/cliente/encuesta'], {
+              state: { desdePago: true, mesaId: this.mesaId },
+              replaceUrl: true,
+            });
+            return;
+          }
+          await this.cargarPedido();
+        })
       .subscribe();
+  }
+
+  async escanearQRPropina() {
+    this.errorQRPropina.set('');
+    this.escaneandoQRPropina.set(true);
+    try {
+      const { supported } = await BarcodeScanner.isSupported();
+      if (!supported) { this.errorQRPropina.set('Este dispositivo no soporta la lectura de QR.'); return; }
+      await BarcodeScanner.requestPermissions();
+      const { barcodes } = await BarcodeScanner.scan({ formats: [BarcodeFormat.QrCode] });
+      if (barcodes.length === 0) return;
+      const valor = barcodes[0].rawValue ?? '';
+      if (valor === 'com.bitroresto.app://propinas') {
+        this.qrPropinasEscaneado.set(true);
+      } else {
+        await this.haptics.error();
+        this.errorQRPropina.set('QR no válido. Escaneá el código de propinas de la mesa.');
+      }
+    } catch (error: unknown) {
+      const e = error as any;
+      if (e?.message === 'scan canceled.' || e?.errorMessage === 'scan canceled.') return;
+      this.errorQRPropina.set('Error al leer el QR. Intentá de nuevo.');
+      await this.haptics.error();
+    } finally {
+      this.escaneandoQRPropina.set(false);
+    }
   }
 
   async solicitarCuenta() {

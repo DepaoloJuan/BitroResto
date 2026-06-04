@@ -1,5 +1,69 @@
-.indicador {
-  font-size: 0.9rem;
+.grafico-header {
+  margin-bottom: 20px;
+
+  .grafico-contador {
+    color: rgba(255,220,163,0.45);
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin: 0 0 6px;
+  }
+
+  .grafico-titulo {
+    color: #ffdca3;
+    font-size: 1.25rem;
+    font-weight: 800;
+    margin: 0 0 4px;
+  }
+
+  .grafico-subtitulo {
+    color: rgba(255,220,163,0.55);
+    font-size: 0.82rem;
+    margin: 0 0 6px;
+  }
+
+  .grafico-total {
+    color: rgba(255,220,163,0.4);
+    font-size: 0.75rem;
+    margin: 0;
+  }
+}
+
+.canvas-wrapper {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 18px;
+  padding: 20px 16px;
+  margin-bottom: 20px;
+
+  canvas {
+    width: 100% !important;
+    max-height: 280px;
+  }
+}
+
+.dots-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 24px;
+
+  .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(255,220,163,0.2);
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &.activo {
+      background: var(--ion-color-primary);
+      width: 22px;
+      border-radius: 4px;
+    }
+  }
 }
 
 .navegacion {
