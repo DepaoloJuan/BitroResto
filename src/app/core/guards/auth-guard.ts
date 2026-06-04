@@ -9,7 +9,7 @@ const PERMISOS: Record<string, string[]> = {
   metre: ['metre'],
   mozo: ['mozo'],
   cocinero: ['cocinero'],
-  cantinero: ['cantinero'],
+  cantinero: ['cantinero', 'bartender'],
   cliente: ['cliente'],
 };
 
@@ -44,6 +44,7 @@ export const AuthGuard: CanActivateFn = (route) => {
     mozo: '/mozo',
     cocinero: '/cocinero',
     cantinero: '/cantinero',
+    bartender: '/bartender',
     cliente: '/cliente/home',
   };
 

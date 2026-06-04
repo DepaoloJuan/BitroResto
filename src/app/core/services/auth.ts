@@ -49,6 +49,7 @@ export class AuthService {
     }
 
     this._usuario.set(usuario as Usuario);
+    console.log('Perfil del usuario:', usuario.perfil);
     return usuario as Usuario;
   }
 
