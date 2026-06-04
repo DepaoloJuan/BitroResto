@@ -41,6 +41,18 @@
     <ion-text color="danger"><small>{{ errores()['precio'] }}</small></ion-text>
   }
 
+  <ion-item lines="none">
+    <ion-label>Categoría *</ion-label>
+    <ion-select [(ngModel)]="form.categoria" placeholder="Seleccioná una categoría">
+      <ion-select-option value="entrada">Entrada</ion-select-option>
+      <ion-select-option value="principal">Plato principal</ion-select-option>
+      <ion-select-option value="postre">Postre</ion-select-option>
+    </ion-select>
+  </ion-item>
+  @if (errores()['categoria']) {
+    <ion-text color="danger"><small>{{ errores()['categoria'] }}</small></ion-text>
+  }
+
   <ion-list-header>
     <ion-label>Fotos del plato (3 obligatorias) *</ion-label>
   </ion-list-header>

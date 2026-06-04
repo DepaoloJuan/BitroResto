@@ -233,6 +233,6 @@ export class JuegosPage implements OnInit {
     this.modalMemoria.set(false);
     this.modalAhorcado.set(false);
     this.modalPregunta.set(false);
-    this.router.navigate(['/cliente/mesa'], { replaceUrl: true });
+    this.router.navigate(['/cliente/mesa'], { replaceUrl: true, state: { qrValidado: true } });
   }
 }

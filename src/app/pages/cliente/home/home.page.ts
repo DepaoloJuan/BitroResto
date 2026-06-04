@@ -54,9 +54,14 @@ export class HomePage implements OnInit {
     if (!usuario) return;
     const { data } = await this.supabase.client
       .from('lista_espera').select('*, mesas(*)')
-      .eq('usuario_id', usuario.id).eq('estado', 'asignado').single();
-    if (data?.mesas) {
+      .eq('usuario_id', usuario.id)
+      .in('estado', ['esperando', 'asignado'])
+      .order('fecha_ingreso', { ascending: false }).limit(1).single();
+    if (!data) return;
+    if (data.estado === 'asignado' && data.mesas) {
       this.router.navigate(['/cliente/mesa'], { replaceUrl: true });
+    } else if (data.estado === 'esperando') {
+      this.router.navigate(['/cliente/lista-espera'], { replaceUrl: true });
     }
   }
 

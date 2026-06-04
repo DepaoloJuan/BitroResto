@@ -170,4 +170,5 @@ export interface FormProducto {
   tiempo_elaboracion: string;
   precio: string;
   fotos: [string, string, string];
+  categoria: string;
 }

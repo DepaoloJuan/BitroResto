@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
   IonHeader, IonToolbar, IonTitle, IonContent,
@@ -22,19 +22,26 @@ export class MenuPage implements OnInit {
   private readonly supabase = inject(SupabaseService);
 
   seccion = signal('platos');
-  items = signal<(Plato | Bebida)[]>([]);
+  categoria = signal('entrada');
+  platos = signal<Plato[]>([]);
+  bebidas = signal<Bebida[]>([]);
   cargando = signal(false);
+
+  readonly itemsFiltrados = computed(() => {
+    if (this.seccion() === 'bebidas') return this.bebidas();
+    return this.platos().filter(p => (p as any).categoria === this.categoria());
+  });
 
   async ngOnInit() { await this.cargarItems(); }
 
-  async cambiarSeccion() { await this.cargarItems(); }
-
   async cargarItems() {
     this.cargando.set(true);
-    const tabla = this.seccion() === 'platos' ? 'platos' : 'bebidas';
-    const { data } = await this.supabase.client
-      .from(tabla).select('*').order('nombre', { ascending: true });
-    this.items.set(data || []);
+    const [{ data: platosData }, { data: bebidasData }] = await Promise.all([
+      this.supabase.client.from('platos').select('*').order('nombre', { ascending: true }),
+      this.supabase.client.from('bebidas').select('*').order('nombre', { ascending: true }),
+    ]);
+    this.platos.set((platosData || []) as Plato[]);
+    this.bebidas.set((bebidasData || []) as Bebida[]);
     this.cargando.set(false);
   }
 }

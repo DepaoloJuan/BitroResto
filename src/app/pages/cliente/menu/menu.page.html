@@ -10,7 +10,7 @@
 <ion-content [scrollY]="false">
   <div class="menu-wrapper">
 
-    <ion-segment [ngModel]="seccion()" (ngModelChange)="seccion.set($event)" (ionChange)="cambiarSeccion()">
+    <ion-segment [ngModel]="seccion()" (ngModelChange)="seccion.set($event)">
       <ion-segment-button value="platos">
         <ion-label>Platos</ion-label>
       </ion-segment-button>
@@ -18,6 +18,20 @@
         <ion-label>Bebidas</ion-label>
       </ion-segment-button>
     </ion-segment>
+
+    @if (seccion() === 'platos') {
+      <ion-segment [ngModel]="categoria()" (ngModelChange)="categoria.set($event)">
+        <ion-segment-button value="entrada">
+          <ion-label>Entradas</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="principal">
+          <ion-label>Principales</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="postre">
+          <ion-label>Postres</ion-label>
+        </ion-segment-button>
+      </ion-segment>
+    }
 
     @if (cargando()) {
       <div class="loading-center">
@@ -27,7 +41,7 @@
 
     @if (!cargando()) {
       <div class="snap-container">
-        @for (item of items(); track item.id) {
+        @for (item of itemsFiltrados(); track item.id) {
           <div class="snap-item">
 
             <div class="fotos-carousel">

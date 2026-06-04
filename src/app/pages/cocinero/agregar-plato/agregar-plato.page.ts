@@ -3,7 +3,7 @@ import { FormsModule } from '@angular/forms';
 import {
   IonHeader, IonToolbar, IonTitle, IonContent, IonItem, IonLabel, IonInput, IonButton,
   IonText, IonSpinner, IonButtons, IonBackButton, IonTextarea, IonGrid, IonRow, IonCol,
-  IonIcon, IonListHeader,
+  IonIcon, IonListHeader, IonSelect, IonSelectOption,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { cameraOutline } from 'ionicons/icons';
@@ -19,7 +19,7 @@ import { FormProducto } from '../../../core/models';
   imports: [
     FormsModule, IonHeader, IonToolbar, IonTitle, IonContent, IonItem, IonLabel, IonInput,
     IonButton, IonText, IonSpinner, IonButtons, IonBackButton, IonTextarea, IonGrid,
-    IonRow, IonCol, IonIcon, IonListHeader,
+    IonRow, IonCol, IonIcon, IonListHeader, IonSelect, IonSelectOption,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -27,7 +27,7 @@ export class AgregarPlatoPage {
   private readonly supabase = inject(SupabaseService);
   private readonly haptics = inject(HapticsService);
 
-  private readonly formVacio: FormProducto = { nombre: '', descripcion: '', tiempo_elaboracion: '', precio: '', fotos: ['', '', ''] };
+  private readonly formVacio: FormProducto = { nombre: '', descripcion: '', tiempo_elaboracion: '', precio: '', fotos: ['', '', ''], categoria: '' };
   form: FormProducto = { ...this.formVacio, fotos: ['', '', ''] };
   errores = signal<Record<string, string>>({});
   errorGeneral = signal('');
@@ -56,6 +56,7 @@ export class AgregarPlatoPage {
     else if (Number(f.tiempo_elaboracion) <= 0) errs['tiempo_elaboracion'] = 'El tiempo debe ser mayor a cero.';
     if (!f.precio) errs['precio'] = 'El precio es obligatorio.';
     else if (Number(f.precio) <= 0) errs['precio'] = 'El precio debe ser mayor a cero.';
+    if (!f.categoria) errs['categoria'] = 'La categoría es obligatoria.';
     if (!f.fotos.every(fo => fo.trim())) errs['fotos'] = 'Las 3 fotos del plato son obligatorias.';
     this.errores.set(errs);
     if (Object.keys(errs).length > 0) { await this.haptics.error(); return false; }
@@ -75,6 +76,7 @@ export class AgregarPlatoPage {
       const { error } = await this.supabase.client.from('platos').insert({
         nombre: f.nombre.trim(), descripcion: f.descripcion.trim(),
         tiempo_elaboracion: Number(f.tiempo_elaboracion), precio: Number(f.precio),
+        categoria: f.categoria,
         foto1: f.fotos[0] || null, foto2: f.fotos[1] || null, foto3: f.fotos[2] || null,
       });
       if (error) throw error;

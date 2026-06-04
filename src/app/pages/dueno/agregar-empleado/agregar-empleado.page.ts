@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import {
   IonHeader, IonToolbar, IonTitle, IonContent, IonItem, IonLabel, IonInput,
@@ -30,6 +31,7 @@ export class AgregarEmpleadoPage {
   private readonly supabase = inject(SupabaseService);
   private readonly authService = inject(AuthService);
   private readonly haptics = inject(HapticsService);
+  private readonly router = inject(Router);
 
   private formVacio: FormEmpleado = {
     nombre: '', apellido: '', dni: '', cuil: '', email: '',
@@ -124,6 +126,7 @@ export class AgregarEmpleadoPage {
       if (errorInsert) throw errorInsert;
       this.exitoso.set(true);
       this.form = { ...this.formVacio };
+      setTimeout(() => this.router.navigate([this.backHref], { replaceUrl: true }), 1500);
     } catch (e: unknown) {
       await this.haptics.error();
       this.errorGeneral.set((e as Error).message || 'Ocurrió un error al guardar el empleado.');

@@ -40,14 +40,20 @@ export class DuenoPage implements OnInit {
 
   ngOnInit() {
     this.canal = this.supabase.client
-      .channel('dueno_clientes_pendientes')
+      .channel('dueno_dashboard')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'usuarios' },
         async (payload: any) => {
           if (payload.new?.perfil === 'cliente' && payload.new?.estado === 'pendiente') {
-            await this.notificaciones.enviar(
-              'Nuevo cliente pendiente',
-              'Hay un cliente esperando aprobación.',
-            );
+            await this.notificaciones.enviar('Nuevo cliente pendiente', 'Hay un cliente esperando aprobación.');
+          }
+        })
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'pedidos' },
+        async (payload: any) => {
+          const estado = payload.new?.estado;
+          if (estado === 'pago_solicitado') {
+            await this.notificaciones.enviar('Cuenta solicitada', 'Un cliente está solicitando la cuenta.');
+          } else if (estado === 'pagado') {
+            await this.notificaciones.enviar('Pago confirmado', 'El mozo confirmó un pago y liberó una mesa.');
           }
         })
       .subscribe();
