@@ -82,7 +82,7 @@ export class EncuestaPage implements OnInit {
       this.cargando.set(true);
       const f = this.form;
       const { error } = await this.supabase.client.from('encuestas').insert({
-        encuesta_id: Date.now(), atencion_puntaje: f.atencion_puntaje,
+        atencion_puntaje: f.atencion_puntaje,
         comida_puntaje: f.comida_puntaje, ambiente_puntaje: f.ambiente_puntaje,
         mesa_id: this.mesaId, usuario_id: usuario.id,
         volveria: f.volveria, fecha: new Date().toISOString(),

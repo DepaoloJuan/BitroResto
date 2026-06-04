@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import {
   IonHeader, IonToolbar, IonTitle, IonContent, IonCard, IonCardHeader, IonCardTitle,
   IonCardSubtitle, IonCardContent, IonButton, IonIcon, IonSpinner, IonText, IonItem,
-  IonLabel, IonNote, IonButtons, IonBackButton, IonRadioGroup, IonRadio,
+  IonLabel, IonNote, IonButtons, IonBackButton, IonSegment, IonSegmentButton,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { cashOutline, giftOutline, hourglassOutline } from 'ionicons/icons';
@@ -22,7 +22,7 @@ import { RealtimeChannel } from '@supabase/supabase-js';
   imports: [
     FormsModule, IonHeader, IonToolbar, IonTitle, IonContent, IonCard, IonCardHeader,
     IonCardTitle, IonCardSubtitle, IonCardContent, IonButton, IonIcon, IonSpinner, IonText,
-    IonItem, IonLabel, IonNote, IonButtons, IonBackButton, IonRadioGroup, IonRadio, LoadingComponent,
+    IonItem, IonLabel, IonNote, IonButtons, IonBackButton, IonSegment, IonSegmentButton, LoadingComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

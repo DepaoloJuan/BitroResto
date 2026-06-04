@@ -60,8 +60,8 @@ export class MesaPage implements OnInit {
   readonly puedeJugar = computed(() =>
     !this.esAnonimo() && ['en_cocina', 'confirmado', 'pendiente', 'completado', 'listo', 'entregado', 'recibido'].includes(this.estado())
   );
-  readonly puedeEncuesta = computed(() => ['entregado', 'recibido'].includes(this.estado()));
-  readonly puedeCuenta = computed(() => ['listo', 'completado', 'entregado', 'recibido'].includes(this.estado()));
+  readonly puedeEncuesta = computed(() => this.estado() === 'recibido');
+  readonly puedeCuenta = computed(() => this.estado() === 'recibido');
 
   readonly estadoTexto = computed(() => {
     const map: Record<string, string> = {
@@ -239,7 +239,10 @@ export class MesaPage implements OnInit {
     const p = this.pedido();
     if (!p?.id) return;
     const { error } = await this.supabase.client.from('pedidos').update({ estado: 'recibido' }).eq('id', p.id);
-    if (!error) await this.cargarPedido();
+    if (!error) {
+      await this.cargarPedido();
+      this.qrEscaneado.set(false);
+    }
   }
 
   ir(ruta: string) { this.router.navigate([ruta]); }

@@ -10,7 +10,6 @@ import { checkmarkOutline, closeOutline, receiptOutline, checkmarkDoneOutline, c
 import { SupabaseService } from '../../../core/services/supabase';
 import { LoadingComponent } from '../../../shared/components/loading/loading.component';
 import { HapticsService } from '../../../core/services/haptics.service';
-import { NotificacionesService } from '../../../core/services/notificaciones';
 import { Pedido } from '../../../core/models';
 import { RealtimeChannel } from '@supabase/supabase-js';
 
@@ -30,7 +29,6 @@ interface PedidoUI extends Pedido { _exito: string; _error: string; }
 export class PedidosPage implements OnInit {
   private readonly supabase = inject(SupabaseService);
   private readonly haptics = inject(HapticsService);
-  private readonly notificaciones = inject(NotificacionesService);
   private readonly destroyRef = inject(DestroyRef);
 
   pedidos = signal<PedidoUI[]>([]);
@@ -64,17 +62,7 @@ export class PedidosPage implements OnInit {
     this.canal = this.supabase.client
       .channel('pedidos_mozo')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'pedidos' },
-        async (payload) => {
-          const estado = (payload.new as any)?.estado;
-          if (estado === 'esperando_mozo') {
-            await this.notificaciones.enviar('Nuevo pedido', 'Hay un nuevo pedido esperando confirmación.');
-          } else if (estado === 'pago_solicitado') {
-            await this.notificaciones.enviar('Cuenta solicitada', 'Un cliente está solicitando la cuenta.');
-          } else if (estado === 'listo') {
-            await this.notificaciones.enviar('Pedido listo', 'Un pedido está listo para entregar.');
-          }
-          await this.cargarPedidos();
-        })
+        () => this.cargarPedidos())
       .subscribe();
   }
 

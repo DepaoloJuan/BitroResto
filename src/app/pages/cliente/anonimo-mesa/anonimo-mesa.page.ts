@@ -42,9 +42,9 @@ export class AnonimoMesaPage implements OnInit {
   escaneandoQR = signal(false);
   errorQRMesa = signal('');
 
-  readonly puedeCuenta = computed(() =>
-    ['listo', 'completado', 'entregado', 'recibido'].includes(this.pedido()?.estado ?? '')
-  );
+  readonly estadoPedido = computed(() => this.pedido()?.estado ?? '');
+  readonly puedeCuenta = computed(() => this.estadoPedido() === 'recibido');
+  readonly puedeConfirmar = computed(() => this.estadoPedido() === 'entregado');
 
   private mesaId = '';
   private mesaNumero = 0;
@@ -128,6 +128,16 @@ export class AnonimoMesaPage implements OnInit {
       await this.haptics.error();
     } finally {
       this.escaneandoQR.set(false);
+    }
+  }
+
+  async confirmarRecepcion() {
+    const p = this.pedido();
+    if (!p?.id) return;
+    const { error } = await this.supabase.client.from('pedidos').update({ estado: 'recibido' }).eq('id', p.id);
+    if (!error) {
+      await this.cargarPedido();
+      this.qrEscaneado.set(false);
     }
   }
 

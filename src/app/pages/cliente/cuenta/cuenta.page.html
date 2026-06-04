@@ -53,33 +53,23 @@
         <ion-card-subtitle>Seleccioná tu nivel de satisfacción</ion-card-subtitle>
       </ion-card-header>
       <ion-card-content>
-        <ion-radio-group [ngModel]="propinaPorcentaje()" (ngModelChange)="propinaPorcentaje.set($event)">
-          <ion-item lines="none">
-            <ion-radio slot="start" [value]="20"></ion-radio>
-            <ion-label>Excelente — 20%</ion-label>
-          </ion-item>
-          <ion-item lines="none">
-            <ion-radio slot="start" [value]="15"></ion-radio>
-            <ion-label>Muy bueno — 15%</ion-label>
-          </ion-item>
-          <ion-item lines="none">
-            <ion-radio slot="start" [value]="10"></ion-radio>
-            <ion-label>Bueno — 10%</ion-label>
-          </ion-item>
-          <ion-item lines="none">
-            <ion-radio slot="start" [value]="5"></ion-radio>
-            <ion-label>Regular — 5%</ion-label>
-          </ion-item>
-          <ion-item lines="none">
-            <ion-radio slot="start" [value]="0"></ion-radio>
-            <ion-label>Malo — 0%</ion-label>
-          </ion-item>
-        </ion-radio-group>
-        @if (propinaPorcentaje() === null) {
-          <ion-text color="danger">
-            <small>Debés seleccionar una opción de propina para poder pagar.</small>
-          </ion-text>
-        }
+        <ion-segment [ngModel]="propinaPorcentaje()" (ngModelChange)="propinaPorcentaje.set(+$event)">
+          <ion-segment-button value="20">
+            <ion-label>20%<br><small>Excelente</small></ion-label>
+          </ion-segment-button>
+          <ion-segment-button value="15">
+            <ion-label>15%<br><small>Muy bueno</small></ion-label>
+          </ion-segment-button>
+          <ion-segment-button value="10">
+            <ion-label>10%<br><small>Bueno</small></ion-label>
+          </ion-segment-button>
+          <ion-segment-button value="5">
+            <ion-label>5%<br><small>Regular</small></ion-label>
+          </ion-segment-button>
+          <ion-segment-button value="0">
+            <ion-label>0%<br><small>Malo</small></ion-label>
+          </ion-segment-button>
+        </ion-segment>
       </ion-card-content>
     </ion-card>
 
@@ -111,9 +101,9 @@
       </ion-card-content>
     </ion-card>
 
-    @if (pedido()!.estado === 'entregado') {
+    @if (pedido()!.estado === 'recibido') {
       <ion-button expand="block" color="success" (click)="solicitarCuenta()"
-        [disabled]="enviando() || propinaPorcentaje() === null" class="ion-margin-top">
+        [disabled]="enviando()" class="ion-margin-top">
         @if (enviando()) {
           <ion-spinner name="crescent"></ion-spinner>
         } @else {

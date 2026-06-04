@@ -64,6 +64,15 @@
           </ion-card>
         </ion-col>
 
+        @if (puedeConfirmar()) {
+          <ion-col size="12">
+            <ion-button expand="block" color="success" (click)="confirmarRecepcion()">
+              <ion-icon name="checkmark-circle-outline" slot="start"></ion-icon>
+              Confirmar recepción del pedido
+            </ion-button>
+          </ion-col>
+        }
+
         @if (puedeCuenta()) {
           <ion-col size="6">
             <ion-card button (click)="ir('/cliente/cuenta')">
