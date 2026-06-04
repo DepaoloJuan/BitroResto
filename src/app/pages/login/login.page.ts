@@ -4,7 +4,10 @@ import { RouterLink } from '@angular/router';
 import {
   IonContent, IonItem, IonLabel, IonInput, IonButton, IonIcon,
 } from '@ionic/angular/standalone';
-import { personCircleOutline } from 'ionicons/icons';
+import {
+  personCircleOutline, briefcaseOutline, eyeOutline, starOutline,
+  restaurantOutline, flameOutline, wineOutline, personOutline,
+} from 'ionicons/icons';
 import { addIcons } from 'ionicons';
 import { AuthService } from '../../core/services/auth';
 import { HapticsService } from '../../core/services/haptics.service';
@@ -29,19 +32,39 @@ export class LoginPage {
   errores = signal<Record<string, string>>({});
   errorGeneral = signal('');
   cargando = signal(false);
+  cardActivo = signal(0);
+
+  readonly roles = [
+    { key: 'dueño',      icono: 'briefcase-outline',  nombre: 'Dueño' },
+    { key: 'supervisor', icono: 'eye-outline',         nombre: 'Supervisor' },
+    { key: 'metre',      icono: 'star-outline',        nombre: 'Metre' },
+    { key: 'mozo',       icono: 'restaurant-outline',  nombre: 'Mozo' },
+    { key: 'cocinero',   icono: 'flame-outline',       nombre: 'Cocinero' },
+    { key: 'cantinero',  icono: 'wine-outline',        nombre: 'Cantinero' },
+    { key: 'cliente',    icono: 'person-outline',      nombre: 'Cliente' },
+  ];
 
   private readonly usuariosRapidos: Record<string, { email: string; password: string }> = {
     dueño:      { email: 'dueno@resto.com',      password: '123456' },
     supervisor: { email: 'supervisor@resto.com', password: '123456' },
-    metre:      { email: 'metre@resto.com',       password: '123456' },
-    mozo:       { email: 'mozo@resto.com',        password: '123456' },
-    cocinero:   { email: 'cocinero@resto.com',    password: '123456' },
-    cantinero:  { email: 'bartender@resto.com',   password: '123456' },
-    cliente:    { email: 'cliente@resto.com',     password: '123456' },
+    metre:      { email: 'metre@resto.com',      password: '123456' },
+    mozo:       { email: 'mozo@resto.com',       password: '123456' },
+    cocinero:   { email: 'cocinero@resto.com',   password: '123456' },
+    cantinero:  { email: 'bartender@resto.com',  password: '123456' },
+    cliente:    { email: 'cliente@resto.com',    password: '123456' },
   };
 
   constructor() {
-    addIcons({ personCircleOutline });
+    addIcons({
+      personCircleOutline, briefcaseOutline, eyeOutline, starOutline,
+      restaurantOutline, flameOutline, wineOutline, personOutline,
+    });
+  }
+
+  onCarouselScroll(event: Event) {
+    const el = event.target as HTMLElement;
+    const index = Math.round(el.scrollLeft / el.offsetWidth);
+    this.cardActivo.set(index);
   }
 
   async validar(): Promise<boolean> {

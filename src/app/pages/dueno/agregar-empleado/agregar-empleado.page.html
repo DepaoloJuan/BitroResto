@@ -93,16 +93,29 @@
       <ion-text color="danger"><small>{{ errores()['confirmarPassword'] }}</small></ion-text>
     }
 
-    <ion-item lines="none">
-      <ion-label>Perfil *</ion-label>
-      <ion-select [(ngModel)]="form.perfil" placeholder="Seleccioná un perfil">
-        <ion-select-option value="metre">Metre</ion-select-option>
-        <ion-select-option value="mozo">Mozo</ion-select-option>
-        <ion-select-option value="cocinero">Cocinero</ion-select-option>
-        <ion-select-option value="cantinero">Cantinero</ion-select-option>
-        <ion-select-option value="supervisor">Supervisor</ion-select-option>
-      </ion-select>
-    </ion-item>
+    <p class="perfil-label">Perfil *</p>
+    <div class="perfil-selector">
+      <div class="perfil-card" [class.seleccionado]="form.perfil === 'metre'" (click)="form.perfil = 'metre'">
+        <ion-icon name="star-outline"></ion-icon>
+        <span>Metre</span>
+      </div>
+      <div class="perfil-card" [class.seleccionado]="form.perfil === 'mozo'" (click)="form.perfil = 'mozo'">
+        <ion-icon name="restaurant-outline"></ion-icon>
+        <span>Mozo</span>
+      </div>
+      <div class="perfil-card" [class.seleccionado]="form.perfil === 'cocinero'" (click)="form.perfil = 'cocinero'">
+        <ion-icon name="flame-outline"></ion-icon>
+        <span>Cocinero</span>
+      </div>
+      <div class="perfil-card" [class.seleccionado]="form.perfil === 'cantinero'" (click)="form.perfil = 'cantinero'">
+        <ion-icon name="wine-outline"></ion-icon>
+        <span>Cantinero</span>
+      </div>
+      <div class="perfil-card card-ancho" [class.seleccionado]="form.perfil === 'supervisor'" (click)="form.perfil = 'supervisor'">
+        <ion-icon name="eye-outline"></ion-icon>
+        <span>Supervisor</span>
+      </div>
+    </div>
     @if (errores()['perfil']) {
       <ion-text color="danger"><small>{{ errores()['perfil'] }}</small></ion-text>
     }

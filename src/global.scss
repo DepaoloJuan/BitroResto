@@ -49,3 +49,132 @@ ion-toolbar {
   --background: #eb6121;
   --color: #2c3d1c;
 }
+
+/* ── GLOBAL POLISH ───────────────────────────────────── */
+
+/* Quita el fondo blanco de ion-item con color="light" */
+ion-item[color="light"] {
+  --background: rgba(255,255,255,0.08);
+  --color: #ffdca3;
+}
+
+/* Estado vacío centrado (ícono + texto sin pedidos) */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  text-align: center;
+  color: rgba(255,220,163,0.5);
+
+  ion-icon { font-size: 4rem; margin-bottom: 12px; }
+  p { font-size: 1rem; margin: 0; }
+}
+
+/* ── HOME PAGES ─────────────────────────────────────── */
+
+@keyframes homeCardEntrada {
+  from { opacity: 0; transform: translateY(22px) scale(0.95); }
+  to   { opacity: 1; transform: translateY(0)    scale(1); }
+}
+
+@keyframes homeFadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.home-content { --background: var(--color-verde); }
+
+.home-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 20px 20px 28px;
+  gap: 16px;
+}
+
+.home-greeting {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  animation: homeFadeUp 0.4s ease-out both;
+
+  .greeting-text {
+    .bienvenida {
+      font-size: 0.85rem;
+      color: rgba(255,220,163,0.55);
+      margin: 0;
+    }
+    .nombre {
+      font-size: 1.7rem;
+      font-weight: 800;
+      color: #ffdca3;
+      margin: 0;
+      line-height: 1.1;
+    }
+  }
+
+  .btn-logout {
+    --color: #ffdca3;
+    --padding-start: 8px;
+    --padding-end: 8px;
+    font-size: 1.5rem;
+    opacity: 0.7;
+  }
+}
+
+.home-grid {
+  flex: 1;
+  display: grid;
+  gap: 12px;
+  min-height: 0;
+}
+
+.menu-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 20px;
+  cursor: pointer;
+  color: #ffdca3;
+  padding: 16px;
+  transition: transform 0.15s, background 0.15s, box-shadow 0.15s;
+  animation: homeCardEntrada 0.4s ease-out both;
+
+  &:active {
+    transform: scale(0.96);
+    background: rgba(255,255,255,0.13);
+    box-shadow: 0 8px 28px rgba(0,0,0,0.25);
+  }
+
+  ion-icon {
+    font-size: 2.6rem;
+    color: #eb6121;
+  }
+
+  .card-titulo {
+    font-size: 0.95rem;
+    font-weight: 700;
+    text-align: center;
+    margin: 0;
+  }
+
+  .card-desc {
+    font-size: 0.75rem;
+    color: rgba(255,220,163,0.5);
+    text-align: center;
+    margin: 0;
+  }
+}
+
+.menu-card:nth-child(1) { animation-delay: 0.08s; }
+.menu-card:nth-child(2) { animation-delay: 0.15s; }
+.menu-card:nth-child(3) { animation-delay: 0.22s; }
+.menu-card:nth-child(4) { animation-delay: 0.29s; }
+.menu-card:nth-child(5) { animation-delay: 0.36s; }

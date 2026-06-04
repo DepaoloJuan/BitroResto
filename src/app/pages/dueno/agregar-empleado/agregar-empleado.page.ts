@@ -3,11 +3,13 @@ import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import {
   IonHeader, IonToolbar, IonTitle, IonContent, IonItem, IonLabel, IonInput,
-  IonButton, IonText, IonSelect, IonSelectOption, IonButtons,
-  IonBackButton, IonIcon,
+  IonButton, IonText, IonButtons, IonBackButton, IonIcon,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { personCircleOutline, cameraOutline, scanOutline } from 'ionicons/icons';
+import {
+  personCircleOutline, cameraOutline, scanOutline,
+  starOutline, restaurantOutline, flameOutline, wineOutline, eyeOutline,
+} from 'ionicons/icons';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { BarcodeScanner, BarcodeFormat } from '@capacitor-mlkit/barcode-scanning';
 import { SupabaseService } from '../../../core/services/supabase';
@@ -22,7 +24,7 @@ import { LoadingComponent } from '../../../shared/components/loading/loading.com
   styleUrls: ['./agregar-empleado.page.scss'],
   imports: [
     FormsModule, IonHeader, IonToolbar, IonTitle, IonContent, IonItem, IonLabel,
-    IonInput, IonButton, IonText, IonSelect, IonSelectOption,
+    IonInput, IonButton, IonText,
     IonButtons, IonBackButton, IonIcon, LoadingComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -47,7 +49,7 @@ export class AgregarEmpleadoPage {
   backHref = '/dueno';
 
   constructor() {
-    addIcons({ personCircleOutline, cameraOutline, scanOutline });
+    addIcons({ personCircleOutline, cameraOutline, scanOutline, starOutline, restaurantOutline, flameOutline, wineOutline, eyeOutline });
     const usuario = this.authService.getUsuarioActual();
     if (usuario?.perfil === 'supervisor') this.backHref = '/supervisor';
   }

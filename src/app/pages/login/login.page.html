@@ -1,20 +1,15 @@
-<ion-content class="login-content">
+<ion-content class="login-content" [scrollY]="false">
   <div class="login-container">
 
     <div class="header">
       <img src="assets/img/logo.png" alt="Logo" class="logo" />
-     <!--  <h1>Bienvenido</h1> -->
       <p class="inicio-sesion">Inicia sesión para continuar</p>
     </div>
 
     <div class="form-card">
       <ion-item lines="none" class="input-item">
         <ion-label position="floating">Correo electrónico</ion-label>
-        <ion-input
-          type="email"
-          [ngModel]="email()" (ngModelChange)="email.set($event)"
-          placeholder="ejemplo@correo.com">
-        </ion-input>
+        <ion-input type="email" [ngModel]="email()" (ngModelChange)="email.set($event)"></ion-input>
       </ion-item>
       @if (errores()['email']) {
         <p class="error-msg">{{ errores()['email'] }}</p>
@@ -22,11 +17,7 @@
 
       <ion-item lines="none" class="input-item">
         <ion-label position="floating">Contraseña</ion-label>
-        <ion-input
-          type="password"
-          [ngModel]="password()" (ngModelChange)="password.set($event)"
-          placeholder="••••••••">
-        </ion-input>
+        <ion-input type="password" [ngModel]="password()" (ngModelChange)="password.set($event)"></ion-input>
       </ion-item>
       @if (errores()['password']) {
         <p class="error-msg">{{ errores()['password'] }}</p>
@@ -40,81 +31,28 @@
         Ingresar
       </ion-button>
 
-      <div class="ion-text-center">
+      <div class="links-row">
         <ion-button fill="clear" class="btn-link" routerLink="/cliente/registro">
           ¿No tenés cuenta? Registrate
         </ion-button>
-      </div>
-
-      <div class="ion-text-center">
         <ion-button fill="clear" class="btn-link" routerLink="/cliente/anonimo">
           Ingresar como cliente anónimo
         </ion-button>
       </div>
-
     </div>
-
 
     <div class="acceso-rapido">
       <p class="acceso-titulo">Acceso rápido</p>
-      <div class="lista-usuarios">
-
-        <div class="usuario-item" (click)="loginRapido('dueño')">
-          <div class="avatar">
-            <ion-icon name="briefcase-outline"></ion-icon>
+      <div class="carousel" (scroll)="onCarouselScroll($event)">
+        @for (rol of roles; track rol.key; let i = $index) {
+          <div class="rol-card" [class.activa]="cardActivo() === i" (click)="loginRapido(rol.key)">
+            <div class="avatar">
+              <ion-icon [name]="rol.icono"></ion-icon>
+            </div>
+            <span class="rol-nombre">{{ rol.nombre }}</span>
+            <span class="rol-hint">Tocá para ingresar</span>
           </div>
-          <span>Dueño</span>
-          <ion-icon name="chevron-forward-outline" class="arrow"></ion-icon>
-        </div>
-
-        <div class="usuario-item" (click)="loginRapido('supervisor')">
-          <div class="avatar">
-            <ion-icon name="eye-outline"></ion-icon>
-          </div>
-          <span>Supervisor</span>
-          <ion-icon name="chevron-forward-outline" class="arrow"></ion-icon>
-        </div>
-
-        <div class="usuario-item" (click)="loginRapido('metre')">
-          <div class="avatar">
-            <ion-icon name="star-outline"></ion-icon>
-          </div>
-          <span>Metre</span>
-          <ion-icon name="chevron-forward-outline" class="arrow"></ion-icon>
-        </div>
-
-        <div class="usuario-item" (click)="loginRapido('mozo')">
-          <div class="avatar">
-            <ion-icon name="restaurant-outline"></ion-icon>
-          </div>
-          <span>Mozo</span>
-          <ion-icon name="chevron-forward-outline" class="arrow"></ion-icon>
-        </div>
-
-        <div class="usuario-item" (click)="loginRapido('cocinero')">
-          <div class="avatar">
-            <ion-icon name="flame-outline"></ion-icon>
-          </div>
-          <span>Cocinero</span>
-          <ion-icon name="chevron-forward-outline" class="arrow"></ion-icon>
-        </div>
-
-        <div class="usuario-item" (click)="loginRapido('cantinero')">
-          <div class="avatar">
-            <ion-icon name="wine-outline"></ion-icon>
-          </div>
-          <span>Cantinero</span>
-          <ion-icon name="chevron-forward-outline" class="arrow"></ion-icon>
-        </div>
-
-        <div class="usuario-item" (click)="loginRapido('cliente')">
-          <div class="avatar">
-            <ion-icon name="person-outline"></ion-icon>
-          </div>
-          <span>Cliente</span>
-          <ion-icon name="chevron-forward-outline" class="arrow"></ion-icon>
-        </div>
-
+        }
       </div>
     </div>
 

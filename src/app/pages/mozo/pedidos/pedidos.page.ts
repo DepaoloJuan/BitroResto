@@ -115,7 +115,6 @@ export class PedidosPage implements OnInit {
       const { error: e3 } = await this.supabase.client
         .from('lista_espera').update({ estado: 'finalizado' }).eq('mesa_id', pedido.mesa_id).eq('estado', 'asignado');
       if (e3) throw e3;
-      await this.notificaciones.enviar('Pago confirmado', 'Se confirmó un pago y se liberó una mesa.');
       pedido._exito = 'Pago confirmado. Mesa liberada.';
       setTimeout(() => this.cargarPedidos(), 1500);
     } catch (e: unknown) { pedido._error = (e as Error).message; }

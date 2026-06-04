@@ -3,10 +3,10 @@ import { FormsModule } from '@angular/forms';
 import {
   IonHeader, IonToolbar, IonTitle, IonContent, IonItem, IonLabel, IonInput, IonButton,
   IonText, IonSpinner, IonButtons, IonBackButton, IonTextarea, IonGrid, IonRow, IonCol,
-  IonIcon, IonListHeader, IonSelect, IonSelectOption,
+  IonIcon,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { cameraOutline } from 'ionicons/icons';
+import { cameraOutline, nutritionOutline, restaurantOutline, iceCreamOutline } from 'ionicons/icons';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { SupabaseService } from '../../../core/services/supabase';
 import { HapticsService } from '../../../core/services/haptics.service';
@@ -19,7 +19,7 @@ import { FormProducto } from '../../../core/models';
   imports: [
     FormsModule, IonHeader, IonToolbar, IonTitle, IonContent, IonItem, IonLabel, IonInput,
     IonButton, IonText, IonSpinner, IonButtons, IonBackButton, IonTextarea, IonGrid,
-    IonRow, IonCol, IonIcon, IonListHeader, IonSelect, IonSelectOption,
+    IonRow, IonCol, IonIcon,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -34,7 +34,7 @@ export class AgregarPlatoPage {
   exitoso = signal(false);
   cargando = signal(false);
 
-  constructor() { addIcons({ cameraOutline }); }
+  constructor() { addIcons({ cameraOutline, nutritionOutline, restaurantOutline, iceCreamOutline }); }
 
   async seleccionarFoto(index: number) {
     try {

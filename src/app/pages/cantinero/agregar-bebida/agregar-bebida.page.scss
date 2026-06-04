@@ -1,9 +1,15 @@
+.fotos-label {
+  color: rgba(255,220,163,0.65);
+  font-size: 0.85rem;
+  margin: 12px 0 8px 4px;
+}
+
 .foto-container {
   cursor: pointer;
   display: flex;
   flex-direction: column;
   align-items: center;
-  border: 1px solid var(--ion-color-medium);
+  border: 2px dashed var(--ion-border-color);
   border-radius: 8px;
   overflow: hidden;
   margin-bottom: 8px;
@@ -21,10 +27,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--ion-color-light);
+  background: var(--ion-card-background);
 
   ion-icon {
     font-size: 2rem;
-    color: var(--ion-color-medium);
+    color: var(--ion-color-primary);
   }
 }

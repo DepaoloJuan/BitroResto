@@ -3,11 +3,14 @@ import { TitleCasePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
   IonHeader, IonToolbar, IonTitle, IonContent, IonItem, IonLabel, IonInput, IonButton,
-  IonText, IonSelect, IonSelectOption, IonSpinner, IonButtons, IonBackButton, IonCard,
-  IonCardHeader, IonCardTitle, IonCardSubtitle, IonCardContent, IonBadge, IonIcon, IonModal, IonListHeader,
+  IonText, IonSpinner, IonButtons, IonBackButton, IonCard,
+  IonCardHeader, IonCardTitle, IonCardSubtitle, IonCardContent, IonBadge, IonIcon, IonModal,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { qrCodeOutline, downloadOutline, cameraOutline } from 'ionicons/icons';
+import {
+  qrCodeOutline, downloadOutline, cameraOutline, chevronUpOutline, chevronDownOutline,
+  starOutline, restaurantOutline, accessibilityOutline,
+} from 'ionicons/icons';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { SupabaseService } from '../../../core/services/supabase';
 import { HapticsService } from '../../../core/services/haptics.service';
@@ -20,9 +23,9 @@ import * as QRCode from 'qrcode';
   styleUrls: ['./agregar-mesa.page.scss'],
   imports: [
     TitleCasePipe, FormsModule, IonHeader, IonToolbar, IonTitle, IonContent, IonItem, IonLabel, IonInput,
-    IonButton, IonText, IonSelect, IonSelectOption, IonSpinner, IonButtons, IonBackButton,
+    IonButton, IonText, IonSpinner, IonButtons, IonBackButton,
     IonCard, IonCardHeader, IonCardTitle, IonCardSubtitle, IonCardContent, IonBadge,
-    IonIcon, IonModal, IonListHeader,
+    IonIcon, IonModal,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -40,7 +43,11 @@ export class AgregarMesaPage implements OnInit {
   modalQRabierto = signal(false);
   mesaSeleccionada = signal<Mesa | null>(null);
 
-  constructor() { addIcons({ qrCodeOutline, downloadOutline, cameraOutline }); }
+  mostrarMesas = signal(false);
+
+  constructor() {
+    addIcons({ qrCodeOutline, downloadOutline, cameraOutline, chevronUpOutline, chevronDownOutline, starOutline, restaurantOutline, accessibilityOutline });
+  }
 
   async ngOnInit() { await this.cargarMesas(); }
 

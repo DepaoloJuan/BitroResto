@@ -1,58 +1,43 @@
-<ion-header>
-  <ion-toolbar>
-    <ion-title>Hola, {{ usuario()?.nombre }}!</ion-title>
-    <ion-buttons slot="end">
-      <ion-button (click)="cerrarSesion()">
-        <ion-icon name="log-out-outline"></ion-icon>
-        Cerrar sesión
-      </ion-button>
-    </ion-buttons>
-  </ion-toolbar>
-</ion-header>
+<ion-content class="home-content" [scrollY]="false">
+  <div class="home-container">
 
-<ion-content>
-  <ion-grid class="menu-grid">
-    <ion-row>
-      <ion-col size="6">
-        <ion-card button (click)="ir('/dueno/clientes-pendientes')">
-          <ion-card-content>
-            <ion-icon name="people-outline"></ion-icon>
-            <p>Usuarios pendientes</p>
-          </ion-card-content>
-        </ion-card>
-      </ion-col>
-      <ion-col size="6">
-        <ion-card button (click)="ir('/dueno/agregar-empleado')">
-          <ion-card-content>
-            <ion-icon name="person-add-outline"></ion-icon>
-            <p>Agregar empleado</p>
-          </ion-card-content>
-        </ion-card>
-      </ion-col>
-      <ion-col size="6">
-        <ion-card button (click)="ir('/dueno/agregar-mesa')">
-          <ion-card-content>
-            <ion-icon name="grid-outline"></ion-icon>
-            <p>Agregar mesa</p>
-          </ion-card-content>
-        </ion-card>
-      </ion-col>
-      <ion-col size="6">
-        <ion-card button (click)="ir('/dueno/qr-entrada')">
-          <ion-card-content>
-            <ion-icon name="qr-code-outline"></ion-icon>
-            <p>QR Entrada</p>
-          </ion-card-content>
-        </ion-card>
-      </ion-col>
-      <ion-col size="12">
-        <ion-card button (click)="ir('/dueno/qr-propinas')">
-          <ion-card-content>
-            <ion-icon name="cash-outline"></ion-icon>
-            <p>QR Propinas</p>
-          </ion-card-content>
-        </ion-card>
-      </ion-col>
-    </ion-row>
-  </ion-grid>
+    <div class="home-greeting">
+      <div class="greeting-text">
+        <p class="bienvenida">Bienvenido,</p>
+        <h1 class="nombre">{{ usuario()?.nombre }}</h1>
+      </div>
+      <ion-button fill="clear" class="btn-logout" (click)="cerrarSesion()">
+        <ion-icon name="log-out-outline"></ion-icon>
+      </ion-button>
+    </div>
+
+    <div class="home-grid dueno-grid">
+      <div class="menu-card" (click)="ir('/dueno/clientes-pendientes')">
+        <ion-icon name="people-outline"></ion-icon>
+        <p class="card-titulo">Usuarios pendientes</p>
+        <p class="card-desc">Aprobá nuevos registros</p>
+      </div>
+      <div class="menu-card" (click)="ir('/dueno/agregar-empleado')">
+        <ion-icon name="person-add-outline"></ion-icon>
+        <p class="card-titulo">Agregar empleado</p>
+        <p class="card-desc">Sumá personal al equipo</p>
+      </div>
+      <div class="menu-card" (click)="ir('/dueno/agregar-mesa')">
+        <ion-icon name="grid-outline"></ion-icon>
+        <p class="card-titulo">Agregar mesa</p>
+        <p class="card-desc">Configurá el salón</p>
+      </div>
+      <div class="menu-card" (click)="ir('/dueno/qr-entrada')">
+        <ion-icon name="qr-code-outline"></ion-icon>
+        <p class="card-titulo">QR Entrada</p>
+        <p class="card-desc">Código de acceso al local</p>
+      </div>
+      <div class="menu-card card-wide" (click)="ir('/dueno/qr-propinas')">
+        <ion-icon name="cash-outline"></ion-icon>
+        <p class="card-titulo">QR Propinas</p>
+        <p class="card-desc">Código para propinas</p>
+      </div>
+    </div>
+
+  </div>
 </ion-content>

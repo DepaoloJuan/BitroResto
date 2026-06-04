@@ -1,0 +1,10 @@
+.dos-grid {
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr 1fr;
+
+  .menu-card {
+    ion-icon { font-size: 3.2rem; }
+    .card-titulo { font-size: 1.1rem; }
+    .card-desc { font-size: 0.85rem; }
+  }
+}

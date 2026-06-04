@@ -1,34 +1,28 @@
-<ion-header>
-  <ion-toolbar>
-    <ion-title>Hola, {{ usuario()?.nombre }}!</ion-title>
-    <ion-buttons slot="end">
-      <ion-button (click)="cerrarSesion()">
-        <ion-icon name="log-out-outline"></ion-icon>
-        Cerrar sesión
-      </ion-button>
-    </ion-buttons>
-  </ion-toolbar>
-</ion-header>
+<ion-content class="home-content" [scrollY]="false">
+  <div class="home-container">
 
-<ion-content>
-  <ion-grid>
-    <ion-row>
-      <ion-col size="12">
-        <ion-card button (click)="ir('/mozo/pedidos')">
-          <ion-card-content>
-            <ion-icon name="receipt-outline"></ion-icon>
-            <p>Pedidos pendientes</p>
-          </ion-card-content>
-        </ion-card>
-      </ion-col>
-      <ion-col size="12">
-        <ion-card button (click)="ir('/mozo/chat')">
-          <ion-card-content>
-            <ion-icon name="chatbubbles-outline"></ion-icon>
-            <p>Consultas de clientes</p>
-          </ion-card-content>
-        </ion-card>
-      </ion-col>
-    </ion-row>
-  </ion-grid>
+    <div class="home-greeting">
+      <div class="greeting-text">
+        <p class="bienvenida">Bienvenido,</p>
+        <h1 class="nombre">{{ usuario()?.nombre }}</h1>
+      </div>
+      <ion-button fill="clear" class="btn-logout" (click)="cerrarSesion()">
+        <ion-icon name="log-out-outline"></ion-icon>
+      </ion-button>
+    </div>
+
+    <div class="home-grid dos-grid">
+      <div class="menu-card" (click)="ir('/mozo/pedidos')">
+        <ion-icon name="receipt-outline"></ion-icon>
+        <p class="card-titulo">Pedidos pendientes</p>
+        <p class="card-desc">Atendé las mesas</p>
+      </div>
+      <div class="menu-card" (click)="ir('/mozo/chat')">
+        <ion-icon name="chatbubbles-outline"></ion-icon>
+        <p class="card-titulo">Consultas de clientes</p>
+        <p class="card-desc">Respondé preguntas</p>
+      </div>
+    </div>
+
+  </div>
 </ion-content>

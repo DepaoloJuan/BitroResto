@@ -1,0 +1,10 @@
+.metre-grid {
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr;
+
+  .menu-card {
+    ion-icon { font-size: 4rem; }
+    .card-titulo { font-size: 1.3rem; }
+    .card-desc { font-size: 0.9rem; }
+  }
+}

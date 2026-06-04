@@ -1,19 +1,28 @@
-.opcion {
+.qr-scan-container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
   text-align: center;
-  gap: 8px;
-  padding: 16px 8px;
+  padding: 32px 16px;
 
-  ion-icon {
-    font-size: 2rem;
+  .qr-icon {
+    font-size: 80px;
+    color: var(--ion-color-primary);
+    margin-bottom: 16px;
   }
 
-  p {
-    margin: 0;
-    font-size: 0.85rem;
-    font-weight: 500;
-  }
+  h2 { color: #ffdca3; margin-bottom: 8px; }
+  p  { color: rgba(255,220,163,0.65); }
+}
+
+.estado-item {
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.opciones-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 8px;
 }

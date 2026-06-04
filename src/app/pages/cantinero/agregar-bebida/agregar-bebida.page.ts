@@ -3,7 +3,7 @@ import { FormsModule } from '@angular/forms';
 import {
   IonHeader, IonToolbar, IonTitle, IonContent, IonItem, IonLabel, IonInput, IonButton,
   IonText, IonSpinner, IonButtons, IonBackButton, IonTextarea, IonGrid, IonRow, IonCol,
-  IonIcon, IonListHeader,
+  IonIcon,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { cameraOutline } from 'ionicons/icons';
@@ -19,7 +19,7 @@ import { FormProducto } from '../../../core/models';
   imports: [
     FormsModule, IonHeader, IonToolbar, IonTitle, IonContent, IonItem, IonLabel, IonInput,
     IonButton, IonText, IonSpinner, IonButtons, IonBackButton, IonTextarea, IonGrid,
-    IonRow, IonCol, IonIcon, IonListHeader,
+    IonRow, IonCol, IonIcon,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -27,7 +27,7 @@ export class AgregarBebidaPage {
   private readonly supabase = inject(SupabaseService);
   private readonly haptics = inject(HapticsService);
 
-  private readonly formVacio: FormProducto = { nombre: '', descripcion: '', tiempo_elaboracion: '', precio: '', fotos: ['', '', ''] };
+  private readonly formVacio: FormProducto = { nombre: '', descripcion: '', tiempo_elaboracion: '', precio: '', fotos: ['', '', ''], categoria: '' };
   form: FormProducto = { ...this.formVacio, fotos: ['', '', ''] };
   errores = signal<Record<string, string>>({});
   errorGeneral = signal('');

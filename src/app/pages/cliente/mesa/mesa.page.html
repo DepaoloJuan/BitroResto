@@ -33,15 +33,13 @@
 
   <!-- Vista cliente: escáner QR -->
   @if (!esEmpleado() && !qrEscaneado()) {
-    <div class="ion-text-center ion-padding">
-      <ion-icon name="qr-code-outline" style="font-size: 80px; color: var(--ion-color-primary)"></ion-icon>
+    <div class="qr-scan-container">
+      <ion-icon name="qr-code-outline" class="qr-icon"></ion-icon>
       <h2>Escaneá el QR de tu mesa</h2>
       <p>Para acceder a las opciones de tu mesa, escaneá el código QR que se encuentra sobre la mesa.</p>
 
       @if (errorQRMesa()) {
-        <ion-text color="danger">
-          <p>{{ errorQRMesa() }}</p>
-        </ion-text>
+        <ion-text color="danger"><p>{{ errorQRMesa() }}</p></ion-text>
       }
 
       <ion-button expand="block" (click)="escanearQrMesa()" [disabled]="escaneandoQR()" class="ion-margin-top">
@@ -58,105 +56,70 @@
   <!-- Vista cliente: hub de opciones -->
   @if (!esEmpleado() && qrEscaneado()) {
 
-    @if (cargando()) {
-      <app-loading />
-    }
+    @if (cargando()) { <app-loading /> }
 
     @if (!cargando()) {
 
-      <ion-item lines="none" color="success" class="ion-margin-bottom">
-        <ion-icon name="checkmark-circle-outline" slot="start"></ion-icon>
-        <ion-label>
-          <strong>Mesa {{ mesa()?.numero }}</strong> — {{ mesa()?.tipo | titlecase }}
-          ({{ mesa()?.capacidad }} personas)
-        </ion-label>
-      </ion-item>
-
       @if (estadoTexto()) {
-        <ion-item button lines="none" [color]="estadoColor()" class="ion-margin-bottom" (click)="ir('/cliente/pedido')">
+        <ion-item button lines="none" [color]="estadoColor()" class="estado-item ion-margin-bottom" (click)="ir('/cliente/pedido')">
           <ion-icon [name]="estadoIcono()" slot="start"></ion-icon>
           <ion-label>{{ estadoTexto() }}</ion-label>
           <ion-icon name="chevron-forward-outline" slot="end"></ion-icon>
         </ion-item>
       }
 
-      <ion-grid>
-        <ion-row>
+      <div class="opciones-grid">
+        <div class="menu-card" (click)="ir('/cliente/pedido')">
+          <ion-icon name="restaurant-outline"></ion-icon>
+          <p class="card-titulo">Ver menú</p>
+          <p class="card-desc">Pedí lo que quieras</p>
+        </div>
 
-          <ion-col size="6">
-            <ion-card button (click)="ir('/cliente/pedido')">
-              <ion-card-content class="opcion">
-                <ion-icon name="restaurant-outline" size="large"></ion-icon>
-                <p>Ver menú</p>
-              </ion-card-content>
-            </ion-card>
-          </ion-col>
+        <div class="menu-card" (click)="ir('/cliente/chat')">
+          <ion-icon name="chatbubbles-outline"></ion-icon>
+          <p class="card-titulo">Consultar al mozo</p>
+          <p class="card-desc">Te respondemos en seguida</p>
+        </div>
 
-          <ion-col size="6">
-            <ion-card button (click)="ir('/cliente/chat')">
-              <ion-card-content class="opcion">
-                <ion-icon name="chatbubbles-outline" size="large"></ion-icon>
-                <p>Consultar al mozo</p>
-              </ion-card-content>
-            </ion-card>
-          </ion-col>
+        @if (puedeJugar()) {
+          <div class="menu-card" (click)="ir('/cliente/juegos')">
+            <ion-icon name="game-controller-outline"></ion-icon>
+            <p class="card-titulo">Juegos</p>
+            <p class="card-desc">Entretenete mientras esperás</p>
+          </div>
+        }
 
-          @if (puedeJugar()) {
-            <ion-col size="6">
-              <ion-card button (click)="ir('/cliente/juegos')">
-                <ion-card-content class="opcion">
-                  <ion-icon name="game-controller-outline" size="large"></ion-icon>
-                  <p>Juegos</p>
-                </ion-card-content>
-              </ion-card>
-            </ion-col>
-          }
+        @if (puedeEncuesta()) {
+          <div class="menu-card" (click)="ir('/cliente/encuesta')">
+            <ion-icon name="star-outline"></ion-icon>
+            <p class="card-titulo">Encuesta</p>
+            <p class="card-desc">Contanos tu experiencia</p>
+          </div>
+        }
 
-          @if (puedeEncuesta()) {
-            <ion-col size="6">
-              <ion-card button (click)="ir('/cliente/encuesta')">
-                <ion-card-content class="opcion">
-                  <ion-icon name="star-outline" size="large"></ion-icon>
-                  <p>Encuesta</p>
-                </ion-card-content>
-              </ion-card>
-            </ion-col>
-          }
+        @if (puedeCuenta()) {
+          <div class="menu-card" (click)="ir('/cliente/cuenta')">
+            <ion-icon name="receipt-outline"></ion-icon>
+            <p class="card-titulo">Pedir la cuenta</p>
+            <p class="card-desc">Cerrá tu pedido</p>
+          </div>
+        }
 
-          @if (puedeCuenta()) {
-            <ion-col size="6">
-              <ion-card button (click)="ir('/cliente/cuenta')">
-                <ion-card-content class="opcion">
-                  <ion-icon name="receipt-outline" size="large"></ion-icon>
-                  <p>Pedir la cuenta</p>
-                </ion-card-content>
-              </ion-card>
-            </ion-col>
-          }
+        <div class="menu-card" (click)="ir('/cliente/encuesta-resultados')">
+          <ion-icon name="bar-chart-outline"></ion-icon>
+          <p class="card-titulo">Ver resultados</p>
+          <p class="card-desc">Estadísticas de encuestas</p>
+        </div>
+      </div>
 
-          @if (estado() === 'entregado') {
-            <ion-col size="12">
-              <ion-button expand="block" color="success" (click)="confirmarRecepcion()">
-                <ion-icon name="checkmark-circle-outline" slot="start"></ion-icon>
-                Confirmar recepción del pedido
-              </ion-button>
-            </ion-col>
-          }
-
-          <ion-col size="6">
-            <ion-card button (click)="ir('/cliente/encuesta-resultados')">
-              <ion-card-content class="opcion">
-                <ion-icon name="bar-chart-outline" size="large"></ion-icon>
-                <p>Ver resultados</p>
-              </ion-card-content>
-            </ion-card>
-          </ion-col>
-
-        </ion-row>
-      </ion-grid>
+      @if (estado() === 'entregado') {
+        <ion-button expand="block" color="success" class="ion-margin-top" (click)="confirmarRecepcion()">
+          <ion-icon name="checkmark-circle-outline" slot="start"></ion-icon>
+          Confirmar recepción del pedido
+        </ion-button>
+      }
 
     }
-
   }
 
 </ion-content>

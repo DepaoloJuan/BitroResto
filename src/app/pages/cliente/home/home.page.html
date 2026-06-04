@@ -1,20 +1,23 @@
-<ion-header>
-  <ion-toolbar>
-    <ion-title>Hola, {{ usuario()?.nombre }}!</ion-title>
-    <ion-buttons slot="end">
-      <ion-button (click)="cerrarSesion()">
-        <ion-icon name="log-out-outline"></ion-icon>
-        Cerrar sesión
-      </ion-button>
-    </ion-buttons>
-  </ion-toolbar>
-</ion-header>
+<ion-content class="home-content" [scrollY]="false">
+  <div class="home-container">
 
-<ion-content class="ion-padding">
-  <ion-card button (click)="ir('/cliente/lista-espera')">
-    <ion-card-content class="ion-text-center ion-padding">
-      <ion-icon name="time-outline" size="large"></ion-icon>
-      <p>Anotarme en lista de espera</p>
-    </ion-card-content>
-  </ion-card>
+    <div class="home-greeting">
+      <div class="greeting-text">
+        <p class="bienvenida">Bienvenido,</p>
+        <h1 class="nombre">{{ usuario()?.nombre ?? 'Cliente' }}</h1>
+      </div>
+      <ion-button fill="clear" class="btn-logout" (click)="cerrarSesion()">
+        <ion-icon name="log-out-outline"></ion-icon>
+      </ion-button>
+    </div>
+
+    <div class="home-grid metre-grid">
+      <div class="menu-card" (click)="ir('/cliente/lista-espera')">
+        <ion-icon name="time-outline"></ion-icon>
+        <p class="card-titulo">Lista de espera</p>
+        <p class="card-desc">Anotate para conseguir una mesa</p>
+      </div>
+    </div>
+
+  </div>
 </ion-content>

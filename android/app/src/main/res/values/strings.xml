@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">BitroResto</string>
+    <string name="title_activity_main">BitroResto</string>
+    <string name="package_name">com.bitroteam.bitroresto</string>
+    <string name="custom_url_scheme">com.bitroteam.bitroresto</string>
+</resources>
