@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Camera } from '@capacitor/camera';
+import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 
 @Injectable({ providedIn: 'root' })
 export class CamaraService {
@@ -7,9 +7,9 @@ export class CamaraService {
     const photo = await Camera.getPhoto({
       quality: 90,
       allowEditing: false,
-      resultType: 'dataUrl',
-      source: 'camera',
-    } as any);
+      resultType: CameraResultType.DataUrl,
+      source: CameraSource.Camera,
+    });
     return photo.dataUrl ?? '';
   }
 }

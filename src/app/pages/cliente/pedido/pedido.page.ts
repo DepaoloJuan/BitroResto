@@ -58,7 +58,10 @@ export class PedidoPage implements OnInit {
       : 0
   );
   readonly estadoBloqueado = computed(() =>
-    ['pago_solicitado', 'esperando_mozo'].includes(this.pedidoExistente()?.estado ?? '')
+    this.pedidoExistente()?.estado === 'pago_solicitado'
+  );
+  readonly puedeModificar = computed(() =>
+    this.pedidoExistente()?.estado === 'esperando_mozo'
   );
 
   constructor() {
@@ -94,7 +97,7 @@ export class PedidoPage implements OnInit {
       .in('estado', ['esperando_mozo', 'rechazado_mozo', 'en_cocina', 'listo', 'pago_solicitado'])
       .order('fecha_creacion', { ascending: false }).limit(1).maybeSingle();
     this.pedidoExistente.set(data);
-    if (data?.estado === 'rechazado_mozo') {
+    if (data?.estado === 'rechazado_mozo' || data?.estado === 'esperando_mozo') {
       this.pedidoRechazadoId.set(data.id);
       const prevItems = data.pedido_items || [];
       this.platos.update(ps => ps.map(p => {
@@ -131,7 +134,7 @@ export class PedidoPage implements OnInit {
   async confirmarPedido() {
     if (!this.mesaId || !this.itemsSeleccionados().length) return;
     const estadoActual = this.pedidoExistente()?.estado ?? '';
-    if (['esperando_mozo', 'pago_solicitado'].includes(estadoActual)) return;
+    if (estadoActual === 'pago_solicitado') return;
     const usuario = this.authService.getUsuarioActual();
     try {
       this.enviando.set(true);

@@ -72,7 +72,32 @@
     @if (!cargando()) {
       <div class="mesa-hub">
 
-        @if (estadoTexto()) {
+        @if (mostrarTracker()) {
+          <div class="pedido-tracker">
+            <p class="tracker-titulo">Estado de tu pedido</p>
+            <div class="tracker-steps">
+              @for (paso of pasos; track paso.label; let i = $index) {
+                <div class="step" [class.completado]="pasoActual() > i" [class.activo]="pasoActual() === i">
+                  <div class="step-header">
+                    <div class="step-linea" [class.invisible]="i === 0" [class.llena]="pasoActual() >= i"></div>
+                    <div class="step-circulo">
+                      @if (pasoActual() > i) {
+                        <ion-icon name="checkmark-outline"></ion-icon>
+                      } @else {
+                        <ion-icon [name]="paso.icono"></ion-icon>
+                      }
+                    </div>
+                    <div class="step-linea" [class.invisible]="i === pasos.length - 1" [class.llena]="pasoActual() > i"></div>
+                  </div>
+                  <span class="step-label">{{ paso.label }}</span>
+                </div>
+              }
+            </div>
+            <p class="tracker-desc">{{ estadoTexto() }}</p>
+          </div>
+        }
+
+        @if (mostrarBanner()) {
           <ion-item button lines="none" [color]="estadoColor()" class="estado-banner" (click)="ir('/cliente/pedido')">
             <ion-icon [name]="estadoIcono()" slot="start"></ion-icon>
             <ion-label>{{ estadoTexto() }}</ion-label>

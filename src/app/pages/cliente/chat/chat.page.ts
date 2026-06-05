@@ -50,9 +50,13 @@ export class ChatPage implements OnInit {
   async obtenerMesa() {
     const usuario = this.authService.getUsuarioActual();
     if (!usuario) return;
-    const { data } = await this.supabase.client
-      .from('lista_espera').select('mesa_id').eq('usuario_id', usuario.id).eq('estado', 'asignado').single();
-    this.mesaId = data?.mesa_id || '';
+    if (usuario.perfil === 'anonimo') {
+      this.mesaId = usuario.mesa_id || '';
+    } else {
+      const { data } = await this.supabase.client
+        .from('lista_espera').select('mesa_id').eq('usuario_id', usuario.id).eq('estado', 'asignado').single();
+      this.mesaId = data?.mesa_id || '';
+    }
     if (this.mesaId) {
       const { data: mesaData } = await this.supabase.client
         .from('mesas').select('numero').eq('id', this.mesaId).single();
@@ -83,8 +87,8 @@ export class ChatPage implements OnInit {
     const usuario = this.authService.getUsuarioActual();
     const texto = this.nuevoMensaje().trim();
     const { error } = await this.supabase.client.from('consultas').insert({
-      mesa_id: this.mesaId, usuario_id: usuario?.id,
-      nombre_remitente: `${usuario?.nombre} ${usuario?.apellido}`,
+      mesa_id: this.mesaId, usuario_id: usuario?.id || null,
+      nombre_remitente: usuario?.nombre + (usuario?.apellido ? ` ${usuario.apellido}` : ''),
       mensaje: texto, tipo: 'cliente',
     });
     if (!error) {

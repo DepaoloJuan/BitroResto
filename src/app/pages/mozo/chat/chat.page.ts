@@ -81,10 +81,13 @@ export class ChatPage implements OnInit {
     if (!mesa._respuesta.trim()) return;
     const usuario = this.authService.getUsuarioActual();
     const { error } = await this.supabase.client.from('consultas').insert({
-      mesa_id: mesa.id, usuario_id: usuario?.id,
+      mesa_id: mesa.id, usuario_id: usuario?.id || null,
       nombre_remitente: `${usuario?.nombre} (Mozo)`,
       mensaje: mesa._respuesta.trim(), tipo: 'mozo',
     });
-    if (!error) { mesa._respuesta = ''; await this.cargarMensajes(); }
+    if (!error) {
+      this.mesas.update(ms => ms.map(m => m.id === mesa.id ? { ...m, _respuesta: '' } : m));
+      await this.cargarMensajes();
+    }
   }
 }

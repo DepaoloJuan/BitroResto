@@ -25,12 +25,7 @@
   @if (estadoBloqueado()) {
     <div class="estado-bloqueado ion-text-center ion-padding">
       <ion-icon name="hourglass-outline" size="large" color="warning"></ion-icon>
-      @if (pedidoExistente()?.estado === 'pago_solicitado') {
-        <p>La cuenta ya fue solicitada. No podés agregar más productos.</p>
-      }
-      @if (pedidoExistente()?.estado === 'esperando_mozo') {
-        <p>Tu pedido está esperando confirmación del mozo. Una vez confirmado podés agregar el siguiente plato.</p>
-      }
+      <p>La cuenta ya fue solicitada. No podés agregar más productos.</p>
       <ion-button expand="block" (click)="router.navigate(['/cliente/mesa'])">
         Ver estado de la mesa
       </ion-button>
@@ -61,6 +56,13 @@
             <ion-label>Postres</ion-label>
           </ion-segment-button>
         </ion-segment>
+      }
+
+      @if (puedeModificar()) {
+        <div class="info-banner warning">
+          <ion-icon name="hourglass-outline"></ion-icon>
+          <span>Tu pedido espera al mozo. Podés modificarlo antes de que lo acepte.</span>
+        </div>
       }
 
       @if (['en_cocina', 'listo'].includes(pedidoExistente()?.estado ?? '')) {
@@ -149,7 +151,7 @@
         <ion-spinner name="crescent"></ion-spinner>
       } @else {
         <ion-icon name="send-outline" slot="start"></ion-icon>
-        Enviar pedido ({{ itemsSeleccionados().length }} ítems)
+        {{ puedeModificar() ? 'Actualizar pedido' : 'Enviar pedido' }} ({{ itemsSeleccionados().length }} ítems)
       }
     </ion-button>
   </ion-toolbar>

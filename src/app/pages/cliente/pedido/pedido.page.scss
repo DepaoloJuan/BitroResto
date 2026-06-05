@@ -46,6 +46,11 @@
   color: var(--ion-color-primary);
   font-size: 0.88rem;
 
+  &.warning {
+    background: rgba(var(--ion-color-warning-rgb), 0.15);
+    color: var(--ion-color-warning-shade);
+  }
+
   &.danger {
     background: rgba(var(--ion-color-danger-rgb), 0.12);
     color: var(--ion-color-danger);

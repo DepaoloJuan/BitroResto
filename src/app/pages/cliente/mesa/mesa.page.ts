@@ -3,7 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { TitleCasePipe } from '@angular/common';
 import {
   IonHeader, IonToolbar, IonTitle, IonContent, IonButtons, IonButton, IonIcon,
-  IonGrid, IonRow, IonCol, IonCard, IonCardHeader, IonCardTitle, IonCardSubtitle,
+  IonCard, IonCardHeader, IonCardTitle, IonCardSubtitle,
   IonCardContent, IonItem, IonLabel, IonText, IonSpinner,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
@@ -12,6 +12,7 @@ import {
   gameControllerOutline, starOutline, receiptOutline, barChartOutline, logOutOutline,
   hourglassOutline, closeCircleOutline, checkmarkDoneOutline, bicycleOutline,
   timeOutline, peopleOutline, ellipse, scanOutline, qrCodeOutline, chevronForwardOutline,
+  sendOutline, checkmarkOutline,
 } from 'ionicons/icons';
 import { BarcodeScanner, BarcodeFormat } from '@capacitor-mlkit/barcode-scanning';
 import { AuthService } from '../../../core/services/auth';
@@ -28,7 +29,7 @@ import { RealtimeChannel } from '@supabase/supabase-js';
   styleUrls: ['./mesa.page.scss'],
   imports: [
     TitleCasePipe, IonHeader, IonToolbar, IonTitle, IonContent, IonButtons, IonButton, IonIcon,
-    IonGrid, IonRow, IonCol, IonCard, IonCardHeader, IonCardTitle, IonCardSubtitle,
+    IonCard, IonCardHeader, IonCardTitle, IonCardSubtitle,
     IonCardContent, IonItem, IonLabel, IonText, IonSpinner, LoadingComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -68,6 +69,7 @@ export class MesaPage implements OnInit {
     const map: Record<string, string> = {
       esperando_mozo: '⏳ Pedido enviado, esperando al mozo',
       rechazado_mozo: '❌ El mozo rechazó tu pedido, podés modificarlo',
+      en_cocina: '🍳 Tu pedido está siendo preparado',
       confirmado: '✅ Pedido confirmado, en preparación',
       pendiente: '🍳 Tu pedido está siendo preparado',
       completado: '🔔 Tu pedido está listo para ser entregado',
@@ -99,12 +101,32 @@ export class MesaPage implements OnInit {
     return map[this.estado()] ?? 'information-circle-outline';
   });
 
+  readonly pasos = [
+    { label: 'Enviado', icono: 'send-outline' },
+    { label: 'En cocina', icono: 'restaurant-outline' },
+    { label: 'Listo', icono: 'checkmark-done-outline' },
+    { label: 'Entregado', icono: 'bicycle-outline' },
+  ];
+
+  readonly pasoActual = computed(() => {
+    const map: Record<string, number> = {
+      esperando_mozo: 0, en_cocina: 1, listo: 2, entregado: 3, recibido: 4,
+    };
+    return map[this.estado()] ?? -1;
+  });
+
+  readonly mostrarTracker = computed(() => this.pasoActual() >= 0);
+  readonly mostrarBanner = computed(() =>
+    ['rechazado_mozo', 'pago_solicitado'].includes(this.estado())
+  );
+
   constructor() {
     addIcons({
       checkmarkCircleOutline, restaurantOutline, cartOutline, chatbubblesOutline,
       gameControllerOutline, starOutline, receiptOutline, barChartOutline, logOutOutline,
       hourglassOutline, closeCircleOutline, checkmarkDoneOutline, bicycleOutline,
       timeOutline, peopleOutline, ellipse, scanOutline, qrCodeOutline, chevronForwardOutline,
+      sendOutline, checkmarkOutline,
     });
     this.destroyRef.onDestroy(() => {
       if (this.canal) this.supabase.client.removeChannel(this.canal);
