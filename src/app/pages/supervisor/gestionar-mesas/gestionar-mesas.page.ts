@@ -153,14 +153,25 @@ export class GestionarMesasPage implements OnInit {
   async eliminarMesa(mesa: MesaUI) {
     this.mesas.update(ms => ms.map(m => m.id === mesa.id ? { ...m, _accion: true } : m));
     try {
+      await this.supabase.client.from('lista_espera').delete().eq('mesa_id', mesa.id);
+      await this.supabase.client.from('encuestas').delete().eq('mesa_id', mesa.id);
+
+      const { data: pedidos } = await this.supabase.client
+        .from('pedidos').select('id').eq('mesa_id', mesa.id);
+      for (const p of pedidos || []) {
+        await this.supabase.client.from('pedido_items').delete().eq('pedido_id', p.id);
+      }
+      await this.supabase.client.from('pedidos').delete().eq('mesa_id', mesa.id);
+
       const { error } = await this.supabase.client.from('mesas').delete().eq('id', mesa.id);
       if (error) throw error;
+
       this.mesas.update(ms => ms.filter(m => m.id !== mesa.id));
       await this.mostrarToast(`Mesa ${mesa.numero} eliminada.`);
     } catch {
       await this.haptics.error();
       this.mesas.update(ms => ms.map(m => m.id === mesa.id ? { ...m, _accion: false } : m));
-      await this.mostrarToast('Error al eliminar la mesa.', 'danger');
+      await this.mostrarToast('No se pudo eliminar la mesa.', 'danger');
     }
   }
 }
