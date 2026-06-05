@@ -7,73 +7,66 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="ion-padding">
+<ion-content>
+  <div class="lista-espera-container">
 
-  @if (cargando()) {
-    <app-loading />
-  }
+    @if (cargando()) {
+      <app-loading />
+    }
 
-  @if (!cargando() && clientes().length === 0) {
-    <div class="ion-text-center ion-padding">
-      <ion-icon name="people-outline" size="large"></ion-icon>
-      <p>No hay clientes en espera.</p>
-    </div>
-  }
+    @if (!cargando() && clientes().length === 0) {
+      <div class="empty-state">
+        <ion-icon name="people-outline"></ion-icon>
+        <p>No hay clientes en espera.</p>
+      </div>
+    }
 
-  @for (cliente of clientes(); track cliente.id) {
-    <ion-card>
-      <ion-card-header>
-        <ion-grid>
-          <ion-row class="ion-align-items-center">
-            <ion-col size="3">
-              <ion-avatar>
-                <img [src]="cliente.foto || 'assets/avatar-default.png'" alt="Foto" />
-              </ion-avatar>
-            </ion-col>
-            <ion-col size="9">
-              <ion-card-title>{{ cliente.nombre }}</ion-card-title>
-              <ion-card-subtitle>
+    @for (cliente of clientes(); track cliente.id) {
+      <ion-card [class.card-unico]="clientes().length === 1">
+        <ion-card-header style="padding-bottom: 0;">
+          <div class="cliente-header">
+            <ion-avatar class="cliente-avatar">
+              <img [src]="cliente.foto || 'assets/avatar-default.png'" alt="Foto" />
+            </ion-avatar>
+            <div class="cliente-info">
+              <p class="cliente-nombre">{{ cliente.nombre }}</p>
+              <div class="cliente-meta">
                 <ion-badge [color]="cliente.tipo_cliente === 'registrado' ? 'primary' : 'medium'">
                   {{ cliente.tipo_cliente }}
                 </ion-badge>
-              </ion-card-subtitle>
-              <ion-card-subtitle>
-                Ingresó: {{ cliente.fecha_ingreso | date:'HH:mm' }}
-              </ion-card-subtitle>
-            </ion-col>
-          </ion-row>
-        </ion-grid>
-      </ion-card-header>
-      <ion-card-content>
-        <p class="mesa-selector-label">Mesas disponibles</p>
-        @for (mesa of mesasDisponibles(); track mesa.id) {
-          <div class="mesa-option"
-               [class.seleccionada]="mesa.id === cliente._mesa_seleccionada"
-               (click)="seleccionarMesa(cliente, mesa.id)">
-            <span>Mesa {{ mesa.numero }} · {{ mesa.tipo }} · {{ mesa.capacidad }} personas</span>
-            @if (mesa.id === cliente._mesa_seleccionada) {
-              <ion-icon name="checkmark-circle"></ion-icon>
-            }
+                <span class="cliente-hora">Ingresó: {{ cliente.fecha_ingreso | date:'HH:mm' }}</span>
+              </div>
+            </div>
           </div>
-        }
+        </ion-card-header>
 
-        <ion-button expand="block" color="primary" (click)="asignarMesa(cliente)" [disabled]="!cliente._mesa_seleccionada">
-          <ion-icon name="checkmark-outline" slot="start"></ion-icon>
-          Asignar mesa
-        </ion-button>
+        <ion-card-content>
+          <p class="mesa-selector-label">Mesas disponibles</p>
+          @for (mesa of mesasDisponibles(); track mesa.id) {
+            <div class="mesa-option"
+                 [class.seleccionada]="mesa.id === cliente._mesa_seleccionada"
+                 (click)="seleccionarMesa(cliente, mesa.id)">
+              <span>Mesa {{ mesa.numero }} · {{ mesa.tipo }} · {{ mesa.capacidad }} personas</span>
+              @if (mesa.id === cliente._mesa_seleccionada) {
+                <ion-icon name="checkmark-circle"></ion-icon>
+              }
+            </div>
+          }
 
-        @if (cliente._exito) {
-          <ion-text color="success">
-            <small>{{ cliente._exito }}</small>
-          </ion-text>
-        }
-        @if (cliente._error) {
-          <ion-text color="danger">
-            <small>{{ cliente._error }}</small>
-          </ion-text>
-        }
-      </ion-card-content>
-    </ion-card>
-  }
+          <ion-button expand="block" color="primary" (click)="asignarMesa(cliente)" [disabled]="!cliente._mesa_seleccionada">
+            <ion-icon name="checkmark-outline" slot="start"></ion-icon>
+            Asignar mesa
+          </ion-button>
 
+          @if (cliente._exito) {
+            <ion-text color="success"><small>{{ cliente._exito }}</small></ion-text>
+          }
+          @if (cliente._error) {
+            <ion-text color="danger"><small>{{ cliente._error }}</small></ion-text>
+          }
+        </ion-card-content>
+      </ion-card>
+    }
+
+  </div>
 </ion-content>
