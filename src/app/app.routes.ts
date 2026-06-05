@@ -61,6 +61,13 @@ export const routes: Routes = [
             (m) => m.QrPropinasPage,
           ),
       },
+      {
+        path: 'tablero',
+        loadComponent: () =>
+          import('./pages/dueno/tablero/tablero.page').then(
+            (m) => m.TableroPague,
+          ),
+      },
     ],
   },
   {
@@ -107,6 +114,13 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./pages/dueno/qr-propinas/qr-propinas.page').then(
             (m) => m.QrPropinasPage,
+          ),
+      },
+      {
+        path: 'gestionar-mesas',
+        loadComponent: () =>
+          import('./pages/supervisor/gestionar-mesas/gestionar-mesas.page').then(
+            (m) => m.GestionarMesasPage,
           ),
       },
     ],

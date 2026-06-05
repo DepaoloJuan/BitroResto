@@ -5,7 +5,7 @@ import {
   IonHeader, IonToolbar, IonTitle, IonContent, IonCard, IonCardHeader, IonCardTitle,
   IonCardSubtitle, IonCardContent, IonButton, IonIcon, IonSpinner, IonText, IonItem,
   IonLabel, IonButtons, IonBackButton, IonRange, IonRadioGroup, IonRadio,
-  IonSelect, IonSelectOption,
+  IonSegment, IonSegmentButton,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { star, starOutline, checkmarkCircleOutline, barChartOutline } from 'ionicons/icons';
@@ -21,7 +21,7 @@ import { HapticsService } from '../../../core/services/haptics.service';
     FormsModule, IonHeader, IonToolbar, IonTitle, IonContent, IonCard, IonCardHeader,
     IonCardTitle, IonCardSubtitle, IonCardContent, IonButton, IonIcon, IonSpinner, IonText,
     IonItem, IonLabel, IonButtons, IonBackButton, IonRange, IonRadioGroup, IonRadio,
-    IonSelect, IonSelectOption,
+    IonSegment, IonSegmentButton,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

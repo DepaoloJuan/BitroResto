@@ -1,8 +1,4 @@
 .dueno-grid {
   grid-template-columns: 1fr 1fr;
-  grid-template-rows: 1fr 1fr 0.7fr;
-
-  .card-wide {
-    grid-column: span 2;
-  }
+  grid-template-rows: 1fr 1fr 1fr;
 }

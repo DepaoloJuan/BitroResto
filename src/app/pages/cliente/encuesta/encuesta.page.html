@@ -105,11 +105,17 @@
         <ion-card-title>¿Volvería al restaurante?</ion-card-title>
       </ion-card-header>
       <ion-card-content>
-        <ion-select [(ngModel)]="form.volveria" placeholder="Seleccioná una opción">
-          <ion-select-option value="si">Sí, definitivamente</ion-select-option>
-          <ion-select-option value="tal_vez">Tal vez</ion-select-option>
-          <ion-select-option value="no">No</ion-select-option>
-        </ion-select>
+        <ion-segment [(ngModel)]="form.volveria">
+          <ion-segment-button value="si">
+            <ion-label>Sí</ion-label>
+          </ion-segment-button>
+          <ion-segment-button value="tal_vez">
+            <ion-label>Tal vez</ion-label>
+          </ion-segment-button>
+          <ion-segment-button value="no">
+            <ion-label>No</ion-label>
+          </ion-segment-button>
+        </ion-segment>
       </ion-card-content>
     </ion-card>
     @if (errores()['volveria']) {

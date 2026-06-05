@@ -5,7 +5,7 @@ import {
   IonIcon, IonGrid, IonRow, IonCol, IonCard, IonCardContent,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { peopleOutline, personAddOutline, gridOutline, qrCodeOutline, cashOutline, logOutOutline } from 'ionicons/icons';
+import { peopleOutline, personAddOutline, gridOutline, qrCodeOutline, cashOutline, logOutOutline, barChartOutline } from 'ionicons/icons';
 import { RealtimeChannel } from '@supabase/supabase-js';
 import { AuthService } from '../../core/services/auth';
 import { SupabaseService } from '../../core/services/supabase';
@@ -32,7 +32,7 @@ export class DuenoPage implements OnInit {
   private canal?: RealtimeChannel;
 
   constructor() {
-    addIcons({ peopleOutline, personAddOutline, gridOutline, qrCodeOutline, cashOutline, logOutOutline });
+    addIcons({ peopleOutline, personAddOutline, gridOutline, qrCodeOutline, cashOutline, logOutOutline, barChartOutline });
     this.destroyRef.onDestroy(() => {
       if (this.canal) this.supabase.client.removeChannel(this.canal);
     });

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, NgZone, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TitleCasePipe } from '@angular/common';
 import {
@@ -42,6 +42,7 @@ export class MesaPage implements OnInit {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly ngZone = inject(NgZone);
 
   cargando = signal(true);
   mesa = signal<Mesa | null>(null);
@@ -245,7 +246,10 @@ export class MesaPage implements OnInit {
         this.authService.setUsuarioAnonimo(null);
         this.router.navigate(['/login'], { replaceUrl: true });
       } else {
-        this.router.navigate(['/cliente/home'], { replaceUrl: true });
+        this.router.navigate(['/cliente/encuesta'], {
+          state: { desdePago: true, mesaId: this.mesaId },
+          replaceUrl: true,
+        });
       }
       return;
     }
@@ -262,17 +266,19 @@ export class MesaPage implements OnInit {
     this.canal = this.supabase.client
       .channel('mesa_hub_' + this.mesaId)
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'pedidos', filter: `mesa_id=eq.${this.mesaId}` },
-        async (payload) => {
-          const estado = (payload.new as any)?.estado;
-          if (estado === 'rechazado_mozo') {
-            await this.notificaciones.enviar('Pedido rechazado', 'El mozo rechazó tu pedido. Podés modificarlo y reenviarlo.');
-          } else if (estado === 'listo') {
-            await this.notificaciones.enviar('¡Tu pedido está listo!', 'Ya llega el mozo con tu pedido.');
-          }
-          await this.cargarPedido();
+        (payload) => {
+          this.ngZone.run(async () => {
+            const estado = (payload.new as any)?.estado;
+            if (estado === 'rechazado_mozo') {
+              await this.notificaciones.enviar('Pedido rechazado', 'El mozo rechazó tu pedido. Podés modificarlo y reenviarlo.');
+            } else if (estado === 'listo') {
+              await this.notificaciones.enviar('¡Tu pedido está listo!', 'Ya llega el mozo con tu pedido.');
+            }
+            await this.cargarPedido();
+          });
         })
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'mesas', filter: `id=eq.${this.mesaId}` },
-        () => this.cargarPedido())
+        () => this.ngZone.run(() => this.cargarPedido()))
       .subscribe();
   }
 

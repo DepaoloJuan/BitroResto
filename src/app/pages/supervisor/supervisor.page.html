@@ -32,7 +32,12 @@
         <p class="card-titulo">QR Entrada</p>
         <p class="card-desc">Código de acceso al local</p>
       </div>
-      <div class="menu-card card-wide" (click)="ir('/supervisor/qr-propinas')">
+      <div class="menu-card" (click)="ir('/supervisor/gestionar-mesas')">
+        <ion-icon name="layers-outline"></ion-icon>
+        <p class="card-titulo">Gestionar mesas</p>
+        <p class="card-desc">Liberá o eliminá mesas</p>
+      </div>
+      <div class="menu-card" (click)="ir('/supervisor/qr-propinas')">
         <ion-icon name="cash-outline"></ion-icon>
         <p class="card-titulo">QR Propinas</p>
         <p class="card-desc">Código para propinas</p>

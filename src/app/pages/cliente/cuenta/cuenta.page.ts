@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, NgZone, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import {
@@ -33,6 +33,7 @@ export class CuentaPage implements OnInit {
   private readonly router = inject(Router);
   private readonly haptics = inject(HapticsService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly ngZone = inject(NgZone);
 
   private mesaId = '';
   pedido = signal<(Pedido & { total: number }) | null>(null);
@@ -115,15 +116,17 @@ export class CuentaPage implements OnInit {
       .channel('cuenta_pagado_' + this.mesaId)
       .on('postgres_changes',
         { event: 'UPDATE', schema: 'public', table: 'pedidos', filter: `mesa_id=eq.${this.mesaId}` },
-        async (payload) => {
-          if ((payload.new as any)?.estado === 'pagado') {
-            this.router.navigate(['/cliente/encuesta'], {
-              state: { desdePago: true, mesaId: this.mesaId },
-              replaceUrl: true,
-            });
-            return;
-          }
-          await this.cargarPedido();
+        (payload) => {
+          this.ngZone.run(async () => {
+            if ((payload.new as any)?.estado === 'pagado') {
+              this.router.navigate(['/cliente/encuesta'], {
+                state: { desdePago: true, mesaId: this.mesaId },
+                replaceUrl: true,
+              });
+              return;
+            }
+            await this.cargarPedido();
+          });
         })
       .subscribe();
   }

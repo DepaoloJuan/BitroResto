@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, NgZone, OnInit, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import {
   IonHeader, IonToolbar, IonTitle, IonContent, IonCard, IonCardHeader, IonCardTitle,
@@ -35,6 +35,7 @@ export class PedidosPage implements OnInit {
   private readonly haptics = inject(HapticsService);
   private readonly notificaciones = inject(NotificacionesService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly ngZone = inject(NgZone);
 
   pedidos = signal<PedidoUI[]>([]);
   cargando = signal(false);
@@ -67,28 +68,30 @@ export class PedidosPage implements OnInit {
     this.canal = this.supabase.client
       .channel('pedidos_bar')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'pedidos' },
-        async (payload) => {
-          if ((payload.new as any)?.estado === 'en_cocina') {
-            await this.notificaciones.enviar('Nuevo pedido en el bar', 'Hay un nuevo pedido de bebidas para preparar.');
-          }
-          await this.cargarPedidos();
+        (payload) => {
+          this.ngZone.run(async () => {
+            if ((payload.new as any)?.estado === 'en_cocina') {
+              await this.notificaciones.enviar('Nuevo pedido en el bar', 'Hay un nuevo pedido de bebidas para preparar.');
+            }
+            await this.cargarPedidos();
+          });
         })
       .subscribe();
   }
 
   async marcarListo(pedido: PedidoUI) {
-    pedido._enviando = true;
-    pedido._exito = '';
-    pedido._error = '';
+    this.pedidos.update(ps => ps.map(p => p.id === pedido.id ? { ...p, _enviando: true, _exito: '', _error: '' } : p));
     try {
       const { error } = await this.supabase.client
         .from('pedido_items').update({ estado: 'listo' }).eq('pedido_id', pedido.id).eq('tipo', 'bebidas');
       if (error) throw error;
       await this.verificarPedidoCompleto(pedido.id);
-      pedido._exito = 'Bebidas listas para entregar.';
-      setTimeout(() => this.cargarPedidos(), 1500);
-    } catch (e: unknown) { await this.haptics.error(); pedido._error = (e as Error).message; }
-    finally { pedido._enviando = false; }
+      this.pedidos.update(ps => ps.map(p => p.id === pedido.id ? { ...p, _exito: 'Bebidas listas para entregar.', _enviando: false } : p));
+      setTimeout(() => this.ngZone.run(() => this.cargarPedidos()), 1500);
+    } catch (e: unknown) {
+      await this.haptics.error();
+      this.pedidos.update(ps => ps.map(p => p.id === pedido.id ? { ...p, _error: (e as Error).message, _enviando: false } : p));
+    }
   }
 
   async verificarPedidoCompleto(pedidoId: string) {

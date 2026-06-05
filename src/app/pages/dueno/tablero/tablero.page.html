@@ -1,0 +1,104 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/dueno" text="atrás"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Tablero</ion-title>
+  </ion-toolbar>
+  <ion-toolbar>
+    <ion-segment [ngModel]="periodo()" (ngModelChange)="cambiarPeriodo($event)">
+      <ion-segment-button value="dia"><ion-label>Hoy</ion-label></ion-segment-button>
+      <ion-segment-button value="semana"><ion-label>Semana</ion-label></ion-segment-button>
+      <ion-segment-button value="mes"><ion-label>Mes</ion-label></ion-segment-button>
+    </ion-segment>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+
+  @if (cargando()) {
+    <app-loading />
+  }
+
+  @if (!cargando()) {
+    <div class="tablero">
+
+      <!-- Métricas del período -->
+      <div class="metricas-grid">
+        <div class="metrica-card">
+          <ion-icon name="restaurant-outline"></ion-icon>
+          <p class="metrica-valor">{{ mesasAtendidas() }}</p>
+          <p class="metrica-label">Pedidos</p>
+        </div>
+        <div class="metrica-card">
+          <ion-icon name="cash-outline"></ion-icon>
+          <p class="metrica-valor">{{ formatCurrency(facturacion()) }}</p>
+          <p class="metrica-label">Facturación</p>
+        </div>
+        <div class="metrica-card">
+          <ion-icon name="trending-up-outline"></ion-icon>
+          <p class="metrica-valor">{{ formatCurrency(ticketPromedio()) }}</p>
+          <p class="metrica-label">Ticket prom.</p>
+        </div>
+      </div>
+
+      <!-- Gráfico de barras -->
+      <div class="seccion">
+        <p class="seccion-titulo">Facturación últimos 7 días</p>
+        <apx-chart
+          [series]="barSeries()"
+          [chart]="barChart"
+          [plotOptions]="barPlotOptions"
+          [colors]="barColors"
+          [dataLabels]="barDataLabels"
+          [grid]="chartGrid"
+          [yaxis]="barYaxis"
+          [xaxis]="barXaxis()"
+          [tooltip]="barTooltip">
+        </apx-chart>
+      </div>
+
+      <!-- Satisfacción -->
+      <div class="seccion">
+        <p class="seccion-titulo">Satisfacción (encuestas)</p>
+        @if (encuestasVacias()) {
+          <p class="sin-datos">Todavía no hay encuestas respondidas.</p>
+        } @else {
+          <div class="satisfaccion-lista">
+            @for (item of satisfaccionItems(); track item.label) {
+              <div class="satisfaccion-item">
+                <span class="sat-label">{{ item.label }}</span>
+                <div class="sat-estrellas">
+                  @for (llena of stars(item.valor); track $index) {
+                    <ion-icon [name]="llena ? 'star' : 'star-outline'" color="warning"></ion-icon>
+                  }
+                </div>
+                <span class="sat-valor">{{ item.valor }}</span>
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Gráfico de torta -->
+      <div class="seccion">
+        <p class="seccion-titulo">¿Volvería al restaurante?</p>
+        @if (donutVacio()) {
+          <p class="sin-datos">Todavía no hay encuestas respondidas.</p>
+        } @else {
+          <apx-chart
+            [series]="donutSeries()"
+            [chart]="donutChart"
+            [colors]="donutColors"
+            [labels]="donutLabels"
+            [legend]="donutLegend"
+            [dataLabels]="donutDataLabels"
+            [tooltip]="donutTooltip">
+          </apx-chart>
+        }
+      </div>
+
+    </div>
+  }
+
+</ion-content>
