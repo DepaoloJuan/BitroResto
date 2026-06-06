@@ -4,31 +4,57 @@ Aplicación mobile para la gestión integral de un restaurante. Permite a los cl
 
 ---
 
-## Tecnologías utilizadas
+## 🛠️ Tecnologías utilizadas
 
-| Tecnología          | Motivo                                                                                                                |
-| ------------------- | --------------------------------------------------------------------------------------------------------------------- |
-| **Ionic + Angular** | Framework para desarrollo mobile multiplataforma (iOS y Android) desde una única base de código                       |
-| **Capacitor**       | Acceso a funcionalidades nativas del dispositivo: cámara, scanner QR/código de barras, notificaciones y hápticos      |
-| **Supabase**        | Backend con base de datos PostgreSQL, autenticación y suscripciones en tiempo real para actualizar la UI sin recargar |
-| **Chart.js**        | Visualización de resultados de encuestas en gráficos de torta, barras y línea                                         |
-
----
-
-## Integrantes y módulos
+| Tecnología | Motivo |
+|---|---|
+| **Ionic + Angular** | Framework para desarrollo mobile multiplataforma (iOS y Android) desde una única base de código |
+| **Capacitor** | Acceso a funcionalidades nativas del dispositivo: cámara, scanner QR/código de barras, notificaciones y hápticos |
+| **Supabase** | Backend con base de datos PostgreSQL, autenticación y suscripciones en tiempo real para actualizar la UI sin recargar |
+| **Chart.js** | Visualización de resultados de encuestas en gráficos de torta, barras y línea |
 
 ---
 
-### Depaolo, Juan Manuel
+## 📁 Repositorio
+
+**Nombre:** `bitro-2026`
+**Visibilidad:** Privado
+
+### Colaboradores con acceso:
+- maxineinerutn
+- aleconsta
+- naferrero-utnfra
+- amorelli-utnfra
+- octaviovillegas
+- aleloredo
+
+---
+
+## 📆 Fechas de entrega
+
+| Instancia | Fecha |
+|---|---|
+| Primer parcial | 30-05-2026 |
+| Recuperatorio 1er parcial | 06-06-2026 |
+| Segundo parcial | 27-06-2026 |
+| Recuperatorio 2do parcial | 04-07-2026 |
+
+---
+
+## 👥 Integrantes y módulos
+
+---
+
+### Depaolo, Juan Manuel *(Líder)*
 
 | Campo | Detalle |
 |---|---|
 | **Apellidos y nombres** | Depaolo, Juan Manuel |
-| **Fecha de inicio** | [DD/MM/AAAA] |
-| **Fecha de finalización** | [DD/MM/AAAA] |
+| **Fecha de inicio** | 18-04-2026 |
+| **Fecha de finalización** | 06-06-2026 |
 | **Branch** | main |
 
-**Módulos a desarrollar:**
+**Módulos desarrollados:**
 
 **1. Splash screen e ícono personalizados**
 La aplicación cuenta con pantalla de inicio y ícono propios acordes a la identidad visual del restaurante.
@@ -61,11 +87,11 @@ El mozo confirma el pago, la mesa queda disponible nuevamente y se notifica al d
 | Campo | Detalle |
 |---|---|
 | **Apellidos y nombres** | Cespedes, Carmen |
-| **Fecha de inicio** | [DD/MM/AAAA] |
-| **Fecha de finalización** | [DD/MM/AAAA] |
+| **Fecha de inicio** | 18-04-2026 |
+| **Fecha de finalización** | 06-06-2026 |
 | **Branch** | main |
 
-**Módulos a desarrollar:**
+**Módulos desarrollados:**
 
 **5. Alta y gestión de empleados**
 El dueño y supervisor pueden registrar nuevos empleados con foto, datos personales escaneados desde el DNI y perfil asignado (metre, mozo, cocinero, cantinero, supervisor).
@@ -95,11 +121,11 @@ Vistas de administración con acceso a todas las funciones del negocio: empleado
 | Campo | Detalle |
 |---|---|
 | **Apellidos y nombres** | Caballero, Jorge Ezequiel |
-| **Fecha de inicio** | [DD/MM/AAAA] |
-| **Fecha de finalización** | [DD/MM/AAAA] |
+| **Fecha de inicio** | 18-04-2026 |
+| **Fecha de finalización** | 06-06-2026 |
 | **Branch** | main |
 
-**Módulos a desarrollar:**
+**Módulos desarrollados:**
 
 **10. Mozo: gestión de pedidos**
 El mozo visualiza los pedidos pendientes en tiempo real, puede confirmarlos o rechazarlos, marcarlos como entregados y confirmar el pago.
@@ -124,88 +150,139 @@ Mientras espera su pedido, el cliente registrado puede jugar a memoria, ahorcado
 
 ---
 
-## Pantallas de la aplicación
+## ✅ Requerimientos excluyentes — Estado
 
-### General
-
-|                                        |                                          |
-| -------------------------------------- | ---------------------------------------- |
-| ![Ícono](assets/screenshots/icono.png) | ![Splash](assets/screenshots/splash.png) |
-| Ícono                                  | Splash Screen                            |
-
-### Acceso
-
-|                                        |                                              |                                                              |
-| -------------------------------------- | -------------------------------------------- | ------------------------------------------------------------ |
-| ![Login](assets/screenshots/login.png) | ![Registro](assets/screenshots/registro.png) | ![Registro Anónimo](assets/screenshots/registro-anonimo.png) |
-| Login                                  | Registro cliente                             | Registro anónimo                                             |
-
-### Flujo del cliente registrado
-
-|                                                            |                                                         |                                              |
-| ---------------------------------------------------------- | ------------------------------------------------------- | -------------------------------------------- |
-| ![QR Entrada Scan](assets/screenshots/qr-entrada-scan.png) | ![Lista de Espera](assets/screenshots/lista-espera.png) | ![Mesa Hub](assets/screenshots/mesa-hub.png) |
-| Escaneo QR entrada                                         | Lista de espera                                         | Hub de mesa                                  |
-
-|                                                        |                                                              |                                                      |
-| ------------------------------------------------------ | ------------------------------------------------------------ | ---------------------------------------------------- |
-| ![Menú Entradas](assets/screenshots/menu-entradas.png) | ![Menú Principales](assets/screenshots/menu-principales.png) | ![Menú Postres](assets/screenshots/menu-postres.png) |
-| Menú — Entradas                                        | Menú — Principales                                           | Menú — Postres                                       |
-
-|                                                      |                                          |                                                        |
-| ---------------------------------------------------- | ---------------------------------------- | ------------------------------------------------------ |
-| ![Menú Bebidas](assets/screenshots/menu-bebidas.png) | ![Pedido](assets/screenshots/pedido.png) | ![Estado Pedido](assets/screenshots/estado-pedido.png) |
-| Menú — Bebidas                                       | Hacer pedido                             | Estado del pedido                                      |
-
-|                                          |                                                        |                                                          |
-| ---------------------------------------- | ------------------------------------------------------ | -------------------------------------------------------- |
-| ![Juegos](assets/screenshots/juegos.png) | ![Juego Memoria](assets/screenshots/juego-memoria.png) | ![Juego Ahorcado](assets/screenshots/juego-ahorcado.png) |
-| Selección de juegos                      | Memoria                                                | Ahorcado                                                 |
-
-|                                                          |                                              |                                                                    |
-| -------------------------------------------------------- | -------------------------------------------- | ------------------------------------------------------------------ |
-| ![Juego Pregunta](assets/screenshots/juego-pregunta.png) | ![Encuesta](assets/screenshots/encuesta.png) | ![Resultados Encuesta](assets/screenshots/encuesta-resultados.png) |
-| Pregunta trivia                                          | Encuesta                                     | Resultados encuesta                                                |
-
-|                                          |                                                      |
-| ---------------------------------------- | ---------------------------------------------------- |
-| ![Cuenta](assets/screenshots/cuenta.png) | ![Chat Cliente](assets/screenshots/chat-cliente.png) |
-| Cuenta y propina                         | Chat con mozo                                        |
-
-### Flujo del cliente anónimo
-
-|                                                          |                                                      |
-| -------------------------------------------------------- | ---------------------------------------------------- |
-| ![Anónimo Espera](assets/screenshots/anonimo-espera.png) | ![Anónimo Mesa](assets/screenshots/anonimo-mesa.png) |
-| Espera de mesa                                           | Hub de mesa anónimo                                  |
-
-### Personal del restaurante
-
-|                                        |                                                  |                                                                    |
-| -------------------------------------- | ------------------------------------------------ | ------------------------------------------------------------------ |
-| ![Dueño](assets/screenshots/dueno.png) | ![Supervisor](assets/screenshots/supervisor.png) | ![Clientes Pendientes](assets/screenshots/clientes-pendientes.png) |
-| Panel dueño                            | Panel supervisor                                 | Clientes pendientes                                                |
-
-|                                                        |                                                |                                                  |
-| ------------------------------------------------------ | ---------------------------------------------- | ------------------------------------------------ |
-| ![Alta Empleado](assets/screenshots/alta-empleado.png) | ![Alta Mesa](assets/screenshots/alta-mesa.png) | ![QR Entrada](assets/screenshots/qr-entrada.png) |
-| Alta de empleado                                       | Alta de mesa                                   | QR de entrada                                    |
-
-|                                      |                                                      |                                                |
-| ------------------------------------ | ---------------------------------------------------- | ---------------------------------------------- |
-| ![Mozo](assets/screenshots/mozo.png) | ![Pedidos Mozo](assets/screenshots/pedidos-mozo.png) | ![Chat Mozo](assets/screenshots/chat-mozo.png) |
-| Panel mozo                           | Pedidos pendientes                                   | Chat — mozo                                    |
-
-|                                        |                                                                  |                                              |
-| -------------------------------------- | ---------------------------------------------------------------- | -------------------------------------------- |
-| ![Metre](assets/screenshots/metre.png) | ![Lista Espera Metre](assets/screenshots/lista-espera-metre.png) | ![Cocinero](assets/screenshots/cocinero.png) |
-| Panel metre                            | Lista de espera                                                  | Panel cocinero                               |
-
-|                                                  |                                                |                                                    |
-| ------------------------------------------------ | ---------------------------------------------- | -------------------------------------------------- |
-| ![Alta Plato](assets/screenshots/alta-plato.png) | ![Cantinero](assets/screenshots/cantinero.png) | ![Alta Bebida](assets/screenshots/alta-bebida.png) |
-| Alta de plato                                    | Panel cantinero                                | Alta de bebida                                     |
+| Requerimiento | Responsable | Estado |
+|---|---|---|
+| Splash screens estática y animada | Cespedes | ✅ Completado |
+| Todo en español (con tildes) | Todo el equipo | ✅ Completado |
+| Errores/info sin alerts (controles visuales) | Todo el equipo | ✅ Completado |
+| Sonidos al iniciar y cerrar la app | Cespedes | ✅ Completado |
+| Validación completa de formularios | Todo el equipo | ✅ Completado |
+| Spinners con logo en todas las esperas | Cespedes | ✅ Completado |
+| Vibración en todos los errores | Todo el equipo | ✅ Completado |
+| Botones de ingreso rápido por perfil | Depaolo | ✅ Completado |
+| Botón de cierre de sesión | Depaolo | ✅ Completado |
+| Pantalla completa sin espacios neutros | Cespedes | ✅ Completado |
+| Contraste nítido, sin blanco ni negro de fondo | Cespedes | ✅ Completado |
+| Imágenes y textos sin cortes ni abreviaciones | Cespedes | ✅ Completado |
+| Encuestas con variedad de controles | Caballero | ✅ Completado |
+| Push notifications | Depaolo | ✅ Completado |
+| Correo electrónico automático (cuenta empresarial) | Cespedes | ✅ Completado |
+| Lectura y generación de QR (ingreso, mesa, propina) | Depaolo / Caballero | ✅ Completado |
+| Tres juegos funcionales con descuentos | Caballero | ✅ Completado |
+| Gráficos estadísticos (torta, barra, lineal) — 1 por pantalla | Caballero | ✅ Completado |
+| Funcionalidades 1 al 22 completas | Todo el equipo | ✅ Completado |
 
 ---
 
-_Trabajo Final Integrador — UTN_
+## 🗂️ Códigos QR requeridos
+
+| QR | Función | Ubicación |
+|---|---|---|
+| QR de ingreso al local | Lista de espera + ver encuestas previas | Impreso en entrada / en app |
+| QR de mesa (x5 mesas mínimo) | Acceso a menú, pedido, juegos, encuesta, pago | Impreso en cada mesa |
+| QR de propinas | Selección de nivel de satisfacción (0%–20%) | En app al momento del pago |
+
+---
+
+## 👤 Perfiles de usuario
+
+| Perfil | Descripción |
+|---|---|
+| Dueño | Acceso total, aprueba/rechaza clientes y empleados |
+| Supervisor | Similar al dueño |
+| Metre | Gestiona lista de espera y asignación de mesas |
+| Mozo | Confirma pedidos, atiende consultas, entrega y cobra |
+| Cocinero | Ve y gestiona pedidos de cocina |
+| Cantinero | Ve y gestiona pedidos de bar |
+| Cliente registrado | Reserva, pide, juega, paga |
+| Cliente anónimo | Acceso limitado: lista de espera y encuestas |
+
+---
+
+## 🖼️ Pantallas de la aplicación
+
+### General
+
+| | |
+|---|---|
+| ![Ícono](assets/screenshots/icono.png) | ![Splash](assets/splash_screen.png) |
+| Ícono | Splash Screen |
+
+### Acceso
+
+| | | |
+|---|---|---|
+| ![Login](assets/login_screen.png) | ![Registro](assets/registro_screen.png) | ![Registro Anónimo](assets/registro_scree.png) |
+| Login | Registro cliente | Registro anónimo |
+
+### Flujo del cliente registrado
+
+| | | |
+|---|---|---|
+| ![QR Entrada Scan](assets/screenshots/qr-entrada-scan.png) | ![Lista de Espera](assets/screenshots/lista-espera.png) | ![Mesa Hub](assets/screenshots/mesa-hub.png) |
+| Escaneo QR entrada | Lista de espera | Hub de mesa |
+
+| | | |
+|---|---|---|
+| ![Menú Entradas](assets/screenshots/menu-entradas.png) | ![Menú Principales](assets/screenshots/menu-principales.png) | ![Menú Postres](assets/screenshots/menu-postres.png) |
+| Menú — Entradas | Menú — Principales | Menú — Postres |
+
+| | | |
+|---|---|---|
+| ![Menú Bebidas](assets/screenshots/menu-bebidas.png) | ![Pedido](assets/screenshots/pedido.png) | ![Estado Pedido](assets/screenshots/estado-pedido.png) |
+| Menú — Bebidas | Hacer pedido | Estado del pedido |
+
+| | | |
+|---|---|---|
+| ![Juegos](assets/screenshots/juegos.png) | ![Juego Memoria](assets/screenshots/juego-memoria.png) | ![Juego Ahorcado](assets/screenshots/juego-ahorcado.png) |
+| Selección de juegos | Memoria | Ahorcado |
+
+| | | |
+|---|---|---|
+| ![Juego Pregunta](assets/screenshots/juego-pregunta.png) | ![Encuesta](assets/screenshots/encuesta.png) | ![Resultados Encuesta](assets/screenshots/encuesta-resultados.png) |
+| Pregunta trivia | Encuesta | Resultados encuesta |
+
+| | |
+|---|---|
+| ![Cuenta](assets/screenshots/cuenta.png) | ![Chat Cliente](assets/screenshots/chat-cliente.png) |
+| Cuenta y propina | Chat con mozo |
+
+### Flujo del cliente anónimo
+
+| | |
+|---|---|
+| ![Anónimo Espera](assets/screenshots/anonimo-espera.png) | ![Anónimo Mesa](assets/screenshots/anonimo-mesa.png) |
+| Espera de mesa | Hub de mesa anónimo |
+
+### Personal del restaurante
+
+| | | |
+|---|---|---|
+| ![Dueño](assets/screenshots/dueno.png) | ![Supervisor](assets/screenshots/supervisor.png) | ![Clientes Pendientes](assets/screenshots/clientes-pendientes.png) |
+| Panel dueño | Panel supervisor | Clientes pendientes |
+
+| | | |
+|---|---|---|
+| ![Alta Empleado](assets/screenshots/alta-empleado.png) | ![Alta Mesa](assets/screenshots/alta-mesa.png) | ![QR Entrada](assets/screenshots/qr-entrada.png) |
+| Alta de empleado | Alta de mesa | QR de entrada |
+
+| | | |
+|---|---|---|
+| ![Mozo](assets/screenshots/mozo.png) | ![Pedidos Mozo](assets/screenshots/pedidos-mozo.png) | ![Chat Mozo](assets/screenshots/chat-mozo.png) |
+| Panel mozo | Pedidos pendientes | Chat — mozo |
+
+| | | |
+|---|---|---|
+| ![Metre](assets/screenshots/metre.png) | ![Lista Espera Metre](assets/screenshots/lista-espera-metre.png) | ![Cocinero](assets/screenshots/cocinero.png) |
+| Panel metre | Lista de espera | Panel cocinero |
+
+| | | |
+|---|---|---|
+| ![Alta Plato](assets/screenshots/alta-plato.png) | ![Cantinero](assets/screenshots/cantinero.png) | ![Alta Bebida](assets/screenshots/alta-bebida.png) |
+| Alta de plato | Panel cantinero | Alta de bebida |
+
+---
+
+*Trabajo Final Integrador — UTN Facultad Regional Avellaneda*
