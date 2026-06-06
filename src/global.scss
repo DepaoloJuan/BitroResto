@@ -9,6 +9,13 @@
  * https://ionicframework.com/docs/layout/global-stylesheets
  */
 
+ :root {
+    --color-principal: #ea5929;
+    --color-verde: #2c3d1c;
+    --color-letras: #f2dab4;
+    --color-marron: #693c11;
+ }
+
 /* Core CSS required for Ionic components to work properly */
 @import "@ionic/angular/css/core.css";
 

@@ -94,3 +94,11 @@ ion-card-subtitle {
   --background: #eb6121;
   --color: #2c3d1c;
 }
+
+ion-text[color="danger"] {
+  --color: rgb(214, 152, 152);
+
+  small, p {
+    color: rgb(198, 140, 140);
+  }
+}

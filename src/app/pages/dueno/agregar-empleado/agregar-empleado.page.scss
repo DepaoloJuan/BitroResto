@@ -30,7 +30,7 @@
   justify-content: center;
   padding: 6px 0;
 
-  ion-icon { font-size: 18px; color: white; }
+  ion-icon { font-size: 18px; color: rgba(255,220,163,0.65); }
 }
 
 .scan-container { margin-bottom: 16px; }
@@ -92,4 +92,13 @@
 
   ion-icon { font-size: 1.4rem; }
   span { font-size: 0.8rem; }
+}
+
+ion-text[color="danger"] small,
+ion-text[color="danger"] p {
+  color: #eb6121;
+}
+
+ion-button[color="success"] {
+  margin-top: 45px;
 }

@@ -13,7 +13,7 @@ Chart.register(...registerables);
 Chart.defaults.color = 'rgba(255,220,163,0.75)';
 Chart.defaults.borderColor = 'rgba(255,255,255,0.1)';
 
-const COLORES_RATING = ['#e53935', '#fb8c00', '#fdd835', '#43a047', '#1e88e5'];
+const COLORES_RATING = ['#ea5929', '#f28c4a', '#f2dab4', '#2c3d1c', '#693c11'];
 
 @Component({
   selector: 'app-encuesta-resultados',
@@ -144,7 +144,7 @@ export class EncuestaResultadosPage implements OnInit {
       type: 'bar',
       data: {
         labels: ['Sí', 'Tal vez', 'No'],
-        datasets: [{ label: 'Respuestas', data: [conteo.si, conteo.tal_vez, conteo.no], backgroundColor: ['#43a047', '#fdd835', '#e53935'], borderRadius: 6 }],
+        datasets: [{ label: 'Respuestas', data: [conteo.si, conteo.tal_vez, conteo.no], backgroundColor: ['#f28c4a', '#f2dab4','#693c11'], borderRadius: 6 }],
       },
       options: this.escalaOpciones() as any,
     });

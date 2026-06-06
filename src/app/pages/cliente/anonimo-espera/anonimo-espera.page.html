@@ -13,9 +13,9 @@
 <ion-content class="ion-padding ion-text-center">
 
   @if (!mesaAsignada()) {
-    <ion-icon name="hourglass-outline" size="large" color="warning"></ion-icon>
+    <ion-icon name="hourglass-outline" color="warning"></ion-icon>
     <h2>Estás en la lista de espera</h2>
-    <p>Hola, <strong>{{ usuario()?.nombre }}</strong>. El metre te asignará una mesa en breve.</p>
+    <p>Hola, <strong>{{ usuario()?.nombre }}</strong> el metre te asignará una mesa en breve.</p>
     <p>Por favor, aguardá en el local.</p>
 
     <ion-button fill="outline" (click)="verEncuestas()" class="ion-margin-top">

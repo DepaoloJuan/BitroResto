@@ -3,7 +3,7 @@
   justify-content: space-around;
   align-items: center;
   background: var(--ion-color-primary);
-  color: white;
+  color: var(--color-letras);
   padding: 8px 16px;
   font-size: 0.95rem;
 }
@@ -12,11 +12,12 @@
   display: flex;
   align-items: center;
   gap: 6px;
+  font-size: 1.2rem;
 
-  ion-icon { font-size: 1.1rem; }
+  ion-icon { font-size: 1.3rem; }
 }
 
-.resumen-total { font-size: 1.1rem; }
+.resumen-total { font-size: 1.3rem; }
 
 .estado-bloqueado {
   padding: 48px 24px;
@@ -112,22 +113,24 @@
 }
 
 .item-meta {
-  font-size: 0.8rem;
+  font-size: 1.2rem;
   opacity: 0.6;
   margin: 0 0 4px;
+  margin-bottom: 10px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
 .item-nombre {
-  font-size: 1.4rem;
+  font-size: 1.9rem;
   font-weight: 700;
   margin: 0 0 6px;
+  margin-bottom: 6px;
   line-height: 1.2;
 }
 
 .item-desc {
-  font-size: 0.9rem;
+  font-size: 1.2rem;
   margin: 0;
   line-height: 1.4;
   overflow: hidden;
@@ -147,7 +150,7 @@
 }
 
 .cantidad-numero {
-  font-size: 1.5rem;
+  font-size: 2.3rem;
   font-weight: bold;
   min-width: 36px;
   text-align: center;
@@ -159,4 +162,31 @@
 .hint-enviar {
   padding: 4px 16px 6px;
   background: var(--ion-background-color);
+}
+
+ion-segment-button {
+  --padding-top: 12px;
+  --padding-bottom: 12px;
+
+  ion-label {
+    font-size: 1rem;
+    font-weight: 600;
+  }
+}
+
+.cantidad-control {
+  ion-button {
+    --padding-start: 4px;
+    --padding-end: 4px;
+
+    ion-icon {
+      font-size: 2rem;
+    }
+  }
+
+  .cantidad-numero {
+    font-size: 1.2rem;
+    min-width: 32px;
+    text-align: center;
+  }
 }

@@ -65,7 +65,7 @@
             }
 
             @if (mesa.estado === 'disponible') {
-              <ion-button expand="block" color="danger" fill="outline" size="small" class="btn-eliminar"
+              <ion-button expand="block" fill="outline" size="small" class="btn-eliminar"
                 [disabled]="mesa._accion" (click)="confirmarEliminar(mesa)">
                 @if (mesa._accion) {
                   <ion-spinner name="crescent" slot="start"></ion-spinner>
