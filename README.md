@@ -205,10 +205,10 @@ Mientras espera su pedido, el cliente registrado puede jugar a memoria, ahorcado
 
 ### General
 
-| | |
-|---|---|
-| ![Ícono](assets/screenshots/icono.png) | ![Splash](assets/screenshots/splash_screen.png) |
-| Ícono | Splash Screen |
+| | | | |
+|---|---|---|---|
+| ![Logo](assets/screenshots/logo.png) | ![Ícono](assets/screenshots/icono.png) | ![Splash](assets/screenshots/splash.png) | ![Splash Screen](assets/screenshots/splash_screen.png) |
+| Logo | Ícono | Splash | Splash Screen |
 
 ### Acceso
 
@@ -219,10 +219,10 @@ Mientras espera su pedido, el cliente registrado puede jugar a memoria, ahorcado
 
 ### Flujo del cliente registrado
 
-| | | |
-|---|---|---|
-| ![QR Entrada Scan](assets/screenshots/qr-entrada-scan.png) | ![Lista de Espera](assets/screenshots/lista-espera.png) | ![Mesa Hub](assets/screenshots/mesa-hub.png) |
-| Escaneo QR entrada | Lista de espera | Hub de mesa |
+| | | | |
+|---|---|---|---|
+| ![Cliente](assets/screenshots/cliente_screen.png) | ![QR Entrada Scan](assets/screenshots/qr-entrada-scan.png) | ![Lista de Espera](assets/screenshots/lista-espera.png) | ![Mesa Hub](assets/screenshots/mesa-hub.png) |
+| Panel cliente | Escaneo QR entrada | Lista de espera | Hub de mesa |
 
 | | | |
 |---|---|---|
@@ -265,8 +265,8 @@ Mientras espera su pedido, el cliente registrado puede jugar a memoria, ahorcado
 
 | | | |
 |---|---|---|
-| ![Alta Empleado](assets/screenshots/alta-empleado.png) | ![Alta Mesa](assets/screenshots/agregar_mesa_screen.png) | ![QR Entrada](assets/screenshots/qr-entrada.png) |
-| Alta de empleado | Alta de mesa | QR de entrada |
+| ![Alta Empleado](assets/screenshots/alta-empleado.png) | ![Alta Mesa](assets/screenshots/agregar_mesa_screen.png) |
+| Alta de empleado | Alta de mesa |
 
 | | | |
 |---|---|---|
@@ -282,6 +282,18 @@ Mientras espera su pedido, el cliente registrado puede jugar a memoria, ahorcado
 |---|---|---|
 | ![Alta Plato](assets/screenshots/alta-plato.png) | ![Cantinero](assets/screenshots/bartender_screen.png) | ![Alta Bebida](assets/screenshots/alta-bebida.png) |
 | Alta de plato | Panel cantinero | Alta de bebida |
+
+### Códigos QR
+
+| | | |
+|---|---|---|
+| ![QR Entrada](assets/screenshots/qr_entrada.png) | ![QR Propina](assets/screenshots/qr_propina.png) | ![QR Mesa 3](assets/screenshots/qr_mesa_3.jpeg) |
+| QR Entrada al local | QR Propina | QR Mesa 3 |
+
+| | | |
+|---|---|---|
+| ![QR Mesa 4](assets/screenshots/qr_mesa_4.jpeg) | ![QR Mesa 5](assets/screenshots/qr_mesa_5.jpeg) | ![QR Mesa 6](assets/screenshots/qr_mesa_6.jpeg) |
+| QR Mesa 4 | QR Mesa 5 | QR Mesa 6 |
 
 ---
 
