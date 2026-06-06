@@ -260,27 +260,27 @@ Mientras espera su pedido, el cliente registrado puede jugar a memoria, ahorcado
 
 | | | |
 |---|---|---|
-| ![Dueño](assets/screenshots/dueno.png) | ![Supervisor](assets/screenshots/supervisor.png) | ![Clientes Pendientes](assets/screenshots/clientes-pendientes.png) |
+| ![Dueño](assets/screenshots/dueno_screen.png) | ![Supervisor](assets/screenshots/supervisor_screen.png) | ![Clientes Pendientes](assets/screenshots/clientes-pendientes.png) |
 | Panel dueño | Panel supervisor | Clientes pendientes |
 
 | | | |
 |---|---|---|
-| ![Alta Empleado](assets/screenshots/alta-empleado.png) | ![Alta Mesa](assets/screenshots/alta-mesa.png) | ![QR Entrada](assets/screenshots/qr-entrada.png) |
+| ![Alta Empleado](assets/screenshots/alta-empleado.png) | ![Alta Mesa](assets/screenshots/agregar_mesa_screen.png) | ![QR Entrada](assets/screenshots/qr-entrada.png) |
 | Alta de empleado | Alta de mesa | QR de entrada |
 
 | | | |
 |---|---|---|
-| ![Mozo](assets/screenshots/mozo.png) | ![Pedidos Mozo](assets/screenshots/pedidos-mozo.png) | ![Chat Mozo](assets/screenshots/chat-mozo.png) |
+| ![Mozo](assets/screenshots/mozo_screen.png) | ![Pedidos Mozo](assets/screenshots/pedidos-mozo.png) | ![Chat Mozo](assets/screenshots/chat-mozo.png) |
 | Panel mozo | Pedidos pendientes | Chat — mozo |
 
 | | | |
 |---|---|---|
-| ![Metre](assets/screenshots/metre.png) | ![Lista Espera Metre](assets/screenshots/lista-espera-metre.png) | ![Cocinero](assets/screenshots/cocinero.png) |
+| ![Metre](assets/screenshots/metre.png) | ![Lista Espera Metre](assets/screenshots/lista-espera-metre.png) | ![Cocinero](assets/screenshots/cocinero_screen.png) |
 | Panel metre | Lista de espera | Panel cocinero |
 
 | | | |
 |---|---|---|
-| ![Alta Plato](assets/screenshots/alta-plato.png) | ![Cantinero](assets/screenshots/cantinero.png) | ![Alta Bebida](assets/screenshots/alta-bebida.png) |
+| ![Alta Plato](assets/screenshots/alta-plato.png) | ![Cantinero](assets/screenshots/bartender_screen.png) | ![Alta Bebida](assets/screenshots/alta-bebida.png) |
 | Alta de plato | Panel cantinero | Alta de bebida |
 
 ---
