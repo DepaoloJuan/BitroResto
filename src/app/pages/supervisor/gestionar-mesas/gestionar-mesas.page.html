@@ -1,7 +1,7 @@
 <ion-header>
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-back-button defaultHref="/supervisor" text="atrás"></ion-back-button>
+      <ion-back-button defaultHref="/supervisor" text=""></ion-back-button>
     </ion-buttons>
     <ion-title>Gestionar Mesas</ion-title>
   </ion-toolbar>
@@ -28,10 +28,10 @@
           <ion-card-header>
             <div class="mesa-header">
               <div>
-                <ion-card-title>Mesa {{ mesa.numero }}</ion-card-title>
+                <ion-card-title class="numero-mesa">Mesa {{ mesa.numero }}</ion-card-title>
                 <ion-card-subtitle>{{ mesa.tipo | titlecase }} · {{ mesa.capacidad }} personas</ion-card-subtitle>
               </div>
-              <ion-badge [color]="mesa.estado === 'disponible' ? 'success' : 'warning'">
+              <ion-badge [class]="mesa.estado === 'disponible' ? 'badge-disponible' : 'badge-ocupada'">
                 {{ mesa.estado === 'disponible' ? 'Disponible' : 'Ocupada' }}
               </ion-badge>
             </div>
@@ -65,7 +65,7 @@
             }
 
             @if (mesa.estado === 'disponible') {
-              <ion-button expand="block" color="danger" fill="outline" size="small"
+              <ion-button expand="block" color="danger" fill="outline" size="small" class="btn-eliminar"
                 [disabled]="mesa._accion" (click)="confirmarEliminar(mesa)">
                 @if (mesa._accion) {
                   <ion-spinner name="crescent" slot="start"></ion-spinner>

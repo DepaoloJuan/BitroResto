@@ -11,7 +11,7 @@
     margin-bottom: 12px;
   }
 
-  p { font-size: 0.95rem; margin: 0; }
+  p { font-size: 1.2rem; margin: 0; }
 }
 
 .mesas-lista {
@@ -30,6 +30,17 @@
   align-items: center;
   justify-content: space-between;
   gap: 8px;
+}
+
+.numero-mesa {
+  color: var(--color-principal);
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+ion-card-subtitle {
+  color: #f8deb3;
+  font-size: 16px;
 }
 
 .cliente-row {
@@ -66,4 +77,20 @@
 .cliente-nombre {
   font-size: 0.9rem;
   font-weight: 600;
+  color: var(--color-marron);
+}
+
+.btn-eliminar::part(native) {
+  color: var(--color-letras);
+  border-color: var(--color-letras);
+}
+
+.badge-disponible {
+  --background: #ffdca3;
+  --color: #2c3d1c;
+}
+
+.badge-ocupada {
+  --background: #eb6121;
+  --color: #2c3d1c;
 }
