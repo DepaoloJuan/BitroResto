@@ -183,21 +183,23 @@ ion-item[color="light"] {
 
 // ── ALERTS ───────────────────────────────────────────
 ion-alert {
-  --background: #3a4f28;
+  --background: #2c3d1c;
+  --border-radius: 16px;
+  --message-color: #f2dab4;
 
   &::part(header) {
-    color: #f2dab4;
+    color: #f2dab4 !important;
   }
 
   &::part(message) {
-    color: #ffe1b0;
+    color: #f2dab4 !important;
   }
 
   &::part(button) {
-    color: #f2dab4;
+    color: #b68536 !important;
   }
 }
 
 .alert-btn-danger {
-  color:  #f2dab4 !important;
+  color: #f2dab4 !important;
 }
