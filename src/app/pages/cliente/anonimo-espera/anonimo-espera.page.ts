@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, NgZone, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import {
   IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonIcon, IonButtons,
@@ -25,6 +25,7 @@ export class AnonimoEsperaPage implements OnInit {
   private readonly supabase = inject(SupabaseService);
   private readonly haptics = inject(HapticsService);
   private readonly router = inject(Router);
+  private readonly ngZone = inject(NgZone);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly usuario = this.authService.usuario;
@@ -65,7 +66,7 @@ export class AnonimoEsperaPage implements OnInit {
     this.canal = this.supabase.client
       .channel('anonimo_espera')
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'lista_espera' },
-        () => this.verificarEstado())
+        () => this.ngZone.run(() => this.verificarEstado()))
       .subscribe();
   }
 

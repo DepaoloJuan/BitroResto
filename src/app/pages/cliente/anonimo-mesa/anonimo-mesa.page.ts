@@ -151,8 +151,10 @@ export class AnonimoMesaPage implements OnInit {
     const { data: mesaData } = await this.supabase.client
       .from('mesas').select('estado').eq('id', this.mesaId).single();
     if (mesaData?.estado === 'disponible') {
-      this.authService.setUsuarioAnonimo(null);
-      this.router.navigate(['/login'], { replaceUrl: true });
+      this.router.navigate(['/cliente/encuesta'], {
+        state: { desdePago: true, mesaId: this.mesaId },
+        replaceUrl: true,
+      });
       return;
     }
     const { data } = await this.supabase.client
