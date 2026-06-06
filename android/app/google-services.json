@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "334431376703",
+    "project_id": "bitroresto",
+    "storage_bucket": "bitroresto.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:334431376703:android:f4b288083e75f8b0ccef8a",
+        "android_client_info": {
+          "package_name": "com.bitroteam.bitroresto"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDdsnxYhkEnezj1WgiPI1OP88PFlFuxIlE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

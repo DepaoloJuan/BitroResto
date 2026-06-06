@@ -3,12 +3,14 @@ import { Router } from '@angular/router';
 import { Usuario } from '../models';
 import { SupabaseService } from './supabase';
 import { AudioService } from './audio';
+import { NotificacionesService } from './notificaciones';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly supabase = inject(SupabaseService);
   private readonly router = inject(Router);
   private readonly audio = inject(AudioService);
+  private readonly notificaciones = inject(NotificacionesService);
 
   private readonly _usuario = signal<Usuario | null>(null);
   readonly usuario = this._usuario.asReadonly();
@@ -49,6 +51,7 @@ export class AuthService {
     }
 
     this._usuario.set(usuario as Usuario);
+    this.notificaciones.guardarToken(usuario.id);
     console.log('Perfil del usuario:', usuario.perfil);
     return usuario as Usuario;
   }

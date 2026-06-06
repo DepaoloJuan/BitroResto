@@ -85,7 +85,10 @@ export class PedidosPage implements OnInit {
       const { error } = await this.supabase.client
         .from('pedido_items').update({ estado: 'listo' }).eq('pedido_id', pedido.id).eq('tipo', 'bebidas');
       if (error) throw error;
-      await this.verificarPedidoCompleto(pedido.id);
+      const completo = await this.verificarPedidoCompleto(pedido.id);
+      if (completo) {
+        this.notificaciones.enviarPorPerfil(['mozo'], 'Pedido listo', 'Un pedido está completo y listo para entregar.');
+      }
       this.pedidos.update(ps => ps.map(p => p.id === pedido.id ? { ...p, _exito: 'Bebidas listas para entregar.', _enviando: false } : p));
       setTimeout(() => this.ngZone.run(() => this.cargarPedidos()), 1500);
     } catch (e: unknown) {
@@ -94,11 +97,13 @@ export class PedidosPage implements OnInit {
     }
   }
 
-  async verificarPedidoCompleto(pedidoId: string) {
+  async verificarPedidoCompleto(pedidoId: string): Promise<boolean> {
     const { data } = await this.supabase.client
       .from('pedido_items').select('estado').eq('pedido_id', pedidoId);
     if (data?.every(i => i.estado === 'listo')) {
       await this.supabase.client.from('pedidos').update({ estado: 'listo' }).eq('id', pedidoId);
+      return true;
     }
+    return false;
   }
 }

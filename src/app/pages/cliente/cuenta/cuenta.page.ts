@@ -13,6 +13,7 @@ import { AuthService } from '../../../core/services/auth';
 import { SupabaseService } from '../../../core/services/supabase';
 import { LoadingComponent } from '../../../shared/components/loading/loading.component';
 import { HapticsService } from '../../../core/services/haptics.service';
+import { NotificacionesService } from '../../../core/services/notificaciones';
 import { Pedido } from '../../../core/models';
 import { RealtimeChannel } from '@supabase/supabase-js';
 
@@ -32,6 +33,7 @@ export class CuentaPage implements OnInit {
   private readonly supabase = inject(SupabaseService);
   private readonly router = inject(Router);
   private readonly haptics = inject(HapticsService);
+  private readonly notificaciones = inject(NotificacionesService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly ngZone = inject(NgZone);
 
@@ -170,6 +172,7 @@ export class CuentaPage implements OnInit {
         total: this.totalFinal(),
       }).eq('id', p.id);
       if (error) throw error;
+      this.notificaciones.enviarPorPerfil(['mozo', 'dueño', 'supervisor'], 'Cuenta solicitada', 'Un cliente está solicitando la cuenta.');
       this.pedido.update(prev => prev ? { ...prev, estado: 'pago_solicitado' } : prev);
     } catch (e: unknown) {
       await this.haptics.error();

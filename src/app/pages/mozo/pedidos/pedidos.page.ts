@@ -10,6 +10,7 @@ import { checkmarkOutline, closeOutline, receiptOutline, checkmarkDoneOutline, c
 import { SupabaseService } from '../../../core/services/supabase';
 import { LoadingComponent } from '../../../shared/components/loading/loading.component';
 import { HapticsService } from '../../../core/services/haptics.service';
+import { NotificacionesService } from '../../../core/services/notificaciones';
 import { Pedido } from '../../../core/models';
 import { RealtimeChannel } from '@supabase/supabase-js';
 
@@ -29,6 +30,7 @@ interface PedidoUI extends Pedido { _exito: string; _error: string; }
 export class PedidosPage implements OnInit {
   private readonly supabase = inject(SupabaseService);
   private readonly haptics = inject(HapticsService);
+  private readonly notificaciones = inject(NotificacionesService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly ngZone = inject(NgZone);
 
@@ -89,6 +91,7 @@ export class PedidosPage implements OnInit {
       const { error } = await this.supabase.client
         .from('pedidos').update({ estado: 'en_cocina' }).eq('id', pedido.id);
       if (error) throw error;
+      this.notificaciones.enviarPorPerfil(['cocinero', 'cantinero', 'bartender'], 'Nuevo pedido', 'Hay un nuevo pedido para preparar.');
       this.setExito(pedido.id, 'Pedido confirmado y enviado a cocina/bar.');
     } catch (e: unknown) { this.setError(pedido.id, e); }
   }
@@ -98,6 +101,9 @@ export class PedidosPage implements OnInit {
       const { error } = await this.supabase.client
         .from('pedidos').update({ estado: 'rechazado_mozo' }).eq('id', pedido.id);
       if (error) throw error;
+      if (pedido.usuario_id) {
+        this.notificaciones.enviarAUsuario(pedido.usuario_id, 'Pedido rechazado', 'El mozo rechazó tu pedido. Podés modificarlo y reenviarlo.');
+      }
       this.setExito(pedido.id, 'Pedido rechazado. El cliente deberá modificarlo.');
     } catch (e: unknown) { this.setError(pedido.id, e); }
   }
@@ -123,6 +129,7 @@ export class PedidosPage implements OnInit {
       const { error: e3 } = await this.supabase.client
         .from('lista_espera').update({ estado: 'finalizado' }).eq('mesa_id', pedido.mesa_id).eq('estado', 'asignado');
       if (e3) throw e3;
+      this.notificaciones.enviarPorPerfil(['dueño', 'supervisor'], 'Pago confirmado', 'El mozo confirmó un pago y liberó una mesa.');
       this.setExito(pedido.id, 'Pago confirmado. Mesa liberada.');
     } catch (e: unknown) { this.setError(pedido.id, e); }
   }

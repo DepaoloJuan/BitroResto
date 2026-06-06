@@ -102,6 +102,7 @@ export class ChatPage implements OnInit {
       mensaje: texto, tipo: 'cliente',
     });
     if (!error) {
+      this.notificaciones.enviarPorPerfil(['mozo'], 'Nueva consulta', 'Un cliente envió una consulta.');
       this.nuevoMensaje.set('');
       await this.cargarMensajes();
     } else {

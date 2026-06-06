@@ -128,6 +128,9 @@ export class ListaEsperaPage implements OnInit {
       const { error: errorMesa } = await this.supabase.client
         .from('mesas').update({ estado: 'ocupada' }).eq('id', cliente._mesa_seleccionada);
       if (errorMesa) throw errorMesa;
+      if (cliente.usuario_id) {
+        this.notificaciones.enviarAUsuario(cliente.usuario_id, '¡Tu mesa está lista!', 'Se te asignó una mesa. Ya podés dirigirte a ella.');
+      }
       cliente._exito = 'Mesa asignada correctamente.';
       setTimeout(() => this.cargarDatos(), 1500);
     } catch (e: unknown) {

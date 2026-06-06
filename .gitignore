@@ -68,3 +68,8 @@ testem.log
 # System files
 .DS_Store
 Thumbs.db
+
+# Firebase / Supabase secrets
+supabase/functions/**/service-account.json
+supabase/functions/**/*.json
+!supabase/functions/**/deno.json

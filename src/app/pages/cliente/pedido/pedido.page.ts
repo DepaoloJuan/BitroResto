@@ -13,6 +13,7 @@ import {
 import { AuthService } from '../../../core/services/auth';
 import { SupabaseService } from '../../../core/services/supabase';
 import { HapticsService } from '../../../core/services/haptics.service';
+import { NotificacionesService } from '../../../core/services/notificaciones';
 import { LoadingComponent } from '../../../shared/components/loading/loading.component';
 import { Plato, Bebida, Producto } from '../../../core/models';
 
@@ -31,6 +32,7 @@ export class PedidoPage implements OnInit {
   private readonly supabase = inject(SupabaseService);
   readonly router = inject(Router);
   private readonly haptics = inject(HapticsService);
+  private readonly notificaciones = inject(NotificacionesService);
 
   seccion = signal<'platos' | 'bebidas'>('platos');
   categoria = signal<'entrada' | 'principal' | 'postre'>('entrada');
@@ -164,6 +166,7 @@ export class PedidoPage implements OnInit {
         );
         if (eItems) throw eItems;
       }
+      this.notificaciones.enviarPorPerfil(['mozo'], 'Nuevo pedido', 'Un cliente realizó un pedido y espera confirmación.');
       const destino = usuario?.perfil === 'anonimo' ? '/cliente/anonimo-mesa' : '/cliente/mesa';
       this.router.navigate([destino], { replaceUrl: true });
     } catch (e: unknown) {
