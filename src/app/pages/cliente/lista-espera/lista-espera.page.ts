@@ -5,7 +5,7 @@ import {
   IonSpinner, IonText, IonButtons, IonBackButton,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { timeOutline, hourglassOutline, checkmarkCircleOutline, barChartOutline, scanOutline, qrCodeOutline } from 'ionicons/icons';
+import { timeOutline, hourglassOutline, checkmarkCircleOutline, barChartOutline, scanOutline, qrCodeOutline, closeCircleOutline } from 'ionicons/icons';
 import { BarcodeScanner, BarcodeFormat } from '@capacitor-mlkit/barcode-scanning';
 import { AuthService } from '../../../core/services/auth';
 import { SupabaseService } from '../../../core/services/supabase';
@@ -38,6 +38,7 @@ export class ListaEsperaPage implements OnInit {
   escaneando = signal(false);
   errorQR = signal('');
   yaEnEspera = signal(false);
+  rechazado = signal(false);
   mesaAsignada = signal<Mesa | null>(null);
   escaneandoMesa = signal(false);
   errorQRMesa = signal('');
@@ -47,7 +48,7 @@ export class ListaEsperaPage implements OnInit {
   private canal?: RealtimeChannel;
 
   constructor() {
-    addIcons({ timeOutline, hourglassOutline, checkmarkCircleOutline, barChartOutline, scanOutline, qrCodeOutline });
+    addIcons({ timeOutline, hourglassOutline, checkmarkCircleOutline, barChartOutline, scanOutline, qrCodeOutline, closeCircleOutline });
     this.destroyRef.onDestroy(() => {
       if (this.canal) this.supabase.client.removeChannel(this.canal);
     });
@@ -101,6 +102,9 @@ export class ListaEsperaPage implements OnInit {
     } else if (data.estado === 'asignado' && data.mesas) {
       this.qrEscaneado.set(true);
       this.mesaAsignada.set(data.mesas as Mesa);
+    } else if (data.estado === 'rechazado') {
+      this.yaEnEspera.set(false);
+      this.rechazado.set(true);
     }
   }
 
@@ -113,8 +117,11 @@ export class ListaEsperaPage implements OnInit {
         event: 'UPDATE', schema: 'public', table: 'lista_espera',
         filter: `usuario_id=eq.${usuario.id}`,
       }, async (payload) => this.ngZone.run(async () => {
-        if ((payload.new as any)?.estado === 'asignado') {
+        const estado = (payload.new as any)?.estado;
+        if (estado === 'asignado') {
           await this.notificaciones.enviar('¡Tu mesa está lista!', 'Se te asignó la mesa. Ya podés dirigirte a ella.');
+        } else if (estado === 'rechazado') {
+          await this.notificaciones.enviar('Lista de espera', 'El metre rechazó tu solicitud.');
         }
         await this.verificarEstado();
       }))

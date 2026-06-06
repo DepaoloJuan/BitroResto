@@ -12,7 +12,16 @@
 
 <ion-content class="ion-padding ion-text-center">
 
-  @if (!mesaAsignada()) {
+  @if (rechazado()) {
+    <ion-icon name="close-circle-outline" size="large" color="danger"></ion-icon>
+    <h2>Solicitud rechazada</h2>
+    <p>El metre no pudo asignarte una mesa en este momento.</p>
+    <ion-button expand="block" fill="outline" (click)="salir()" class="ion-margin-top">
+      Salir
+    </ion-button>
+  }
+
+  @if (!mesaAsignada() && !rechazado()) {
     <ion-icon name="hourglass-outline" color="warning"></ion-icon>
     <h2>Estás en la lista de espera</h2>
     <p>Hola, <strong>{{ usuario()?.nombre }}</strong> el metre te asignará una mesa en breve.</p>

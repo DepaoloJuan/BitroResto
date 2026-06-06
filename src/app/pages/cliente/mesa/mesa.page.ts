@@ -266,17 +266,17 @@ export class MesaPage implements OnInit {
     this.canal = this.supabase.client
       .channel('mesa_hub_' + this.mesaId)
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'pedidos', filter: `mesa_id=eq.${this.mesaId}` },
-        (payload) => {
-          this.ngZone.run(async () => {
-            const estado = (payload.new as any)?.estado;
-            if (estado === 'rechazado_mozo') {
-              await this.notificaciones.enviar('Pedido rechazado', 'El mozo rechazó tu pedido. Podés modificarlo y reenviarlo.');
-            } else if (estado === 'listo') {
-              await this.notificaciones.enviar('¡Tu pedido está listo!', 'Ya llega el mozo con tu pedido.');
-            }
-            await this.cargarPedido();
-          });
-        })
+        (payload) => this.ngZone.run(async () => {
+          const estado = (payload.new as any)?.estado;
+          // Actualizar el signal sincrónicamente (dentro del zone, antes de cualquier await)
+          if (estado) this.pedido.update(p => p ? { ...p, estado } : null);
+          if (estado === 'rechazado_mozo') {
+            await this.notificaciones.enviar('Pedido rechazado', 'El mozo rechazó tu pedido. Podés modificarlo y reenviarlo.');
+          } else if (estado === 'listo') {
+            await this.notificaciones.enviar('¡Tu pedido está listo!', 'Ya llega el mozo con tu pedido.');
+          }
+          await this.cargarPedido();
+        }))
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'mesas', filter: `id=eq.${this.mesaId}` },
         () => this.ngZone.run(() => this.cargarPedido()))
       .subscribe();

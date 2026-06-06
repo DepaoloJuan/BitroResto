@@ -6,7 +6,7 @@ import {
   IonGrid, IonRow, IonCol, IonAvatar, IonButtons, IonBackButton, IonBadge,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { checkmarkOutline, checkmarkCircle, peopleOutline, chevronDownOutline, chevronUpOutline } from 'ionicons/icons';
+import { checkmarkOutline, checkmarkCircle, peopleOutline, chevronDownOutline, chevronUpOutline, closeOutline } from 'ionicons/icons';
 import { SupabaseService } from '../../../core/services/supabase';
 import { LoadingComponent } from '../../../shared/components/loading/loading.component';
 import { NotificacionesService } from '../../../core/services/notificaciones';
@@ -42,7 +42,7 @@ export class ListaEsperaPage implements OnInit {
   private canal?: RealtimeChannel;
 
   constructor() {
-    addIcons({ checkmarkOutline, checkmarkCircle, peopleOutline, chevronDownOutline, chevronUpOutline });
+    addIcons({ checkmarkOutline, checkmarkCircle, peopleOutline, chevronDownOutline, chevronUpOutline, closeOutline });
     this.destroyRef.onDestroy(() => {
       if (this.canal) this.supabase.client.removeChannel(this.canal);
     });
@@ -102,6 +102,20 @@ export class ListaEsperaPage implements OnInit {
     if (!mesaId) return '';
     const mesa = this.mesasDisponibles().find(m => m.id === mesaId);
     return mesa ? `Mesa ${mesa.numero} · ${mesa.tipo} · ${mesa.capacidad} personas` : '';
+  }
+
+  async rechazarCliente(cliente: ClienteEsperaUI) {
+    this.clientes.update(cs => cs.map(c => c.id === cliente.id ? { ...c, _exito: '', _error: '' } : c));
+    try {
+      const { error } = await this.supabase.client
+        .from('lista_espera').update({ estado: 'rechazado' }).eq('id', cliente.id);
+      if (error) throw error;
+      this.clientes.update(cs => cs.map(c => c.id === cliente.id ? { ...c, _exito: 'Cliente rechazado.' } : c));
+      setTimeout(() => this.cargarClientes(), 1500);
+    } catch (e: unknown) {
+      this.clientes.update(cs => cs.map(c => c.id === cliente.id ? { ...c, _error: (e as Error).message || 'Error al rechazar.' } : c));
+      await this.haptics.error();
+    }
   }
 
   async asignarMesa(cliente: ClienteEsperaUI) {

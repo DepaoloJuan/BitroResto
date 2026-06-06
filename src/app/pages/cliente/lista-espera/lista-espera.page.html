@@ -59,6 +59,17 @@
     </div>
   }
 
+  @if (rechazado()) {
+    <div>
+      <ion-icon name="close-circle-outline" size="large" color="danger"></ion-icon>
+      <h2>Solicitud rechazada</h2>
+      <p>El metre no pudo asignarte una mesa en este momento. Podés volver a intentarlo más tarde.</p>
+      <ion-button expand="block" fill="outline" (click)="rechazado.set(false); yaEnEspera.set(false)" class="ion-margin-top">
+        Volver a intentar
+      </ion-button>
+    </div>
+  }
+
   @if (yaEnEspera() && !mesaAsignada()) {
     <div>
       <ion-icon name="hourglass-outline" size="large" color="warning"></ion-icon>

@@ -5,10 +5,11 @@ import {
   IonText, IonSpinner,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { hourglassOutline, checkmarkCircleOutline, logOutOutline, barChartOutline, scanOutline, qrCodeOutline } from 'ionicons/icons';
+import { hourglassOutline, checkmarkCircleOutline, logOutOutline, barChartOutline, scanOutline, qrCodeOutline, closeCircleOutline } from 'ionicons/icons';
 import { BarcodeScanner, BarcodeFormat } from '@capacitor-mlkit/barcode-scanning';
 import { AuthService } from '../../../core/services/auth';
 import { SupabaseService } from '../../../core/services/supabase';
+import { NotificacionesService } from '../../../core/services/notificaciones';
 import { HapticsService } from '../../../core/services/haptics.service';
 import { Mesa } from '../../../core/models';
 import { RealtimeChannel } from '@supabase/supabase-js';
@@ -23,6 +24,7 @@ import { RealtimeChannel } from '@supabase/supabase-js';
 export class AnonimoEsperaPage implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly supabase = inject(SupabaseService);
+  private readonly notificaciones = inject(NotificacionesService);
   private readonly haptics = inject(HapticsService);
   private readonly router = inject(Router);
   private readonly ngZone = inject(NgZone);
@@ -30,13 +32,14 @@ export class AnonimoEsperaPage implements OnInit {
 
   protected readonly usuario = this.authService.usuario;
   mesaAsignada = signal<Mesa | null>(null);
+  rechazado = signal(false);
   escaneandoMesa = signal(false);
   errorQRMesa = signal('');
 
   private canal?: RealtimeChannel;
 
   constructor() {
-    addIcons({ hourglassOutline, checkmarkCircleOutline, logOutOutline, barChartOutline, scanOutline, qrCodeOutline });
+    addIcons({ hourglassOutline, checkmarkCircleOutline, logOutOutline, barChartOutline, scanOutline, qrCodeOutline, closeCircleOutline });
     this.destroyRef.onDestroy(() => {
       if (this.canal) this.supabase.client.removeChannel(this.canal);
     });
@@ -53,12 +56,14 @@ export class AnonimoEsperaPage implements OnInit {
     const { data } = await this.supabase.client
       .from('lista_espera').select('*, mesas(*)')
       .eq('nombre', u.nombre).eq('tipo_cliente', 'anonimo')
-      .in('estado', ['esperando', 'asignado'])
+      .in('estado', ['esperando', 'asignado', 'rechazado'])
       .order('fecha_ingreso', { ascending: false }).limit(1).single();
     if (!data) return;
     if (data.estado === 'asignado' && data.mesas) {
       this.mesaAsignada.set(data.mesas as Mesa);
       this.authService.setUsuarioAnonimo({ ...u, mesa_id: data.mesa_id, lista_espera_id: data.id });
+    } else if (data.estado === 'rechazado') {
+      this.rechazado.set(true);
     }
   }
 
@@ -66,7 +71,12 @@ export class AnonimoEsperaPage implements OnInit {
     this.canal = this.supabase.client
       .channel('anonimo_espera')
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'lista_espera' },
-        () => this.ngZone.run(() => this.verificarEstado()))
+        async (payload) => this.ngZone.run(async () => {
+          if ((payload.new as any)?.estado === 'rechazado') {
+            await this.notificaciones.enviar('Lista de espera', 'El metre rechazó tu solicitud.');
+          }
+          await this.verificarEstado();
+        }))
       .subscribe();
   }
 

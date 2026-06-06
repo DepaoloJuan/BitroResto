@@ -74,6 +74,10 @@
             <ion-icon name="checkmark-outline" slot="start"></ion-icon>
             Asignar mesa
           </ion-button>
+          <ion-button expand="block" color="danger" fill="outline" (click)="rechazarCliente(cliente)">
+            <ion-icon name="close-outline" slot="start"></ion-icon>
+            Rechazar
+          </ion-button>
 
           @if (cliente._exito) {
             <ion-text color="success"><small>{{ cliente._exito }}</small></ion-text>
