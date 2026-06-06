@@ -14,7 +14,7 @@ export class AuthService {
   readonly usuario = this._usuario.asReadonly();
 
   constructor() {
-    const anonimo = sessionStorage.getItem('usuario_anonimo');
+    const anonimo = localStorage.getItem('usuario_anonimo');
     if (anonimo) {
       this._usuario.set(JSON.parse(anonimo));
     }
@@ -27,9 +27,9 @@ export class AuthService {
   setUsuarioAnonimo(usuario: Usuario | null): void {
     this._usuario.set(usuario);
     if (usuario) {
-      sessionStorage.setItem('usuario_anonimo', JSON.stringify(usuario));
+      localStorage.setItem('usuario_anonimo', JSON.stringify(usuario));
     } else {
-      sessionStorage.removeItem('usuario_anonimo');
+      localStorage.removeItem('usuario_anonimo');
     }
   }
 

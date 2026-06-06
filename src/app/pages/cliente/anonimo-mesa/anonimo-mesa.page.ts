@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, NgZone, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import {
   IonHeader, IonToolbar, IonTitle, IonContent, IonButtons, IonButton, IonIcon,
@@ -9,10 +9,13 @@ import { addIcons } from 'ionicons';
 import {
   checkmarkCircleOutline, restaurantOutline, chatbubblesOutline,
   barChartOutline, logOutOutline, scanOutline, qrCodeOutline, receiptOutline,
+  sendOutline, checkmarkDoneOutline, bicycleOutline, hourglassOutline,
+  closeCircleOutline, checkmarkOutline, chevronForwardOutline,
 } from 'ionicons/icons';
 import { BarcodeScanner, BarcodeFormat } from '@capacitor-mlkit/barcode-scanning';
 import { AuthService } from '../../../core/services/auth';
 import { SupabaseService } from '../../../core/services/supabase';
+import { NotificacionesService } from '../../../core/services/notificaciones';
 import { HapticsService } from '../../../core/services/haptics.service';
 import { Mesa, Pedido } from '../../../core/models';
 import { RealtimeChannel } from '@supabase/supabase-js';
@@ -31,8 +34,10 @@ import { RealtimeChannel } from '@supabase/supabase-js';
 export class AnonimoMesaPage implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly supabase = inject(SupabaseService);
+  private readonly notificaciones = inject(NotificacionesService);
   private readonly haptics = inject(HapticsService);
   private readonly router = inject(Router);
+  private readonly ngZone = inject(NgZone);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly usuario = this.authService.usuario;
@@ -46,18 +51,74 @@ export class AnonimoMesaPage implements OnInit {
   readonly puedeCuenta = computed(() => this.estadoPedido() === 'recibido');
   readonly puedeConfirmar = computed(() => this.estadoPedido() === 'entregado');
 
+  readonly estadoTexto = computed(() => {
+    const map: Record<string, string> = {
+      esperando_mozo: '⏳ Pedido enviado, esperando al mozo',
+      rechazado_mozo: '❌ El mozo rechazó tu pedido, podés modificarlo',
+      en_cocina: '🍳 Tu pedido está siendo preparado',
+      listo: '🔔 Tu pedido está listo para ser entregado',
+      entregado: '🎉 Pedido entregado, ¡buen provecho!',
+      recibido: '🎉 Pedido entregado, ¡buen provecho!',
+      pago_solicitado: '💳 Cuenta solicitada, esperando al mozo',
+    };
+    return map[this.estadoPedido()] ?? '';
+  });
+
+  readonly estadoColor = computed(() => {
+    const map: Record<string, string> = {
+      esperando_mozo: 'warning', rechazado_mozo: 'danger',
+      listo: 'success', entregado: 'success', recibido: 'success',
+      pago_solicitado: 'warning',
+    };
+    return map[this.estadoPedido()] ?? 'light';
+  });
+
+  readonly estadoIcono = computed(() => {
+    const map: Record<string, string> = {
+      esperando_mozo: 'hourglass-outline', rechazado_mozo: 'close-circle-outline',
+      listo: 'checkmark-done-outline', entregado: 'checkmark-done-outline',
+      recibido: 'checkmark-done-outline', pago_solicitado: 'hourglass-outline',
+    };
+    return map[this.estadoPedido()] ?? 'information-circle-outline';
+  });
+
+  readonly pasos = [
+    { label: 'Enviado', icono: 'send-outline' },
+    { label: 'En cocina', icono: 'restaurant-outline' },
+    { label: 'Listo', icono: 'checkmark-done-outline' },
+    { label: 'Entregado', icono: 'bicycle-outline' },
+  ];
+
+  readonly pasoActual = computed(() => {
+    const map: Record<string, number> = {
+      esperando_mozo: 0, en_cocina: 1, listo: 2, entregado: 3, recibido: 4,
+    };
+    return map[this.estadoPedido()] ?? -1;
+  });
+
+  readonly mostrarTracker = computed(() => this.pasoActual() >= 0);
+  readonly mostrarBanner = computed(() =>
+    ['rechazado_mozo', 'pago_solicitado'].includes(this.estadoPedido())
+  );
+
   private mesaId = '';
   private mesaNumero = 0;
   private canal?: RealtimeChannel;
 
   constructor() {
-    addIcons({ checkmarkCircleOutline, restaurantOutline, chatbubblesOutline, barChartOutline, logOutOutline, scanOutline, qrCodeOutline, receiptOutline });
+    addIcons({
+      checkmarkCircleOutline, restaurantOutline, chatbubblesOutline, barChartOutline,
+      logOutOutline, scanOutline, qrCodeOutline, receiptOutline, sendOutline,
+      checkmarkDoneOutline, bicycleOutline, hourglassOutline, closeCircleOutline,
+      checkmarkOutline, chevronForwardOutline,
+    });
     this.destroyRef.onDestroy(() => {
       if (this.canal) this.supabase.client.removeChannel(this.canal);
     });
   }
 
   ionViewWillEnter() {
+    if (this.mesaId) return; // ya validado, no resetear al volver de otra pantalla
     this.qrEscaneado.set(false);
     if (this.canal) {
       this.supabase.client.removeChannel(this.canal);
@@ -68,14 +129,17 @@ export class AnonimoMesaPage implements OnInit {
   async ngOnInit() {
     const u = this.authService.getUsuarioActual();
     this.mesaId = u?.mesa_id || '';
-    if (this.mesaId) {
-      const { data } = await this.supabase.client.from('mesas').select('numero').eq('id', this.mesaId).single();
-      this.mesaNumero = data?.numero ?? 0;
-    }
+    if (!this.mesaId) return;
 
-    if (history.state?.qrValidado === true && this.mesaId) {
-      const { data } = await this.supabase.client.from('mesas').select('*').eq('id', this.mesaId).single();
-      this.mesa.set(data);
+    const { data: mesaData } = await this.supabase.client
+      .from('mesas').select('*').eq('id', this.mesaId).single();
+    if (!mesaData) return;
+
+    this.mesaNumero = mesaData.numero ?? 0;
+
+    // Si la mesa sigue ocupada, restauramos el hub directamente (QR ya fue validado antes)
+    if (mesaData.estado === 'ocupada' || history.state?.qrValidado === true) {
+      this.mesa.set(mesaData);
       this.qrEscaneado.set(true);
       await this.cargarPedido();
       this.suscribirCambios();
@@ -84,6 +148,13 @@ export class AnonimoMesaPage implements OnInit {
 
   async cargarPedido() {
     if (!this.mesaId) return;
+    const { data: mesaData } = await this.supabase.client
+      .from('mesas').select('estado').eq('id', this.mesaId).single();
+    if (mesaData?.estado === 'disponible') {
+      this.authService.setUsuarioAnonimo(null);
+      this.router.navigate(['/login'], { replaceUrl: true });
+      return;
+    }
     const { data } = await this.supabase.client
       .from('pedidos').select('id, estado').eq('mesa_id', this.mesaId)
       .not('estado', 'in', '("pagado","cancelado")')
@@ -96,7 +167,15 @@ export class AnonimoMesaPage implements OnInit {
     this.canal = this.supabase.client
       .channel('anonimo_mesa_hub_' + this.mesaId)
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'pedidos', filter: `mesa_id=eq.${this.mesaId}` },
-        () => this.cargarPedido())
+        (payload) => this.ngZone.run(async () => {
+          const estado = (payload.new as any)?.estado;
+          if (estado === 'rechazado_mozo') {
+            await this.notificaciones.enviar('Pedido rechazado', 'El mozo rechazó tu pedido. Podés modificarlo y reenviarlo.');
+          } else if (estado === 'listo') {
+            await this.notificaciones.enviar('¡Tu pedido está listo!', 'Ya llega el mozo con tu pedido.');
+          }
+          await this.cargarPedido();
+        }))
       .subscribe();
   }
 
