@@ -28,7 +28,7 @@
   ion-icon { font-size: 1.8rem; }
 
   span {
-    font-size: 0.7rem;
+    font-size: 0.99rem;
     font-weight: 600;
     text-align: center;
     line-height: 1.2;
@@ -91,4 +91,14 @@
     font-size: 5rem;
     color: var(--ion-color-primary);
   }
+}
+
+ion-item ion-label {
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+
+ion-button span {
+  color: #ffdca3;
 }
