@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, NgZone, OnInit, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
@@ -9,6 +9,7 @@ import { addIcons } from 'ionicons';
 import { chatbubblesOutline, sendOutline } from 'ionicons/icons';
 import { AuthService } from '../../../core/services/auth';
 import { SupabaseService } from '../../../core/services/supabase';
+import { NotificacionesService } from '../../../core/services/notificaciones';
 import { Consulta, Mesa } from '../../../core/models';
 import { RealtimeChannel } from '@supabase/supabase-js';
 
@@ -25,6 +26,8 @@ import { RealtimeChannel } from '@supabase/supabase-js';
 export class ChatPage implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly supabase = inject(SupabaseService);
+  private readonly notificaciones = inject(NotificacionesService);
+  private readonly ngZone = inject(NgZone);
   private readonly destroyRef = inject(DestroyRef);
 
   mensajes = signal<Consulta[]>([]);
@@ -78,7 +81,12 @@ export class ChatPage implements OnInit {
       .on('postgres_changes', {
         event: 'INSERT', schema: 'public', table: 'consultas',
         filter: `mesa_id=eq.${this.mesaId}`,
-      }, () => this.cargarMensajes())
+      }, async (payload) => this.ngZone.run(async () => {
+        if ((payload.new as any)?.tipo === 'mozo') {
+          await this.notificaciones.enviar('Respuesta del mozo', 'El mozo respondió tu consulta.');
+        }
+        await this.cargarMensajes();
+      }))
       .subscribe();
   }
 

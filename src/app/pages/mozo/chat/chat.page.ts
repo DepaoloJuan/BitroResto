@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, NgZone, OnInit, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
@@ -31,6 +31,7 @@ export class ChatPage implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly supabase = inject(SupabaseService);
   private readonly notificaciones = inject(NotificacionesService);
+  private readonly ngZone = inject(NgZone);
   private readonly destroyRef = inject(DestroyRef);
 
   mesas = signal<MesaConMensajes[]>([]);
@@ -70,10 +71,10 @@ export class ChatPage implements OnInit {
     this.canal = this.supabase.client
       .channel('chat_mozo')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'consultas' },
-        async () => {
+        async () => this.ngZone.run(async () => {
           await this.notificaciones.enviar('Nueva consulta', 'Un cliente envió una consulta.');
           await this.cargarMensajes();
-        })
+        }))
       .subscribe();
   }
 

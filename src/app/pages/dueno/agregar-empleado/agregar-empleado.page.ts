@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, NgZone, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import {
@@ -34,6 +34,7 @@ export class AgregarEmpleadoPage {
   private readonly authService = inject(AuthService);
   private readonly haptics = inject(HapticsService);
   private readonly router = inject(Router);
+  private readonly ngZone = inject(NgZone);
 
   private formVacio: FormEmpleado = {
     nombre: '', apellido: '', dni: '', cuil: '', email: '',
@@ -74,18 +75,22 @@ export class AgregarEmpleadoPage {
       if (barcodes.length === 0) return;
       const raw = barcodes[0].rawValue ?? '';
       const partes = raw.split('@');
-      if (raw && partes.length >= 5) {
-        this.form.apellido = partes[1]?.trim() ?? '';
-        this.form.nombre = partes[2]?.trim() ?? '';
-        this.form.dni = partes[4]?.trim() ?? '';
-      } else {
-        this.errorEscaneo.set('No se pudo leer el DNI. Asegurate de enfocar el código del dorso.');
-      }
+      this.ngZone.run(() => {
+        if (raw && partes.length >= 5) {
+          this.form.apellido = partes[1]?.trim() ?? '';
+          this.form.nombre = partes[2]?.trim() ?? '';
+          this.form.dni = partes[4]?.trim() ?? '';
+        } else {
+          this.errorEscaneo.set('No se pudo leer el DNI. Asegurate de enfocar el código del dorso.');
+        }
+      });
     } catch (error: unknown) {
       const e = error as any;
       if (e?.message === 'scan canceled.' || e?.errorMessage === 'scan canceled.') return;
-      if (e?.isAcquireTimeout) { this.errorEscaneo.set('Tiempo de espera agotado. Intentá de nuevo.'); }
-      else { this.errorEscaneo.set('Ocurrió un error al leer el DNI. Intentá de nuevo.'); }
+      this.ngZone.run(() => {
+        if (e?.isAcquireTimeout) { this.errorEscaneo.set('Tiempo de espera agotado. Intentá de nuevo.'); }
+        else { this.errorEscaneo.set('Ocurrió un error al leer el DNI. Intentá de nuevo.'); }
+      });
     }
   }
 

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, NgZone, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import {
   IonHeader, IonToolbar, IonTitle, IonContent, IonButtons, IonButton,
@@ -26,6 +26,7 @@ export class MozoPage implements OnInit {
   private readonly supabase = inject(SupabaseService);
   private readonly notificaciones = inject(NotificacionesService);
   private readonly router = inject(Router);
+  private readonly ngZone = inject(NgZone);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly usuario = this.authService.usuario;
@@ -43,7 +44,7 @@ export class MozoPage implements OnInit {
     this.canal = this.supabase.client
       .channel('mozo_dashboard')
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'pedidos' },
-        async (payload) => {
+        async (payload) => this.ngZone.run(async () => {
           const estado = (payload.new as any)?.estado;
           if (estado === 'esperando_mozo') {
             await this.notificaciones.enviar('Nuevo pedido', 'Hay un nuevo pedido esperando confirmación.');
@@ -52,7 +53,7 @@ export class MozoPage implements OnInit {
           } else if (estado === 'listo') {
             await this.notificaciones.enviar('Pedido listo', 'Un pedido está listo para entregar.');
           }
-        })
+        }))
       .subscribe();
   }
 

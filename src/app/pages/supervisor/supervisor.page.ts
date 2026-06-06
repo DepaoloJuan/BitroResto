@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, NgZone, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import {
   IonHeader, IonToolbar, IonTitle, IonContent, IonButtons, IonButton,
@@ -26,6 +26,7 @@ export class SupervisorPage implements OnInit {
   private readonly supabase = inject(SupabaseService);
   private readonly notificaciones = inject(NotificacionesService);
   private readonly router = inject(Router);
+  private readonly ngZone = inject(NgZone);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly usuario = this.authService.usuario;
@@ -42,20 +43,20 @@ export class SupervisorPage implements OnInit {
     this.canal = this.supabase.client
       .channel('supervisor_dashboard')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'usuarios' },
-        async (payload: any) => {
+        async (payload: any) => this.ngZone.run(async () => {
           if (payload.new?.perfil === 'cliente' && payload.new?.estado === 'pendiente') {
             await this.notificaciones.enviar('Nuevo cliente pendiente', 'Hay un cliente esperando aprobación.');
           }
-        })
+        }))
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'pedidos' },
-        async (payload: any) => {
+        async (payload: any) => this.ngZone.run(async () => {
           const estado = payload.new?.estado;
           if (estado === 'pago_solicitado') {
             await this.notificaciones.enviar('Cuenta solicitada', 'Un cliente está solicitando la cuenta.');
           } else if (estado === 'pagado') {
             await this.notificaciones.enviar('Pago confirmado', 'El mozo confirmó un pago y liberó una mesa.');
           }
-        })
+        }))
       .subscribe();
   }
 

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, NgZone, OnInit, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import {
   IonHeader, IonToolbar, IonTitle, IonContent, IonCard, IonCardHeader,
@@ -6,14 +6,14 @@ import {
   IonGrid, IonRow, IonCol, IonAvatar, IonButtons, IonBackButton, IonBadge,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { checkmarkOutline, checkmarkCircle, peopleOutline } from 'ionicons/icons';
+import { checkmarkOutline, checkmarkCircle, peopleOutline, chevronDownOutline, chevronUpOutline } from 'ionicons/icons';
 import { SupabaseService } from '../../../core/services/supabase';
 import { LoadingComponent } from '../../../shared/components/loading/loading.component';
 import { NotificacionesService } from '../../../core/services/notificaciones';
 import { ListaEspera, Mesa } from '../../../core/models';
 import { RealtimeChannel } from '@supabase/supabase-js';
 
-interface ClienteEsperaUI extends ListaEspera { _mesa_seleccionada: string | null; _exito: string; _error: string; }
+interface ClienteEsperaUI extends ListaEspera { _mesa_seleccionada: string | null; _exito: string; _error: string; _mostrar_mesas: boolean; }
 
 @Component({
   selector: 'app-lista-espera',
@@ -30,6 +30,7 @@ interface ClienteEsperaUI extends ListaEspera { _mesa_seleccionada: string | nul
 export class ListaEsperaPage implements OnInit {
   private readonly supabase = inject(SupabaseService);
   private readonly notificaciones = inject(NotificacionesService);
+  private readonly ngZone = inject(NgZone);
   private readonly destroyRef = inject(DestroyRef);
 
   clientes = signal<ClienteEsperaUI[]>([]);
@@ -39,7 +40,7 @@ export class ListaEsperaPage implements OnInit {
   private canal?: RealtimeChannel;
 
   constructor() {
-    addIcons({ checkmarkOutline, checkmarkCircle, peopleOutline });
+    addIcons({ checkmarkOutline, checkmarkCircle, peopleOutline, chevronDownOutline, chevronUpOutline });
     this.destroyRef.onDestroy(() => {
       if (this.canal) this.supabase.client.removeChannel(this.canal);
     });
@@ -61,7 +62,7 @@ export class ListaEsperaPage implements OnInit {
       .from('lista_espera').select('*').eq('estado', 'esperando')
       .order('fecha_ingreso', { ascending: true });
     this.clientes.set((data || []).map(c => ({
-      ...c, _mesa_seleccionada: null, _exito: '', _error: '',
+      ...c, _mesa_seleccionada: null, _exito: '', _error: '', _mostrar_mesas: false,
     }) as ClienteEsperaUI));
   }
 
@@ -76,17 +77,29 @@ export class ListaEsperaPage implements OnInit {
     this.canal = this.supabase.client
       .channel('lista_espera_cambios')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'lista_espera' },
-        async () => {
+        async () => this.ngZone.run(async () => {
           await this.notificaciones.enviar('Nueva solicitud de mesa', 'Hay un cliente esperando una mesa.');
           await this.cargarClientes();
-        })
+        }))
       .subscribe();
+  }
+
+  toggleMesas(cliente: ClienteEsperaUI) {
+    this.clientes.update(cs => cs.map(c =>
+      c.id === cliente.id ? { ...c, _mostrar_mesas: !c._mostrar_mesas } : c
+    ));
   }
 
   seleccionarMesa(cliente: ClienteEsperaUI, mesaId: string) {
     this.clientes.update(cs => cs.map(c =>
-      c.id === cliente.id ? { ...c, _mesa_seleccionada: mesaId } : c
+      c.id === cliente.id ? { ...c, _mesa_seleccionada: mesaId, _mostrar_mesas: false } : c
     ));
+  }
+
+  getMesaLabel(mesaId: string | null): string {
+    if (!mesaId) return '';
+    const mesa = this.mesasDisponibles().find(m => m.id === mesaId);
+    return mesa ? `Mesa ${mesa.numero} · ${mesa.tipo} · ${mesa.capacidad} personas` : '';
   }
 
   async asignarMesa(cliente: ClienteEsperaUI) {

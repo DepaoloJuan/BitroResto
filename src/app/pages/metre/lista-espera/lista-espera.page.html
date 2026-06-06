@@ -41,14 +41,31 @@
         </ion-card-header>
 
         <ion-card-content>
-          <p class="mesa-selector-label">Mesas disponibles</p>
-          @for (mesa of mesasDisponibles(); track mesa.id) {
-            <div class="mesa-option"
-                 [class.seleccionada]="mesa.id === cliente._mesa_seleccionada"
-                 (click)="seleccionarMesa(cliente, mesa.id)">
-              <span>Mesa {{ mesa.numero }} · {{ mesa.tipo }} · {{ mesa.capacidad }} personas</span>
-              @if (mesa.id === cliente._mesa_seleccionada) {
-                <ion-icon name="checkmark-circle"></ion-icon>
+          <div class="mesa-dropdown-trigger"
+               [class.trigger-seleccionado]="!!cliente._mesa_seleccionada"
+               (click)="toggleMesas(cliente)">
+            <div class="trigger-contenido">
+              @if (cliente._mesa_seleccionada) {
+                <ion-icon name="checkmark-circle" class="trigger-check"></ion-icon>
+                <span class="mesa-seleccionada-texto">{{ getMesaLabel(cliente._mesa_seleccionada) }}</span>
+              } @else {
+                <span class="mesa-placeholder">{{ mesasDisponibles().length }} mesas disponibles</span>
+              }
+            </div>
+            <ion-icon [name]="cliente._mostrar_mesas ? 'chevron-up-outline' : 'chevron-down-outline'" class="chevron-icon"></ion-icon>
+          </div>
+
+          @if (cliente._mostrar_mesas) {
+            <div class="mesa-lista">
+              @for (mesa of mesasDisponibles(); track mesa.id) {
+                <div class="mesa-option"
+                     [class.seleccionada]="mesa.id === cliente._mesa_seleccionada"
+                     (click)="seleccionarMesa(cliente, mesa.id)">
+                  <span>Mesa {{ mesa.numero }} · {{ mesa.tipo }} · {{ mesa.capacidad }} personas</span>
+                  @if (mesa.id === cliente._mesa_seleccionada) {
+                    <ion-icon name="checkmark-circle"></ion-icon>
+                  }
+                </div>
               }
             </div>
           }

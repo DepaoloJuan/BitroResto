@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, NgZone, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import {
   IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonIcon,
@@ -30,6 +30,7 @@ export class ListaEsperaPage implements OnInit {
   private readonly notificaciones = inject(NotificacionesService);
   private readonly haptics = inject(HapticsService);
   readonly router = inject(Router);
+  private readonly ngZone = inject(NgZone);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly usuario = this.authService.usuario;
@@ -111,12 +112,12 @@ export class ListaEsperaPage implements OnInit {
       .on('postgres_changes', {
         event: 'UPDATE', schema: 'public', table: 'lista_espera',
         filter: `usuario_id=eq.${usuario.id}`,
-      }, async (payload) => {
+      }, async (payload) => this.ngZone.run(async () => {
         if ((payload.new as any)?.estado === 'asignado') {
           await this.notificaciones.enviar('¡Tu mesa está lista!', 'Se te asignó la mesa. Ya podés dirigirte a ella.');
         }
         await this.verificarEstado();
-      })
+      }))
       .subscribe();
   }
 
