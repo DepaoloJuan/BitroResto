@@ -1,9 +1,8 @@
-import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, NgZone, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, DestroyRef, inject, NgZone, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import {
   IonHeader, IonToolbar, IonTitle, IonContent, IonButtons, IonButton, IonIcon,
-  IonGrid, IonRow, IonCol, IonCard, IonCardContent, IonItem, IonLabel,
-  IonText, IonSpinner,
+  IonItem, IonLabel, IonText, IonSpinner,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
@@ -26,8 +25,7 @@ import { RealtimeChannel } from '@supabase/supabase-js';
   styleUrls: ['./anonimo-mesa.page.scss'],
   imports: [
     IonHeader, IonToolbar, IonTitle, IonContent, IonButtons, IonButton, IonIcon,
-    IonGrid, IonRow, IonCol, IonCard, IonCardContent, IonItem, IonLabel,
-    IonText, IonSpinner,
+    IonItem, IonLabel, IonText, IonSpinner,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -38,6 +36,7 @@ export class AnonimoMesaPage implements OnInit {
   private readonly haptics = inject(HapticsService);
   private readonly router = inject(Router);
   private readonly ngZone = inject(NgZone);
+  private readonly cdr = inject(ChangeDetectorRef);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly usuario = this.authService.usuario;
@@ -173,7 +172,10 @@ export class AnonimoMesaPage implements OnInit {
           if ((payload.new as any)?.mesa_id !== this.mesaId) return;
           this.ngZone.run(async () => {
             const estado = (payload.new as any)?.estado;
-            if (estado) this.pedido.update(p => p ? { ...p, estado } : null);
+            if (estado) {
+              this.pedido.update(p => p ? { ...p, estado } : null);
+              this.cdr.detectChanges();
+            }
             if (estado === 'rechazado_mozo') {
               await this.notificaciones.enviar('Pedido rechazado', 'El mozo rechazó tu pedido. Podés modificarlo y reenviarlo.');
             } else if (estado === 'listo') {
@@ -182,7 +184,9 @@ export class AnonimoMesaPage implements OnInit {
             await this.cargarPedido();
           });
         })
-      .subscribe();
+      .subscribe((status) => {
+        console.log('[anonimo-mesa] canal status:', status);
+      });
   }
 
   async escanearQrMesa() {
@@ -213,6 +217,7 @@ export class AnonimoMesaPage implements OnInit {
       this.mesa.set(data);
       this.qrEscaneado.set(true);
       await this.cargarPedido();
+      await new Promise(resolve => setTimeout(resolve, 800));
       this.suscribirCambios();
     } catch (error: unknown) {
       const e = error as any;

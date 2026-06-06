@@ -10,6 +10,17 @@ export class SupabaseService {
     this.supabase = createClient(
       environment.supabaseUrl,
       environment.supabaseKey,
+      {
+        auth: {
+          storage: localStorage,
+          autoRefreshToken: true,
+          persistSession: true,
+          detectSessionInUrl: false,
+          // Capacitor pausa el WebView durante el scanner de QR, lo que rompe
+          // el Web Locks API que Supabase usa por defecto. Esto lo evita.
+          lock: (_name, _timeout, fn) => fn(),
+        },
+      }
     );
   }
 

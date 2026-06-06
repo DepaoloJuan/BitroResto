@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, NgZone, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, DestroyRef, inject, NgZone, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TitleCasePipe } from '@angular/common';
 import {
@@ -43,6 +43,7 @@ export class MesaPage implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly destroyRef = inject(DestroyRef);
   private readonly ngZone = inject(NgZone);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   cargando = signal(true);
   mesa = signal<Mesa | null>(null);
@@ -220,6 +221,8 @@ export class MesaPage implements OnInit {
       this.cargando.set(true);
       await this.cargarMesa();
       await this.cargarPedido();
+      // Pequeño delay para que el WebSocket de Supabase reconecte después de la pausa del WebView
+      await new Promise(resolve => setTimeout(resolve, 800));
       this.suscribirCambios();
     } catch (error: unknown) {
       const e = error as any;
@@ -267,10 +270,14 @@ export class MesaPage implements OnInit {
       .channel('mesa_hub_' + this.mesaId)
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'pedidos' },
         (payload) => {
+          console.log('[mesa] pedido UPDATE recibido', payload.new);
           if ((payload.new as any)?.mesa_id !== this.mesaId) return;
           this.ngZone.run(async () => {
             const estado = (payload.new as any)?.estado;
-            if (estado) this.pedido.update(p => p ? { ...p, estado } : null);
+            if (estado) {
+              this.pedido.update(p => p ? { ...p, estado } : null);
+              this.cdr.detectChanges();
+            }
             if (estado === 'rechazado_mozo') {
               await this.notificaciones.enviar('Pedido rechazado', 'El mozo rechazó tu pedido. Podés modificarlo y reenviarlo.');
             } else if (estado === 'listo') {
@@ -281,7 +288,9 @@ export class MesaPage implements OnInit {
         })
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'mesas', filter: `id=eq.${this.mesaId}` },
         () => this.ngZone.run(() => this.cargarPedido()))
-      .subscribe();
+      .subscribe((status, err) => {
+        console.log('[mesa] canal status:', status, err ? JSON.stringify(err) : '');
+      });
   }
 
   async confirmarRecepcion() {
