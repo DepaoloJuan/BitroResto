@@ -205,8 +205,8 @@ Mientras espera su pedido, el cliente registrado puede jugar a memoria, ahorcado
 
 ### General
 
-| | | | |
-|---|---|---|---|
+| | | | | |
+|---|---|---|---|---|
 | ![Logo](assets/screenshots/logo.png) | ![Ícono](assets/screenshots/icono.png) | ![Ícono Teléfono](assets/screenshots/icono_telefono.png) | ![Splash](assets/screenshots/splash.png) | ![Splash Screen](assets/screenshots/splash_screen.png) |
 | Logo | Ícono | Ícono en teléfono | Splash | Splash Screen |
 
@@ -214,7 +214,7 @@ Mientras espera su pedido, el cliente registrado puede jugar a memoria, ahorcado
 
 | | | |
 |---|---|---|
-| ![Login](assets/screenshots/login_screen.png) | ![Registro](assets/screenshots/registro_screen.png) | ![Registro Anónimo](assets/screenshots/registro_anonimo_screen.png) |
+| ![Login](assets/screenshots/login_screen.png) | ![Registro](assets/screenshots/registro_cliente_screen.png) | ![Registro Anónimo](assets/screenshots/ingreso_anonimo.png) |
 | Login | Registro cliente | Registro anónimo |
 
 ### Flujo del cliente registrado
@@ -231,60 +231,56 @@ Mientras espera su pedido, el cliente registrado puede jugar a memoria, ahorcado
 
 | | | |
 |---|---|---|
-| ![Menú Bebidas](assets/screenshots/menu_bebidas.jpeg) | ![Estado Pedido](assets/screenshots/estado_pedido.jpeg) |
-| Menú — Bebidas | Estado del pedido |
+| ![Menú Bebidas](assets/screenshots/menu_bebidas.jpeg) | ![Estado Pedido](assets/screenshots/estado_pedido.jpeg) | ![Vista Mesa](assets/screenshots/vista_mesa.png) |
+| Menú — Bebidas | Estado del pedido | Vista de mesa |
 
 | | | |
 |---|---|---|
 | ![Juegos](assets/screenshots/pantalla_juegos.jpeg) | ![Juego Memoria](assets/screenshots/juego_memoria.jpeg) | ![Juego Ahorcado](assets/screenshots/juego_ahorcado.jpeg) |
 | Selección de juegos | Memoria | Ahorcado |
 
-| | | |
-|---|---|---|
+| |
+|---|
 | ![Juego Pregunta](assets/screenshots/juego_preguntas.jpeg) |
 | Pregunta trivia |
 
-| | | | |
-|---|---|---|---|
-| ![Resultados Encuesta 1](assets/screenshots/resultado_encuestas_1.jpeg) | ![Resultados Encuesta 2](assets/screenshots/resultado_encuestas_2.jpeg) | ![Resultados Encuesta 3](assets/screenshots/resultado_encuestas_3.jpeg) | ![Resultados Encuesta 4](assets/screenshots/resultado_encuestas_4.jpeg) |
-| Resultados encuesta (1) | Resultados encuesta (2) | Resultados encuesta (3) | Resultados encuesta (4) |
+| | | |
+|---|---|---|
+| ![Resultados Encuesta 1](assets/screenshots/resultado_encuesta.png) | ![Resultados Encuesta 2](assets/screenshots/resultado_encuestas_2.jpeg) | ![Resultados Encuesta 3](assets/screenshots/resultado_encuenta_3.png) |
+| Resultados encuesta (1) | Resultados encuesta (2) | Resultados encuesta (3) |
 
-| | |
-|---|---|
-| ![Chat Cliente](assets/screenshots/chat.png) |
-| Chat con mozo |
 
 ### Flujo del cliente anónimo
 
-| | |
-|---|---|
+| |
+|---|
 | ![Anónimo Mesa](assets/screenshots/hub_anonimo.jpeg) |
 | Hub de mesa anónimo |
 
 ### Personal del restaurante
 
-| | | |
-|---|---|---|
-| ![Dueño](assets/screenshots/dueno_screen.png) | ![Supervisor](assets/screenshots/supervisor_screen.png) | ![Clientes Pendientes](assets/screenshots/clientes-pendientes.png) |
-| Panel dueño | Panel supervisor | Clientes pendientes |
+| | |
+|---|---|
+| ![Dueño](assets/screenshots/dueno_screen.png) | ![Supervisor](assets/screenshots/supervisor_screen.png) |
+| Panel dueño | Panel supervisor |
 
-| | | |
-|---|---|---|
-| ![Alta Mesa](assets/screenshots/agregar_mesa_screen.png) | ![Gestionar Mesas](assets/screenshots/gestionar_mesas_screen.PNG) |
+| | |
+|---|---|
+| ![Alta Mesa](assets/screenshots/agregar_mesa_screen.png) | ![Gestionar Mesas](assets/screenshots/gestionar_mesas.PNG) |
 | Alta de mesa | Gestionar mesas |
 
-| | | |
-|---|---|---|
-| ![Mozo](assets/screenshots/mozo_screen.png) | ![Pedidos Mozo](assets/screenshots/pedidos-mozo.png) | ![Chat Mozo](assets/screenshots/chat-mozo.png) |
-| Panel mozo | Pedidos pendientes | Chat — mozo |
+| | |
+|---|---|
+| ![Mozo](assets/screenshots/mozo_screen.png) | ![Chat Mozo](assets/screenshots/chat_mozo.png) |
+| Panel mozo | Chat — mozo |
 
 | | | |
 |---|---|---|
-| ![Lista Espera Metre](assets/screenshots/lista_espera_screen.PNG) | ![Cocinero](assets/screenshots/cocinero_screen.png) |
-| Lista de espera — metre | Panel cocinero |
+| ![Metre](assets/screenshots/metre_screen.png) | ![Lista Espera Metre](assets/screenshots/lista_espera_screen.PNG) | ![Cocinero](assets/screenshots/cocinero_screen.png) |
+| Panel metre | Lista de espera — metre | Panel cocinero |
 
-| | | |
-|---|---|---|
+| | |
+|---|---|
 | ![Alta Plato](assets/screenshots/agregar_plato_screen.PNG) | ![Cantinero](assets/screenshots/bartender_screen.png) |
 | Alta de plato | Panel cantinero |
 
