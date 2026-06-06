@@ -7,7 +7,8 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="ion-padding">
+<ion-content>
+  <div class="page-container">
 
   <div class="foto-container" (click)="tomarFoto()">
     @if (form.foto) {
@@ -109,7 +110,7 @@
         <ion-toolbar>
           <ion-title>QR Mesa {{ mesaSeleccionada()?.numero }}</ion-title>
           <ion-buttons slot="end">
-            <ion-button (click)="cerrarModal()">Cerrar</ion-button>
+            <ion-button class="btn-cerrar" (click)="cerrarModal()">Cerrar</ion-button>
           </ion-buttons>
         </ion-toolbar>
       </ion-header>
@@ -124,4 +125,5 @@
     </ng-template>
   </ion-modal>
 
+</div>
 </ion-content>
