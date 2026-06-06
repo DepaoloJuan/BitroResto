@@ -1,5 +1,16 @@
 ion-content {
   --background: #2c3d1c;
+  --padding-top: 0;
+  --padding-bottom: 0;
+  --padding-start: 0;
+  --padding-end: 0;
+}
+
+.pedidos-lista {
+  padding: 12px 16px 24px;
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
 }
 
 .empty-state {
@@ -8,6 +19,7 @@ ion-content {
   align-items: center;
   justify-content: center;
   height: 100%;
+  min-height: 60vh;
   text-align: center;
   color: rgba(242, 218, 180, 0.55);
 
@@ -46,22 +58,15 @@ ion-item {
   --background: transparent;
   --color: #f2dab4;
 
-  ion-label {
-    color: #f2dab4;
-  }
-
-  ion-note {
-    color: rgba(242, 218, 180, 0.7);
-  }
+  ion-label { color: #f2dab4; }
+  ion-note { color: rgba(242, 218, 180, 0.7); }
 }
 
 ion-item[color="light"] {
   --background: rgba(255, 255, 255, 0.06);
   --color: #f2dab4;
 
-  ion-note {
-    color: #f2dab4;
-  }
+  ion-note { color: #f2dab4; }
 }
 
 ion-item[color="success"] {
@@ -69,9 +74,7 @@ ion-item[color="success"] {
   --color: #f2dab4;
   border-radius: 10px;
 
-  ion-label {
-    color: #f2dab4;
-  }
+  ion-label { color: #f2dab4; }
 }
 
 ion-badge {
@@ -83,23 +86,10 @@ ion-badge {
 ion-button {
   --border-radius: 12px;
 
-  &[color="success"]::part(native) {
-    color: #f2dab4;
-  }
-
-  &[color="danger"]::part(native) {
-    color: rgb(255, 180, 180);
-  }
-
-  &[color="primary"]::part(native) {
-    color: #f2dab4;
-  }
+  &[color="success"]::part(native) { color: #f2dab4; }
+  &[color="danger"]::part(native) { color: rgb(255, 180, 180); }
+  &[color="primary"]::part(native) { color: #f2dab4; }
 }
 
-ion-text[color="success"] small {
-  color: #a8d5a2;
-}
-
-ion-text[color="danger"] small {
-  color: #ea5929;
-}
+ion-text[color="success"] small { color: #a8d5a2; }
+ion-text[color="danger"] small { color: #ea5929; }

@@ -14,11 +14,11 @@
   }
 
   @if (!cargando() && pedidos().length === 0) {
-    <div class="ion-text-center ion-padding">
-      <ion-icon name="receipt-outline" size="large"></ion-icon>
+    <div class="empty-state">
+      <ion-icon name="receipt-outline"></ion-icon>
       <p>No hay pedidos pendientes.</p>
     </div>
-  }
+}
 
   @for (pedido of pedidos(); track pedido.id) {
     <ion-card class="ion-margin-top">

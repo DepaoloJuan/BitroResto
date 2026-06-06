@@ -1,16 +1,137 @@
+ion-content {
+  --background: #2c3d1c;
+}
+
+/* ── QR SCAN ── */
+.qr-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 32px 24px;
+  text-align: center;
+
+  .qr-icon {
+    font-size: 90px;
+    color: #ea5929;
+    margin-bottom: 20px;
+  }
+
+  h2 {
+    color: #ffdca3;
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0 0 12px;
+  }
+
+  p {
+    color: rgba(255, 220, 163, 0.65);
+    font-size: 0.95rem;
+    margin: 0 0 20px;
+  }
+}
+
+/* ── HUB ── */
+.mesa-hub {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 16px 16px 24px;
+  gap: 12px;
+}
+
+.mesa-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(44, 61, 28, 0.6);
+  border: 1.5px solid rgba(234, 89, 41, 0.4);
+  border-radius: 12px;
+  padding: 12px 16px;
+  color: #ffdca3;
+  font-size: 1rem;
+  font-weight: 600;
+  flex-shrink: 0;
+
+  ion-icon {
+    color: #ea5929;
+    font-size: 1.4rem;
+  }
+}
+
+.estado-banner {
+  border-radius: 12px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+/* ── GRID ── */
+.opciones-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  flex: 1;
+  min-height: 0;
+}
+
+.menu-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 20px;
+  cursor: pointer;
+  color: #ffdca3;
+  padding: 16px;
+  height: 100%;
+  min-height: 110px;
+  transition: transform 0.15s, background 0.15s;
+
+  &:active {
+    transform: scale(0.96);
+    background: rgba(255, 255, 255, 0.13);
+  }
+
+  ion-icon {
+    font-size: 2.4rem;
+    color: #ea5929;
+  }
+
+  .card-titulo {
+    font-size: 0.9rem;
+    font-weight: 700;
+    text-align: center;
+    margin: 0;
+  }
+}
+
+.confirmar-btn {
+  --background: #ea5929;
+  --border-radius: 14px;
+  flex-shrink: 0;
+  height: 52px;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+/* ── TRACKER ── */
 .pedido-tracker {
-  background: rgba(var(--ion-color-primary-rgb), 0.08);
-  border: 1.5px solid rgba(var(--ion-color-primary-rgb), 0.3);
+  background: rgba(234, 89, 41, 0.08);
+  border: 1.5px solid rgba(234, 89, 41, 0.3);
   border-radius: 16px;
   padding: 14px 12px;
-  margin: 12px 16px 0;
+  flex-shrink: 0;
 }
 
 .tracker-titulo {
   font-size: 0.72rem;
   text-transform: uppercase;
   letter-spacing: 0.8px;
-  color: var(--ion-color-medium);
+  color: rgba(255, 220, 163, 0.55);
   margin: 0 0 14px;
   text-align: center;
 }
@@ -36,10 +157,10 @@
 .step-linea {
   flex: 1;
   height: 2px;
-  background: rgba(var(--ion-color-medium-rgb), 0.25);
+  background: rgba(255, 220, 163, 0.15);
   transition: background 0.4s ease;
 
-  &.llena { background: var(--ion-color-primary); }
+  &.llena { background: #ea5929; }
   &.invisible { visibility: hidden; }
 }
 
@@ -50,20 +171,20 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(var(--ion-color-medium-rgb), 0.18);
-  color: var(--ion-color-medium);
+  background: rgba(255, 220, 163, 0.1);
+  color: rgba(255, 220, 163, 0.5);
   font-size: 1.1rem;
   flex-shrink: 0;
   position: relative;
   transition: background 0.4s ease, color 0.4s ease;
 
   .step.completado & {
-    background: var(--ion-color-primary);
+    background: #ea5929;
     color: white;
   }
 
   .step.activo & {
-    background: var(--ion-color-primary);
+    background: #ea5929;
     color: white;
 
     &::after {
@@ -74,7 +195,7 @@
       right: -4px;
       bottom: -4px;
       border-radius: 50%;
-      border: 2px solid var(--ion-color-primary);
+      border: 2px solid #ea5929;
       animation: pulse-ring 1.5s ease-out infinite;
     }
   }
@@ -84,12 +205,12 @@
   font-size: 0.67rem;
   text-align: center;
   margin-top: 6px;
-  color: var(--ion-color-medium);
+  color: rgba(255, 220, 163, 0.5);
   line-height: 1.25;
   max-width: 58px;
 
   .step.completado &, .step.activo & {
-    color: var(--ion-color-primary);
+    color: #ea5929;
     font-weight: 600;
   }
 }
@@ -97,18 +218,12 @@
 .tracker-desc {
   font-size: 0.82rem;
   text-align: center;
-  color: var(--ion-color-primary);
+  color: #ea5929;
   margin: 12px 0 0;
   font-weight: 500;
 }
 
-.estado-banner {
-  margin: 8px 16px 0;
-  border-radius: 12px;
-  overflow: hidden;
-}
-
 @keyframes pulse-ring {
-  0%   { transform: scale(1);   opacity: 0.7; }
-  100% { transform: scale(2);   opacity: 0; }
+  0%   { transform: scale(1); opacity: 0.7; }
+  100% { transform: scale(2); opacity: 0; }
 }

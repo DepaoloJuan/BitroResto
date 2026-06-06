@@ -1,7 +1,7 @@
 <ion-header>
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-back-button defaultHref="/cliente/mesa"></ion-back-button>
+      <ion-back-button defaultHref="/cliente/mesa" text=""></ion-back-button>
     </ion-buttons>
     <ion-title>Consulta al Mozo</ion-title>
   </ion-toolbar>
@@ -26,8 +26,8 @@
     }
 
     @if (mensajes().length === 0) {
-      <div class="ion-text-center ion-padding">
-        <ion-icon name="chatbubbles-outline" size="large"></ion-icon>
+      <div class="empty-state">
+        <ion-icon name="chatbubbles-outline"></ion-icon>
         <p>Aún no hay mensajes. ¡Enviá tu primera consulta!</p>
       </div>
     }
