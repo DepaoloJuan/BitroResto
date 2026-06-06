@@ -179,3 +179,25 @@ ion-item[color="light"] {
 .menu-card:nth-child(4) { animation-delay: 0.29s; }
 .menu-card:nth-child(5) { animation-delay: 0.36s; }
 .menu-card:nth-child(6) { animation-delay: 0.43s; }
+
+
+// ── ALERTS ───────────────────────────────────────────
+ion-alert {
+  --background: #3a4f28;
+
+  &::part(header) {
+    color: #f2dab4;
+  }
+
+  &::part(message) {
+    color: #ffe1b0;
+  }
+
+  &::part(button) {
+    color: #f2dab4;
+  }
+}
+
+.alert-btn-danger {
+  color:  #f2dab4 !important;
+}
