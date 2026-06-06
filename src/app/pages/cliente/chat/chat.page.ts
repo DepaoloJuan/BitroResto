@@ -10,6 +10,7 @@ import { chatbubblesOutline, sendOutline } from 'ionicons/icons';
 import { AuthService } from '../../../core/services/auth';
 import { SupabaseService } from '../../../core/services/supabase';
 import { NotificacionesService } from '../../../core/services/notificaciones';
+import { HapticsService } from '../../../core/services/haptics.service';
 import { Consulta, Mesa } from '../../../core/models';
 import { RealtimeChannel } from '@supabase/supabase-js';
 
@@ -27,6 +28,7 @@ export class ChatPage implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly supabase = inject(SupabaseService);
   private readonly notificaciones = inject(NotificacionesService);
+  private readonly haptics = inject(HapticsService);
   private readonly ngZone = inject(NgZone);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -102,6 +104,8 @@ export class ChatPage implements OnInit {
     if (!error) {
       this.nuevoMensaje.set('');
       await this.cargarMensajes();
+    } else {
+      await this.haptics.error();
     }
   }
 }

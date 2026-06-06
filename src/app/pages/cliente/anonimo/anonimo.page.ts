@@ -11,6 +11,7 @@ import { BarcodeScanner, BarcodeFormat } from '@capacitor-mlkit/barcode-scanning
 import { SupabaseService } from '../../../core/services/supabase';
 import { AuthService } from '../../../core/services/auth';
 import { CamaraService } from '../../../core/services/camara.service';
+import { HapticsService } from '../../../core/services/haptics.service';
 
 @Component({
   selector: 'app-anonimo',
@@ -27,6 +28,7 @@ export class AnonimoPage {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
   private readonly camaraService = inject(CamaraService);
+  private readonly haptics = inject(HapticsService);
 
   nombre = signal('');
   foto = signal('');
@@ -45,13 +47,14 @@ export class AnonimoPage {
     this.escaneando.set(true);
     try {
       const { supported } = await BarcodeScanner.isSupported();
-      if (!supported) { this.errorQR.set('Este dispositivo no soporta la lectura de códigos QR.'); return; }
+      if (!supported) { this.errorQR.set('Este dispositivo no soporta la lectura de códigos QR.'); await this.haptics.error(); return; }
       await BarcodeScanner.requestPermissions();
       const { barcodes } = await BarcodeScanner.scan({ formats: [BarcodeFormat.QrCode] });
       if (barcodes.length === 0) return;
       const valor = barcodes[0].rawValue ?? '';
       if (valor !== 'com.bitroresto.app://entrada') {
         this.errorQR.set('Este QR no es el de entrada al local. Escaneá el código QR de la puerta.');
+        await this.haptics.error();
         return;
       }
       this.qrEscaneado.set(true);
@@ -59,6 +62,7 @@ export class AnonimoPage {
       const e = error as any;
       if (e?.message === 'scan canceled.' || e?.errorMessage === 'scan canceled.') return;
       this.errorQR.set('Ocurrió un error al leer el QR. Intentá de nuevo.');
+      await this.haptics.error();
     } finally {
       this.escaneando.set(false);
     }
@@ -72,8 +76,8 @@ export class AnonimoPage {
   async ingresar() {
     this.errorNombre.set('');
     this.errorGeneral.set('');
-    if (!this.nombre().trim()) { this.errorNombre.set('El nombre es obligatorio.'); return; }
-    if (!this.foto()) { this.errorFoto.set('La foto es obligatoria.'); return; }
+    if (!this.nombre().trim()) { this.errorNombre.set('El nombre es obligatorio.'); await this.haptics.error(); return; }
+    if (!this.foto()) { this.errorFoto.set('La foto es obligatoria.'); await this.haptics.error(); return; }
     try {
       this.cargando.set(true);
       const { error } = await this.supabase.client.from('lista_espera').insert({
@@ -88,6 +92,7 @@ export class AnonimoPage {
       this.router.navigate(['/cliente/anonimo-espera']);
     } catch (e: unknown) {
       this.errorGeneral.set((e as Error).message || 'Error al ingresar.');
+      await this.haptics.error();
     } finally {
       this.cargando.set(false);
     }

@@ -6,6 +6,7 @@ import {
   IonButton, IonText, IonSpinner, IonButtons, IonBackButton,
 } from '@ionic/angular/standalone';
 import { SupabaseService } from '../../../core/services/supabase';
+import { HapticsService } from '../../../core/services/haptics.service';
 
 @Component({
   selector: 'app-agregar-cliente',
@@ -20,6 +21,7 @@ import { SupabaseService } from '../../../core/services/supabase';
 export class AgregarClientePage {
   private readonly supabase = inject(SupabaseService);
   private readonly router = inject(Router);
+  private readonly haptics = inject(HapticsService);
 
   form = { nombre: '', apellido: '', dni: '', email: '', password: '', confirmarPassword: '', foto: '' };
   errores = signal<Record<string, string>>({});
@@ -47,7 +49,7 @@ export class AgregarClientePage {
   async registrar() {
     this.errorGeneral.set('');
     this.exitoso.set(false);
-    if (!this.validar()) return;
+    if (!this.validar()) { await this.haptics.error(); return; }
     try {
       this.cargando.set(true);
       const f = this.form;
@@ -63,6 +65,7 @@ export class AgregarClientePage {
       setTimeout(() => this.router.navigate(['/metre']), 1500);
     } catch (e: unknown) {
       this.errorGeneral.set((e as Error).message || 'Ocurrió un error al registrar el cliente.');
+      await this.haptics.error();
     } finally {
       this.cargando.set(false);
     }

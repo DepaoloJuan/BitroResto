@@ -10,6 +10,7 @@ import { checkmarkOutline, checkmarkCircle, peopleOutline, chevronDownOutline, c
 import { SupabaseService } from '../../../core/services/supabase';
 import { LoadingComponent } from '../../../shared/components/loading/loading.component';
 import { NotificacionesService } from '../../../core/services/notificaciones';
+import { HapticsService } from '../../../core/services/haptics.service';
 import { ListaEspera, Mesa } from '../../../core/models';
 import { RealtimeChannel } from '@supabase/supabase-js';
 
@@ -30,6 +31,7 @@ interface ClienteEsperaUI extends ListaEspera { _mesa_seleccionada: string | nul
 export class ListaEsperaPage implements OnInit {
   private readonly supabase = inject(SupabaseService);
   private readonly notificaciones = inject(NotificacionesService);
+  private readonly haptics = inject(HapticsService);
   private readonly ngZone = inject(NgZone);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -116,6 +118,7 @@ export class ListaEsperaPage implements OnInit {
       setTimeout(() => this.cargarDatos(), 1500);
     } catch (e: unknown) {
       cliente._error = (e as Error).message || 'Error al asignar la mesa.';
+      await this.haptics.error();
     }
   }
 }

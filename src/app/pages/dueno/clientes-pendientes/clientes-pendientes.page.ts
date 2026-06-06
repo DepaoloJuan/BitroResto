@@ -9,6 +9,7 @@ import { checkmarkOutline, closeOutline, checkmarkCircleOutline } from 'ionicons
 import { SupabaseService } from '../../../core/services/supabase';
 import { AuthService } from '../../../core/services/auth';
 import { NotificacionesService } from '../../../core/services/notificaciones';
+import { HapticsService } from '../../../core/services/haptics.service';
 import { LoadingComponent } from '../../../shared/components/loading/loading.component';
 import { Usuario } from '../../../core/models';
 import { RealtimeChannel } from '@supabase/supabase-js';
@@ -31,6 +32,7 @@ export class ClientesPendientesPage implements OnInit {
   private readonly supabase = inject(SupabaseService);
   private readonly authService = inject(AuthService);
   private readonly notificaciones = inject(NotificacionesService);
+  private readonly haptics = inject(HapticsService);
   private readonly destroyRef = inject(DestroyRef);
 
   clientes = signal<ClienteUI[]>([]);
@@ -92,6 +94,7 @@ export class ClientesPendientesPage implements OnInit {
       setTimeout(() => this.cargarClientes(), 1500);
     } catch (e: unknown) {
       cliente._error = (e as Error).message || 'Error al aprobar el cliente.';
+      await this.haptics.error();
     }
   }
 
@@ -109,6 +112,7 @@ export class ClientesPendientesPage implements OnInit {
       setTimeout(() => this.cargarClientes(), 1500);
     } catch (e: unknown) {
       cliente._error = (e as Error).message || 'Error al rechazar el cliente.';
+      await this.haptics.error();
     }
   }
 }
