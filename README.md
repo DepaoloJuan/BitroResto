@@ -214,7 +214,7 @@ Mientras espera su pedido, el cliente registrado puede jugar a memoria, ahorcado
 
 | | | |
 |---|---|---|
-| ![Login](assets/login_screen.png) | ![Registro](assets/registro_screen.png) | ![Registro Anónimo](assets/registro_scree.png) |
+| ![Login](assets/img/login_screen.png) | ![Registro](assets/registro_screen.png) | ![Registro Anónimo](assets/registro_scree.png) |
 | Login | Registro cliente | Registro anónimo |
 
 ### Flujo del cliente registrado
