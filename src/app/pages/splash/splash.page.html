@@ -1,4 +1,4 @@
-<ion-content class="splash-content">
+<!-- <ion-content class="splash-content">
   <div class="splash-container">
     <div class="logo-wrapper" [class.animado]="animando()">
       <img src="assets/img/splash.png" alt="Logo" class="logo" />
@@ -8,5 +8,35 @@
       <p>Cespedes, Carmen</p>
       <p>Caballero, Jorge</p>
     </div>
+  </div>
+</ion-content>
+ -->
+<ion-content class="splash-content">
+  <div class="splash-container">
+
+    <div class="logo-stage">
+
+      <!-- Logo 1 + integrantes (fase 1) -->
+      <div class="fase1" [class.exit]="logo1Saliendo()">
+        <div class="logo1-wrap" [class.animado]="animando()">
+          <div class="ring-pulse"></div>
+          <div class="ring-pulse2"></div>
+          <img src="assets/img/splash.png" alt="Logo" />
+        </div>
+        <div class="divider-line" [class.visible]="mostrarContenido()"></div>
+        <div class="integrantes" [class.visible]="mostrarIntegrantes()">
+          <p>Depaolo, Juan Manuel</p>
+          <p>Cespedes, Carmen</p>
+          <p>Caballero, Jorge</p>
+        </div>
+      </div>
+
+      <!-- Logo 2 cubre toda la pantalla (fase 2) -->
+      <div class="logo2-wrap" [class.enter]="logo2Entrando()">
+        <img src="assets/img/logo_2.png" alt="Logo 2" />
+      </div>
+
+    </div>
+
   </div>
 </ion-content>

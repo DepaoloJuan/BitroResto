@@ -102,7 +102,6 @@ export class EncuestaPage implements OnInit {
     if (history.state?.desdePago) this.desdePago.set(true);
 
     await this.obtenerMesa();
-    console.log('mesaId:', this.mesaId); 
     await this.verificarEncuesta();
 
     await this.cargarFacturaExistente();

@@ -38,7 +38,7 @@
     height: 320px;
     border-radius: 2px;
     animation: float 3.5s ease-in-out infinite;
-    margin-top: -30px;
+    margin-top: -50px;
     margin-bottom: -100px;
   }
 
@@ -46,6 +46,7 @@
     font-size: 1.2rem;
     color: var(--color-letras);
     margin: 6px 0 0;
+    margin-top: -10px;
   }
 }
 
@@ -60,6 +61,7 @@
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255,255,255,0.12);
   animation: fadeSlideUp 0.5s ease-out 0.1s both;
+ /*  margin-top: -50px; */
 }
 
 .input-item {
@@ -71,6 +73,7 @@
 
   ion-label {
     color: var(--color-letras) !important;
+    font-size: 18px;
   }
 }
 
@@ -105,8 +108,8 @@
 
 .btn-link {
   color: var(--color-letras);
-  margin: 0;
-  font-size: 0.82rem;
+  margin: 5px;
+  font-size: 1.0rem;
 }
 
 /* ── ACCESO RÁPIDO ── */
@@ -197,4 +200,9 @@
 .rol-hint {
   font-size: 0.8rem;
   color: var(--color-letras);
+}
+
+ion-input {
+  color: var(--color-marron);
+  font-size: 18px;
 }
