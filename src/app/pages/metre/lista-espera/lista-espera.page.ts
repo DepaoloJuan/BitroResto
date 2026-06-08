@@ -79,7 +79,8 @@ export class ListaEsperaPage implements OnInit {
     this.canal = this.supabase.client
       .channel('lista_espera_cambios')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'lista_espera' },
-        async () => this.ngZone.run(async () => {
+        async (payload) => this.ngZone.run(async () => {
+           console.log('REALTIME INSERT lista_espera:', payload);
           await this.notificaciones.enviar('Nueva solicitud de mesa', 'Hay un cliente esperando una mesa.');
           await this.cargarClientes();
         }))

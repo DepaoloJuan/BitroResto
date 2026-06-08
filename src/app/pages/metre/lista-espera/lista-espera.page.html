@@ -1,7 +1,7 @@
 <ion-header>
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-back-button defaultHref="/metre" text=""></ion-back-button>
+      <ion-back-button defaultHref="/metre" te></ion-back-button>
     </ion-buttons>
     <ion-title>Lista de Espera</ion-title>
   </ion-toolbar>
@@ -73,10 +73,6 @@
           <ion-button expand="block" color="primary" (click)="asignarMesa(cliente)" [disabled]="!cliente._mesa_seleccionada">
             <ion-icon name="checkmark-outline" slot="start"></ion-icon>
             Asignar mesa
-          </ion-button>
-          <ion-button expand="block" color="danger" fill="outline" (click)="rechazarCliente(cliente)">
-            <ion-icon name="close-outline" slot="start"></ion-icon>
-            Rechazar
           </ion-button>
 
           @if (cliente._exito) {

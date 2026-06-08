@@ -1,9 +1,58 @@
+ion-content {
+  --background: #2c3d1c;
+  --padding-top: 0;
+  --padding-bottom: 0;
+  --padding-start: 0;
+  --padding-end: 0;
+}
+
+ion-footer ion-toolbar {
+  --background: #3a4f28;
+  --border-color: rgba(255, 220, 163, 0.1);
+
+  ion-item {
+    --background: transparent;
+    --color: #ffdca3;
+  }
+
+  ion-input {
+    --color: #ffdca3;
+    --placeholder-color: rgba(255, 220, 163, 0.45);
+  }
+
+  ion-button {
+    --color: #ea5929;
+  }
+}
+
 .chat-container {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  padding: 8px;
+  padding: 12px;
   min-height: 100%;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  text-align: center;
+  color: rgba(255, 220, 163, 0.45);
+  padding: 48px 24px;
+
+  ion-icon {
+    font-size: 4rem;
+    margin-bottom: 12px;
+    color: #ea5929;
+  }
+
+  p {
+    font-size: 1rem;
+    margin: 0;
+  }
 }
 
 .mensaje {
@@ -11,43 +60,53 @@
 
   &.mensaje-cliente {
     justify-content: flex-end;
+
     .burbuja {
-      background: #eb6121;
+      background: #ea5929;
       color: #ffdca3;
-      border-radius: 12px 0 12px 12px;
+      border-radius: 16px 4px 16px 16px;
     }
   }
 
   &.mensaje-mozo {
     justify-content: flex-start;
+
     .burbuja {
       background: #3a4f28;
+      border: 1px solid rgba(255, 220, 163, 0.12);
       color: #ffdca3;
-      border-radius: 0 12px 12px 12px;
+      border-radius: 4px 16px 16px 16px;
     }
   }
 }
 
 .burbuja {
   max-width: 75%;
-  padding: 8px 12px;
+  padding: 10px 14px;
 
   .remitente {
-    font-size: 0.7rem;
-    font-weight: bold;
+    font-size: 0.72rem;
+    font-weight: 700;
     margin: 0 0 2px;
     color: rgba(255, 220, 163, 0.75);
   }
 
+  .mesa {
+    font-size: 0.7rem;
+    margin: 0 0 4px;
+    color: rgba(255, 220, 163, 0.55);
+  }
+
   .texto {
     margin: 0;
-    font-size: 0.9rem;
+    font-size: 0.95rem;
+    line-height: 1.4;
   }
 
   .fecha {
     font-size: 0.7rem;
-    margin: 2px 0 0;
-    opacity: 0.7;
+    margin: 4px 0 0;
+    opacity: 0.6;
     text-align: right;
   }
 }

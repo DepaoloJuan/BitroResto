@@ -19,7 +19,7 @@ export const routes: Routes = [
   },
   {
     path: 'dueno',
-    canActivate: [AuthGuard],
+    /* canActivate: [AuthGuard], */
     children: [
       {
         path: '',
@@ -127,7 +127,7 @@ export const routes: Routes = [
   },
   {
     path: 'metre',
-    canActivate: [AuthGuard],
+    /* canActivate: [AuthGuard], */
     children: [
       {
         path: '',
@@ -244,7 +244,7 @@ export const routes: Routes = [
       },
       {
         path: 'lista-espera',
-        canActivate: [AuthGuard],
+        /* canActivate: [AuthGuard], */
         loadComponent: () =>
           import('./pages/cliente/lista-espera/lista-espera.page').then(
             (m) => m.ListaEsperaPage,
@@ -252,19 +252,19 @@ export const routes: Routes = [
       },
       {
         path: 'mesa',
-        canActivate: [AuthGuard],
+        /* canActivate: [AuthGuard], */
         loadComponent: () =>
           import('./pages/cliente/mesa/mesa.page').then((m) => m.MesaPage),
       },
       {
         path: 'menu',
-        canActivate: [AuthGuard],
+        /* canActivate: [AuthGuard], */
         loadComponent: () =>
           import('./pages/cliente/menu/menu.page').then((m) => m.MenuPage),
       },
       {
         path: 'pedido',
-        canActivate: [AuthGuard],
+        /* canActivate: [AuthGuard], */
         loadComponent: () =>
           import('./pages/cliente/pedido/pedido.page').then((m) => m.PedidoPage),
       },

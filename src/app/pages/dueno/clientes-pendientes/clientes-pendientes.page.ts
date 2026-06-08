@@ -105,9 +105,13 @@ export class ClientesPendientesPage implements OnInit {
       const { error } = await this.supabase.client
         .from('usuarios').update({ estado: 'rechazado' }).eq('id', cliente.id);
       if (error) throw error;
-      await this.supabase.client.functions.invoke('enviar-correo', {
+       await this.supabase.client.functions.invoke('enviar-correo', {
         body: { email: cliente.email, nombre: cliente.nombre, accion: 'rechazado', auth_id: cliente.auth_id },
+        headers: {
+          Authorization: `Bearer ${(await this.supabase.client.auth.getSession()).data.session?.access_token}`,
+        }
       });
+      
       cliente._exito = 'Cliente rechazado.';
       setTimeout(() => this.cargarClientes(), 1500);
     } catch (e: unknown) {
