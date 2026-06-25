@@ -35,6 +35,7 @@ import { CamaraService } from '../../../core/services/camara.service';
 import { HapticsService } from '../../../core/services/haptics.service';
 import { FormRegistro } from '../../../core/models';
 import { RealtimeChannel } from '@supabase/supabase-js';
+import { NotificacionesService } from '../../../core/services/notificaciones';
 
 type EstadoRegistro = 'pendiente' | 'aprobado' | 'rechazado';
 
@@ -69,6 +70,7 @@ export class RegistroPage {
   private readonly haptics = inject(HapticsService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly notificaciones = inject(NotificacionesService);
 
   private readonly formVacio: FormRegistro = {
     nombre: '',
@@ -178,6 +180,11 @@ export class RegistroPage {
           } else if (nuevoEstado === 'rechazado') {
             this.estadoRegistro.set('rechazado');
             this.esperandoAprobacion.set(false);
+            await this.notificaciones.enviarAUsuario(
+              usuarioId,
+              'Solicitud rechazada',
+              'Tu solicitud fue rechazada. Comunicate con el local para más información.'
+            );
             setTimeout(() => this.router.navigate(['/login']), 3000);
           }
         },
@@ -251,7 +258,10 @@ export class RegistroPage {
         .select('id')
         .eq('auth_id', data.user.id)
         .single();
-      if (usuarioTabla) this.escucharEstado(usuarioTabla.id);
+      if (usuarioTabla) {
+        await this.notificaciones.guardarToken(usuarioTabla.id); // 👈 agregar
+        this.escucharEstado(usuarioTabla.id);
+      }
     } catch (e: unknown) {
       await this.haptics.error();
       this.errorGeneral.set(

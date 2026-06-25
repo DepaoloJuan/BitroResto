@@ -79,7 +79,7 @@ export class ClientesPendientesPage implements OnInit {
       const { error } = await this.supabase.client
         .from('usuarios').update({ estado: 'aprobado' }).eq('id', cliente.id);
       if (error) throw error;
-      await this.supabase.client.functions.invoke('enviar-correo', {
+      await this.supabase.client.functions.invoke('super-responder', {
         body: {
           email: cliente.email,
           nombre: cliente.nombre,
@@ -105,7 +105,7 @@ export class ClientesPendientesPage implements OnInit {
       const { error } = await this.supabase.client
         .from('usuarios').update({ estado: 'rechazado' }).eq('id', cliente.id);
       if (error) throw error;
-       await this.supabase.client.functions.invoke('enviar-correo', {
+       await this.supabase.client.functions.invoke('super-responder', {
         body: { email: cliente.email, nombre: cliente.nombre, accion: 'rechazado', auth_id: cliente.auth_id },
         headers: {
           Authorization: `Bearer ${(await this.supabase.client.auth.getSession()).data.session?.access_token}`,
