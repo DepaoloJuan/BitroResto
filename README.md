@@ -1,5 +1,7 @@
 # BitroResto
 
+![BITRO](./src/assets/gif/gif-bitro.gif)
+
 Aplicación mobile para la gestión integral de un restaurante. Permite a los clientes registrarse, anotarse en lista de espera, escanear el QR de su mesa, realizar pedidos, jugar mientras esperan, completar una encuesta de satisfacción y pedir la cuenta. El personal del restaurante (metre, mozo, cocinero, cantinero, dueño y supervisor) cuenta con vistas propias para administrar cada etapa del servicio.
 
 ---
