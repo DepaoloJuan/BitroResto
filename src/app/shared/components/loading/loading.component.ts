@@ -1,46 +1,26 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { trigger, transition, style, animate } from '@angular/animations';
+import { trigger, transition, style, animate, keyframes } from '@angular/animations';
 import { IonSpinner } from '@ionic/angular/standalone';
 
 @Component({
   selector: 'app-loading',
   imports: [IonSpinner],
-  template: `
-    <div class="loading-wrapper">
-      <img src="assets/img/logo_2.png" class="loading-logo" alt="Logo" />
-      <ion-spinner name="crescent" color="primary"></ion-spinner>
-    </div>
-  `,
-  styles: [`
-    :host {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 100%;
-      height: 100%;
-    }
-    .loading-wrapper {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 16px;
-      padding: 32px;
-    }
-    .loading-logo { width: 64px; height: 64px; border-radius: 14px; opacity: 0.9; }
-  `],
+  templateUrl: './loading.component.html',
+  styleUrl: './loading.component.scss',
   animations: [
     trigger('fadeInOut', [
       transition(':enter', [
-        style({ opacity: 0, transform: 'scale(0.92)' }),
-        animate('200ms ease-out', style({ opacity: 1, transform: 'scale(1)' })),
+        style({ opacity: 0 }),
+        animate('5000ms ease-out', style({ opacity: 1 })),
       ]),
       transition(':leave', [
-        animate('600ms ease-in', style({ opacity: 0, transform: 'scale(0.92)' })),
+        animate('5000ms ease-in', keyframes([
+          style({ opacity: 1, transform: 'rotate(0deg)',   offset: 0 }),
+          style({ opacity: 0, transform: 'rotate(180deg)', offset: 1 }),
+        ])),
       ]),
     ]),
   ],
-  host: { '[@fadeInOut]': 'true' },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LoadingComponent {}

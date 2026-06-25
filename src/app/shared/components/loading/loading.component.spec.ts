@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
+import { provideAnimations } from '@angular/platform-browser/animations';
 
 import { LoadingComponent } from './loading.component';
 
@@ -9,8 +9,8 @@ describe('LoadingComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [ LoadingComponent ],
-      imports: [IonicModule.forRoot()]
+      imports: [LoadingComponent],
+      providers: [provideAnimations()] 
     }).compileComponents();
 
     fixture = TestBed.createComponent(LoadingComponent);
