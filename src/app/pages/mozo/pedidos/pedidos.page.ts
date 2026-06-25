@@ -210,7 +210,6 @@ export class PedidosPage implements OnInit {
         .eq('mesa_id', pedido.mesa_id)
         .not('estado', 'in', '("pagado","cancelado")');
 
-      console.log('e1:', e1);
       if (e1) throw e1;
 
       const { error: e2 } = await this.supabase.client
@@ -235,9 +234,8 @@ export class PedidosPage implements OnInit {
         .from('pedidos')
         .select('usuario_id')
         .eq('mesa_id', pedido.mesa_id)
-        .eq('estado', 'pagado')
         .limit(1)
-        .maybeSingle();
+        .single();
 
       if (e4) throw e4;
 
@@ -468,3 +466,4 @@ export class PedidosPage implements OnInit {
     });
   }
 }
+
