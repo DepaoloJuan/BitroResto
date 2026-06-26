@@ -1,7 +1,7 @@
 <ion-header>
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-back-button defaultHref="/cliente/mesa"></ion-back-button>
+      <ion-back-button defaultHref="/cliente/mesa" text=""></ion-back-button>
     </ion-buttons>
     <ion-title>Mi Cuenta</ion-title>
   </ion-toolbar>
@@ -97,24 +97,24 @@
       <ion-card-content>
         <ion-item lines="none" color="primary">
           <ion-label><strong>Subtotal</strong></ion-label>
-          <ion-note slot="end" style="color:white">${{ pedido()!.total }}</ion-note>
+          <ion-note slot="end" style="color:#f2dab4">${{ pedido()!.total }}</ion-note>
         </ion-item>
         @if (descuento() > 0) {
           <ion-item lines="none" color="primary">
             <ion-label><strong>Descuento {{ descuento() }}%</strong></ion-label>
-            <ion-note slot="end" style="color:white">-${{ montoDescuento() }}</ion-note>
+            <ion-note slot="end" style="color:#f2dab4">-${{ montoDescuento() }}</ion-note>
           </ion-item>
         }
         @if (propinaPorcentaje() > 0) {
           <ion-item lines="none" color="primary">
             <ion-label><strong>Propina {{ propinaPorcentaje() }}%</strong></ion-label>
-            <ion-note slot="end" style="color:white">+${{ montoPropina() }}</ion-note>
+            <ion-note slot="end" style="color:#f2dab4">+${{ montoPropina() }}</ion-note>
           </ion-item>
         }
         <ion-item lines="none" color="primary">
           <ion-label><h1><strong>TOTAL</strong></h1></ion-label>
           <ion-note slot="end">
-            <h1 style="color:white; font-size: 1.8rem"><strong>${{ totalFinal() }}</strong></h1>
+            <h1 style="color:#f2dab4; font-size: 1.8rem"><strong>${{ totalFinal() }}</strong></h1>
           </ion-note>
         </ion-item>
       </ion-card-content>

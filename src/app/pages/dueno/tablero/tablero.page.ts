@@ -56,7 +56,7 @@ export class TableroPague implements OnInit {
   readonly donutColors     = ['#2ec27e', '#e5a50a', '#e01b24'];
   readonly donutLabels     = ['Sí', 'Tal vez', 'No'];
   readonly donutLegend     = { labels: { colors: ['#ffdca3', '#ffdca3', '#ffdca3'] }, fontSize: '13px' };
-  readonly donutDataLabels = { style: { colors: ['#fff', '#fff', '#fff'] } };
+  readonly donutDataLabels = { style: { colors: ['#f2dab4', '#f2dab4', '#f2dab4'] } };
   readonly donutTooltip    = { theme: 'dark' };
 
   readonly encuestasVacias  = computed(() => this.promedioAtencion() === 0 && this.promedioComida() === 0);

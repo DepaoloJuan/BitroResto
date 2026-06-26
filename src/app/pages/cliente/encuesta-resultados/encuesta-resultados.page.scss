@@ -1,72 +1,146 @@
-.grafico-header {
-  margin-bottom: 20px;
+ion-toolbar {
+  --background: var(--color-verde);
+  --color: var(--color-letras);
+  border-bottom: 3px solid var(--color-principal);
 
-  .grafico-contador {
-    color: rgba(242, 218, 180, 0.45);
-    font-size: 0.78rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    margin: 0 0 6px;
+  ion-back-button {
+    --color: var(--color-letras);
+    --icon-font-size: 26px;
+    width: 44px;
+    height: 44px;
+    border: 2.5px solid var(--color-principal);
+    border-radius: 12px;
   }
 
-  .grafico-titulo {
+  ion-title {
     color: var(--color-letras);
-    font-size: 1.25rem;
+    font-size: 24px;
     font-weight: 800;
-    margin: 0 0 4px;
-  }
-
-  .grafico-subtitulo {
-    color: rgba(242, 218, 180, 0.55);
-    font-size: 0.82rem;
-    margin: 0 0 6px;
-  }
-
-  .grafico-total {
-    color: rgba(242, 218, 180, 0.4);
-    font-size: 0.99rem;
-    margin: 0;
   }
 }
 
-.canvas-wrapper {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(242, 218, 180, 0.15);
-  border-radius: 18px;
-  padding: 20px 16px;
-  margin-bottom: 20px;
+ion-content {
+  --background: var(--color-verde);
 
-  canvas {
-    width: 100% !important;
-    max-height: 400px;
-  }
-}
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    gap: 20px;
 
-.dots-row {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 24px;
+    ion-icon {
+      font-size: 72px;
+      color: rgba(242, 218, 180, 0.3);
+    }
 
-  .dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: rgba(242, 218, 180, 0.2);
-    cursor: pointer;
-    transition: all 0.2s;
-
-    &.activo {
-      background: var(--color-principal);
-      width: 22px;
-      border-radius: 4px;
+    p {
+      color: rgba(242, 218, 180, 0.6);
+      font-size: 19px;
+      text-align: center;
+      margin: 0;
     }
   }
-}
 
-.navegacion {
-  display: flex;
-  justify-content: space-between;
+  .grafico-header {
+    padding: 26px 4px 14px;
+
+    .grafico-contador {
+      color: var(--color-principal);
+      font-size: 18px;
+      font-weight: 900;
+      letter-spacing: 2px;
+      margin: 0 0 12px;
+    }
+
+    .grafico-titulo {
+      color: var(--color-letras);
+      font-size: 26px;
+      font-weight: 900;
+      margin: 0 0 8px;
+      line-height: 1.2;
+    }
+
+    .grafico-subtitulo {
+      color: rgba(242, 218, 180, 0.8);
+      font-size: 17px;
+      font-weight: 500;
+      margin: 0 0 12px;
+    }
+
+    .grafico-total {
+      background: var(--color-principal);
+      color: var(--color-letras);
+      font-size: 14px;
+      font-weight: 800;
+      padding: 7px 18px;
+      border-radius: 24px;
+      display: inline-block;
+      margin: 0;
+    }
+  }
+
+  .canvas-wrapper {
+    background: rgba(242, 218, 180, 0.07);
+    border: 2px solid rgba(234, 89, 41, 0.4);
+    border-radius: 16px;
+    padding: 24px 18px 16px;
+    margin-bottom: 20px;
+
+    canvas { width: 100% !important; }
+  }
+
+  .dots-row {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 20px;
+
+    .dot {
+      width: 13px;
+      height: 13px;
+      border-radius: 50%;
+      background: rgba(242, 218, 180, 0.25);
+      cursor: pointer;
+      transition: all 0.2s ease;
+
+      &.activo {
+        width: 36px;
+        border-radius: 13px;
+        background: var(--color-principal);
+      }
+    }
+  }
+
+  .navegacion {
+    display: flex;
+    gap: 16px;
+
+    ion-button {
+      flex: 1;
+      --border-radius: 14px;
+      --padding-top: 16px;
+      --padding-bottom: 16px;
+      font-size: 18px;
+      font-weight: 800;
+
+      &[fill="outline"] {
+        --color: var(--color-letras);
+        --border-color: rgba(234, 89, 41, 0.4);
+        --border-width: 2.5px;
+
+        &[disabled] {
+          --color: rgba(242, 218, 180, 0.35);
+          --border-color: rgba(234, 89, 41, 0.2);
+        }
+      }
+
+      &:last-child {
+        --background: var(--color-principal);
+        --color: var(--color-letras);
+        font-weight: 900;
+      }
+    }
+  }
 }
